@@ -1,0 +1,9 @@
+[submodule "references/aflsmart"]
+	path = references/aflsmart
+	url = https://github.com/aflsmart/aflsmart.git
+[submodule "references/AFL"]
+	path = references/AFL
+	url = https://github.com/google/AFL.git
+[submodule "references/AFLplusplus"]
+	path = references/AFLplusplus
+	url = https://github.com/AFLplusplus/AFLplusplus.git
