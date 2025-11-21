@@ -7,3 +7,6 @@
 [submodule "references/AFLplusplus"]
 	path = references/AFLplusplus
 	url = https://github.com/AFLplusplus/AFLplusplus.git
+[submodule "references/pdfium"]
+	path = references/pdfium
+	url = https://pdfium.googlesource.com/pdfium
