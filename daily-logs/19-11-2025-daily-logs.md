@@ -33,10 +33,17 @@ trailer <</Root 1 0 R>>
 
 #### Explain
 Bình thường khi mở một file PDF thì Chrome sẽ render tại góc bên trên, tuy nhiên trong `<embed src="poc.pdf#view=fitb"></embed>` có từ khóa `fitb` (Fit Bounding Box) ép Chrome phải ngay lập tức tính toán Bounding Box của trang để xác định xem sẽ zoom màn hình lên như thế nào. Do đó, đoạn code này sẽ ngay lập tức trigger hàm `PDFiumPage::GetBoundingBox()` nơi mà đoạn bug xuất hiện.
-File `poc.pdf` có phần trailer khai báo rằng object 1 là object root (object gốc của 1 page). Do đó Chrome sẽ load object 1 là một page (do là object root) -> call `FPDFPage_GetRotation(page)` -> call `IsPageObject(page)` -> kiểm tra object 1 nhưng thiếu key `/Type` -> return false -> `GetBoundingBox()` nhận `-1` nhưng enum `Rotation` không có giá trị -1 ->  
+File `poc.pdf` có phần trailer khai báo rằng object 1 là object root (object gốc của 1 page). Do đó Chrome sẽ load object 1 là một page (do là object root) -> call `FPDFPage_GetRotation(page)` -> call `IsPageObject(page)` -> kiểm tra object 1 nhưng thiếu key `/Type` -> return false -> `GetBoundingBox()` nhận `-1` -> `GetRotatedRectF()` doesn't handle `rotation = -1` in `switch()` command because enum `Rotation` doesn't have value `-1`. 
+Vị trí của hàm `GetBoundingBox()` nằm trong file này https://github.com/chromium/chromium/blob/bd006e60820350dfb032fed121f30058e624fe35/pdf/pdfium/pdfium_page.cc#L331
 
 ## CVE-2025-1914
 
+## CVE-2024-7973
+### References
+CVE Information: https://nvd.nist.gov/vuln/detail/cve-2024-7973
+
+### Description
+Heap buffer overflow in PDFium in Google Chrome prior to 128.0.6613.84 allowed a remote attacker to perform an out of bounds memory read via a crafted PDF file. (Chromium security severity: Medium)
 
 
 # How to analysis CVE
@@ -71,12 +78,10 @@ File `poc.pdf` có phần trailer khai báo rằng object 1 là object root (obj
 - là builtin tool của compiler (gcc hoặc clang)
 - nguyên lý hoạt động là instrument code để thêm các extra checks quanh các biến và những đoạn cấp phát bộ nhớ, nếu chương trình truy cập vào những vùng nhớ không cho phép thì ASan sẽ dừng chương trình ngay lập tức và in ra lỗi.
 -> PHẢI ĐỌC THÊM TÀI LIỆU VỀ CÁI NÀY SAU
-
 2.2 optimization
 - mục đích: khiến chương trình chạy nhanh hơn và tốn ít bộ nhớ hơn
 - nguyên lí hoạt động là nó sẽ phân tích logic và viết lại code sao cho tối ưu hơn cho CPU mà chức năng vẫn không đổi.
 - tuy nhiên điều này cũng khó hơn cho việc debug bằng gdb vì mã máy lúc này đã không còn khớp với source code nữa.
-
 
 3. `file` command
 - xác định loại type dựa trên nội dung thay vì dựa trên extension
@@ -104,4 +109,8 @@ File `poc.pdf` có phần trailer khai báo rằng object 1 là object root (obj
 
 8. `optional` trong C++ là gì?
 Được sử dụng để ngăn chặn việc sử dụng `return -1` hoặc tương tự để báo lỗi. Cụ thể, nó báo hiệu rằng có thể trả về giá trị hoặc không trả về gì cả. Bình thường, các hàm sẽ trả về `-1` nếu có lỗi xảy ra, tuy nhiên, những nơi sử dụng các hàm đó có thể quên không xử lý trưởng hợp `-1` này và có thể làm chương trình gặp lỗi không xác định. 
-9. Định dạng của file PDF là gì?
+9. Định dạng `.deb` và `.rpm` khác nhau như thế nào?
+- They are packages that contain all the files needed to install a software application.
+- The difference lies in which "family" of Linux, `.deb` is for Debian Package, used by UBuntu, Kali,..., `.rpm` is for Red Hat Package Manager, used by Fedora, CentOS,...
+- Run the install command `sudo apt install ./filename.deb`
+10. Định dạng của file PDF là gì?
