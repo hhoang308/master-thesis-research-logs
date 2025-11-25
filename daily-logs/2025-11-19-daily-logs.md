@@ -32,9 +32,85 @@ trailer <</Root 1 0 R>>
 ```
 
 #### Explain
-Bình thường khi mở một file PDF thì Chrome sẽ render tại góc bên trên, tuy nhiên trong `<embed src="poc.pdf#view=fitb"></embed>` có từ khóa `fitb` (Fit Bounding Box) ép Chrome phải ngay lập tức tính toán Bounding Box của trang để xác định xem sẽ zoom màn hình lên như thế nào. Do đó, đoạn code này sẽ ngay lập tức trigger hàm `PDFiumPage::GetBoundingBox()` nơi mà đoạn bug xuất hiện.
-File `poc.pdf` có phần trailer khai báo rằng object 1 là object root (object gốc của 1 page). Do đó Chrome sẽ load object 1 là một page (do là object root) -> call `FPDFPage_GetRotation(page)` -> call `IsPageObject(page)` -> kiểm tra object 1 nhưng thiếu key `/Type` -> return false -> `GetBoundingBox()` nhận `-1` -> `GetRotatedRectF()` doesn't handle `rotation = -1` in `switch()` command because enum `Rotation` doesn't have value `-1`. 
-Vị trí của hàm `GetBoundingBox()` nằm trong file này https://github.com/chromium/chromium/blob/bd006e60820350dfb032fed121f30058e624fe35/pdf/pdfium/pdfium_page.cc#L331
+Bình thường khi mở một file PDF thì Chrome sẽ render tại góc bên trên, tuy nhiên trong `<embed src="poc.pdf#view=fitb"></embed>` có từ khóa `fitb` (Fit Bounding Box) ép Chrome phải ngay lập tức tính toán Bounding Box của trang để xác định xem sẽ zoom lên như thế nào. Do đó, đoạn code này sẽ ngay lập tức trigger hàm `PDFiumPage::GetBoundingBox()` nơi mà đoạn bug xuất hiện.
+![getrotationfromrawvalue](image-8.png)
+
+File `poc.pdf` có phần trailer khai báo rằng object 1 là object root (object gốc của 1 page). Do đó Chrome sẽ load object 1 là một page (do là object root) $\to$ call `FPDFPage_GetRotation(page)` 
+```c++
+FPDF_EXPORT int FPDF_CALLCONV FPDFPage_GetRotation(FPDF_PAGE page) {
+  CPDF_Page* pPage = CPDFPageFromFPDFPage(page);
+  return IsPageObject(pPage) ? pPage->GetPageRotation() : -1;
+}
+```
+$\to$ call `IsPageObject(page)` 
+```c++
+bool IsPageObject(CPDF_Page* pPage) {
+  if (!pPage)
+    return false;
+
+  RetainPtr<const CPDF_Dictionary> pFormDict = pPage->GetDict();
+  if (!pFormDict->KeyExist(pdfium::page_object::kType))
+    return false;
+
+  RetainPtr<const CPDF_Name> pName =
+      ToName(pFormDict->GetObjectFor(pdfium::page_object::kType)->GetDirect());
+  return pName && pName->GetString() == "Page";
+}
+```
+$\to$ kiểm tra object 1 nhưng thiếu key `/Type` $\rightarrow$ return `false` $\to$ `rotation` nhận giá trị `-1`
+$\to$ `GetRotatedRectF()` không xử lý `rotation = -1` trong `switch()` bởi vì enum `Rotation` không có giá trị `-1`. 
+```c++
+gfx::RectF GetRotatedRectF(PageRotation rotation,
+                           gfx::SizeF page_size,
+                           const PdfRect& original_bounds) {
+  PdfRect bounds;
+
+  // When the page is rotated 90 degrees or 270 degrees, the page width and
+  // height are swapped. Swap it back for calculations.
+  if (rotation == PageRotation::kRotate90 ||
+      rotation == PageRotation::kRotate270) {
+    page_size.Transpose();
+  }
+
+  switch (rotation) {
+    case PageRotation::kRotate0: {
+      bounds = original_bounds;
+      break;
+    }
+    case PageRotation::kRotate90: {
+      bounds = PdfRect(
+          /*left=*/original_bounds.bottom(),
+          /*bottom=*/page_size.width() - original_bounds.right(),
+          /*right=*/original_bounds.top(),
+          /*top=*/page_size.width() - original_bounds.left());
+      break;
+    }
+    case PageRotation::kRotate180: {
+      bounds = PdfRect(
+          /*left=*/page_size.width() - original_bounds.right(),
+          /*bottom=*/page_size.height() - original_bounds.top(),
+          /*right=*/page_size.width() - original_bounds.left(),
+          /*top=*/page_size.height() - original_bounds.bottom());
+      break;
+    }
+    case PageRotation::kRotate270: {
+      bounds = PdfRect(
+          /*left=*/page_size.height() - original_bounds.top(),
+          /*bottom=*/original_bounds.left(),
+          /*right=*/page_size.height() - original_bounds.bottom(),
+          /*top=*/original_bounds.right());
+      break;
+    }
+  }
+
+  return bounds.AsGfxRectF();
+}
+```
+Nếu muốn không sửa đổi thư viện thì cần thêm một hàm xử lý đối với trường hợp trả về `-1`, ép nó thành dạng `nullopt` và `return` luôn.
+![from raw value](image-9.png)
+
+Vị trí của hàm `GetRotatedRectF()` nằm trong file này https://github.com/chromium/chromium/blob/bd006e60820350dfb032fed121f30058e624fe35/pdf/pdfium/pdfium_page.cc#L331
+
 
 ## CVE-2025-1914
 
@@ -52,7 +128,7 @@ Heap buffer overflow in PDFium in Google Chrome prior to 128.0.6613.84 allowed a
 2. Phân tích source code để hiểu các tính năng thực sự hoạt động như thế nào
 3. Sử dụng thư viện được audit liên tục luôn luôn an toàn hơn là tự bản thân implement một cái khác với tính năng tương đương
 4. Compile với tuỳ chọn ASAN (address sanitizer) và biên dịch với tuỳ chọn không sử dụng optimizaiton để debug bằng assembly cho dễ
-5. Ưu tiên fuzzing những thứ mà ít người fuzzing -> tăng khả năng có lỗi
+5. Ưu tiên fuzzing những thứ mà ít người fuzzing $\to$ tăng khả năng có lỗi
 6. Sử dụng gdb để tìm backtrace và phân tích source code
 7. Cùng một vùng có thể có nhiều chỗ có vulnerability
 8. Mục tiêu là chiếm quyền kiểm soát instruction pointer để thực thi code tại một vùng nhớ mình mong muốn
@@ -68,16 +144,16 @@ Heap buffer overflow in PDFium in Google Chrome prior to 128.0.6613.84 allowed a
 -------------------------------------------------------
 # Additional Information
 1. `ldd` = list dynamic dependencies
--> print the shared libraries required by each program and its mapping resolution (if the library was found)
--> `linux-vdso.so.1` and `linux-gate.so.1` is virtual shared object provided by the kernel to speed up system calls.
--> don't use `ldd` on untrusted binary because it may attempt to execute the program to determine its dependencies, use `objdump` or `readelf` instead.
+$\to$ print the shared libraries required by each program and its mapping resolution (if the library was found)
+$\to$ `linux-vdso.so.1` and `linux-gate.so.1` is virtual shared object provided by the kernel to speed up system calls.
+$\to$ don't use `ldd` on untrusted binary because it may attempt to execute the program to determine its dependencies, use `objdump` or `readelf` instead.
 
 2. compiler flags
 2.1 address sanitizer
 - mục đích: tìm bugs memory corruption tại runtime
 - là builtin tool của compiler (gcc hoặc clang)
 - nguyên lý hoạt động là instrument code để thêm các extra checks quanh các biến và những đoạn cấp phát bộ nhớ, nếu chương trình truy cập vào những vùng nhớ không cho phép thì ASan sẽ dừng chương trình ngay lập tức và in ra lỗi.
--> PHẢI ĐỌC THÊM TÀI LIỆU VỀ CÁI NÀY SAU
+$\to$ PHẢI ĐỌC THÊM TÀI LIỆU VỀ CÁI NÀY SAU
 2.2 optimization
 - mục đích: khiến chương trình chạy nhanh hơn và tốn ít bộ nhớ hơn
 - nguyên lí hoạt động là nó sẽ phân tích logic và viết lại code sao cho tối ưu hơn cho CPU mà chức năng vẫn không đổi.
@@ -101,8 +177,8 @@ Heap buffer overflow in PDFium in Google Chrome prior to 128.0.6613.84 allowed a
 - theo mình hiểu thì nó có tác dụng giống extensions trong vscode giúp Ctrl + F sẽ "nhảy" giữa các hàm để trace code tốt hơn, nhưng cái tool này dùng trong vims thì phải.
 
 6. PDF không phải ngôn ngữ như C++ hay Python nên không tồn tại Abstract Syntax Tree, nhưng vẫn tồn tại khái niệm tương tự là Object Hierachy (hay còn được gọi là COS Tree). Nếu mục đích là phân tích CVE để tìm ra điểm chung các bugs nằm ở đâu trong PDF tree thì cần tập trung vào các lỗi liên quan đến `parsing`, `logic`, `type confusion`, `use-after-free`, `recursion issue`, những lỗi thường được tìm thấy bằng `AST mutation`, tránh những lỗi liên quan đến `buffer overflow`,...
--> COS Tree là viết tắt của cái gì thế?
--> có đúng là các lỗi mà AST mutation tìm được thường là các lỗi liên quan đến `parsing`, `logic`, `type confusion`, `use-after-free`, `recursion issue` không? những lỗi liên quan đến memory như `buffer over flow` 
+$\to$ COS Tree là viết tắt của cái gì thế?
+$\to$ có đúng là các lỗi mà AST mutation tìm được thường là các lỗi liên quan đến `parsing`, `logic`, `type confusion`, `use-after-free`, `recursion issue` không? những lỗi liên quan đến memory như `buffer over flow` 
 
 7. `PDFium` repo chứa core library (parsing, rendering, logic) 
 `Chromium` repo là browser có sử dụng `PDFium`
@@ -114,3 +190,5 @@ Heap buffer overflow in PDFium in Google Chrome prior to 128.0.6613.84 allowed a
 - The difference lies in which "family" of Linux, `.deb` is for Debian Package, used by UBuntu, Kali,..., `.rpm` is for Red Hat Package Manager, used by Fedora, CentOS,...
 - Run the install command `sudo apt install ./filename.deb`
 10. Định dạng của file PDF là gì?
+11. `embed` tag trong HTML?
+Được sử dụng để "nhúng" nội dung ngoài hoặc media files (ảnh, video,...) trực tiếp vào trang web. Trong tag `embed` bình thường chỉ có các attributes như width, height, src,... chứ không có `#view=fitb`. Cái `#view=fitb` này là PDF Open Parameter, được truyền trực tiếp vào `PDF Viewer` (trong trường hợp này là PDFium). 
