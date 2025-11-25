@@ -132,6 +132,7 @@ Heap buffer overflow in PDFium in Google Chrome prior to 128.0.6613.84 allowed a
 6. Sử dụng gdb để tìm backtrace và phân tích source code
 7. Cùng một vùng có thể có nhiều chỗ có vulnerability
 8. Mục tiêu là chiếm quyền kiểm soát instruction pointer để thực thi code tại một vùng nhớ mình mong muốn
+9. Kể cả trong trường hợp code base đã bị refactor (hoặc sửa đổi) thì việc phân tích source code cũ vẫn có nhiêù tác dụng.
 
 # Step-by-step
 
