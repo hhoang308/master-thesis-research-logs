@@ -38,6 +38,7 @@ Example below:
 - array object is a one-demensional collection of objects arranged sequentially and array object may be heterogenous (có thể chứa nhiều kiểu dữ liệu khác nhau).
 - dictionary object is an associative table containing pairs of objects, known as the dictionary's entries. the first element of each entry is the key (shall be a name) and the second element is the value (may be any kind of object, including another dictionary). By convention, the `Type` entry identifies the type of object the dictionary describes and the value of `Type` should always be a name.
 - a stream object is a sequence of bytes with unlimited length, so that objects with potentially large amounts of data such as images and page descriptions shall be represented as streams.
+  ![stream example](image-21.png)
 
 #### 7.4 Filters
 
