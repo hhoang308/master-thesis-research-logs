@@ -31,6 +31,15 @@ Ví dụ về một DIR biểu diễn một file pdf chứa dòng text Hello Wor
 <Pair>    ::= <String> ":" <Value>
 <Value>   ::= <String> | <Number> | <Object> | <Array>
 ```
+hoặc
+```
+<email>       ::= <username> "@" <domain>
+<username>    ::= <letter> | <letter> <username>
+<domain>      ::= <server> "." <tld>
+<server>      ::= "gmail" | "yahoo" | "hotmail"
+<tld>         ::= "com" | "net" | "org"
+<letter>      ::= "a" | "b" | ... | "z"
+```
 - `generation-based fuzzing` là một phương pháp fuzzing mà fuzzer không bắt đầu với seed file (existing valid inputs) mà bắt đầu bằng `grammar model` để tạo input. Ưu điểm là gần như 100% các input tạo ra sẽ hợp lệ, nhược điểm là không tìm được các bug liên quan đến việc sửa data (trừ phi `grammar model` được thiết lập để cố tình làm điều này) và rất khó để viết được `grammar model` cho các định dạng phức tạp như PDF.
 - `structure aware mutation` là phương pháp mutate tận dụng lợi thế của các seed files và grammar. fuzzer sẽ tạo Abstract Syntax Tree (AST) dựa trên seed và mutate (swap, replace, delete, insert) trên các node hoặc cụm vài node của AST đó.
 
