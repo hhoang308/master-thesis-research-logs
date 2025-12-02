@@ -24,3 +24,9 @@ RDI - destination index pointer for string operations
 RSP - stack pointer
 RBP - stack frame base pointer
 RIP - instruction pointer (pointer to next instruction)
+### Instruction
+#### NOP
+- viết tắt của No-Operation, tức là không làm gì cả
+- không truyền thêm bất kì thanh ghi, giá trị nào cả
+- sử dụng để padding/align bytes hoặc delay
+- attackers sử dụng để đánh dấu là đã exploit thành công
