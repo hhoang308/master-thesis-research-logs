@@ -1,4 +1,4 @@
-## The Stack 
+## The Stack
 - `stack` là một khu vực "trừu tượng" nằm trong RAM mà OS cấp phát cho một chương trình khi chương trình đấy chạy. Tùy hệ điều hành và có sử dụng address space layout randomization (ASLR) hay không mà `stack` sẽ bắt đầu tại những vị trí khác nhau.
 ![process memory layout](image-3.png)
 - `RSP` trỏ đến đầu của `stack` tức nơi có địa chỉ bé nhất, những giá trị nào nằm ngoài khoảng xác định sẽ được coi là `undefined`
@@ -16,8 +16,8 @@ $\to$ Hiểu ngắn gọn là trong các kiến trúc hiện đại, người ta
 - `r/mX` can take 4 forms:
     - register $\to$ `rbx`
     - memory, base-only $\to$ `[rbx]`
-    - memory, base+index*scale $\to$ `[rbx+rcx\*X]`
-    - memory, base+index*scale+displacement $\to$ `[rbx+rvx\*X+Y]`
+    - memory, base+index*scale $\to$ `[rbx+rcx*X]`
+    - memory, base+index*scale+displacement $\to$ `[rbx+rvx*X+Y]`
 - `r/mX` example:
     - push register : `push rbx`
     - push memory : `push [rbx]`, `push [rbx+rcx*4]`, `push [rbx+rcx*8+0x20]`
