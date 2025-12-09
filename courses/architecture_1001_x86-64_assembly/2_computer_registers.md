@@ -17,7 +17,7 @@ x86-64 general purpose register
 
 ![x86-64 general purpose register](image-2.png)
 There is Intel's suggestions to compiler developers about register conventions, but register don't have to be used these way.
-RAX (R1) - stores functions return value
+RAX (R1) - stores functions return value. `eax` is 32-bits LSB of `rax`, `ax` is 16-bits LSB of `eax`, `AH` is 8-bits MSB of `ax` and `AL` is 8-bits LSB of `ax`.
 RCX - counter for string and loop operations
 RSI - source index pointer for string operations
 RDI - destination index pointer for string operations
