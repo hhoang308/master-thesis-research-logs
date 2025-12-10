@@ -39,7 +39,21 @@ for example
 Nếu bật tối ưu thì compiler sẽ bỏ qua hàm `func()` vì kết quả trả về của nó không được sử dụng.
 
 ### Assembly from Source
+#### Setting Visual Studio
+    1. Set as Startup Project
+    2. Debug Information Format $\to$ Program Database
+    3. Support Just My Code Debugging $\to$ No
+    4. Default Basic Runtime Checks
+    5. Disable Security Check
+    6. Disable Incremental Linking
+    7. Disable Randomized Base Address
+#### GDB
+Các lệnh trích xuất các thông tin sau bằng GDB
 
+    1. Registers
+    2. Memory (Address & Value)
+    3. Call stack
+    4. Disassembly
 ### How to read 2-operands instructions
 - Tham số: `destination` và `source` có thể viết dưới dạng `r/mX` chứ không được phép viết dưới dạng `r/mXs` vì dạng này cho phép memory to memory transfer, thứ mà kiến trúc x86 cấm.
 - `r/m` là viết tắt của register or memory, không bao gồm immediate (tức hằng số) trong assembly, ví dụ, `r/m32` là một thanh ghi hoặc memory location 32 bits.
