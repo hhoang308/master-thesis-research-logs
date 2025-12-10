@@ -28,6 +28,7 @@ for example
 
 ### Example
 ![example 1](image-10.png)
+Lưu ý rằng mỗi khi thực hiện lệnh thì `rsp` tự động bị dịch xuống 8 giá trị (trong trường hợp 64 bit như này).
 - Đầu tiên `rsp` sẽ chứa địa chỉ của `main()` frame trước khi nó được gọi, do đó nó không khớp với giá trị nào trong hàm `main()` cả.
 - `sub rsp, 28h` : do đây là `rsp` chứ không phải `[rsp]` nên `rsp = 14FE08h - 28h = 14FDE0`
 - `call func(0140001000h)` : cập nhật giá trị thanh ghi `rsp` thành `1'40001019` vì đây là lệnh kế tiếp ngay sau lệnh `call`, hiểu đơn giản là sau khi tính toán xong hàm `call` thì lệnh thực hiện tiếp theo sẽ là lệnh có địa chỉ `1'40001019`
