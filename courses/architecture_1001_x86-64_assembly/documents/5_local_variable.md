@@ -10,7 +10,7 @@ int main() {
     return func();
 }
 ```
-### Key
+### Solution
 ![stack frame](image-13.png)
 
 ## Exercise SingleLocalVariable2.c
