@@ -92,6 +92,31 @@ int main() {
 ```
 ### Solution
 ![solution for array local variable](image-29.png)
+## Excersise StructLocalVariable.c
+![struct local variable](image-30.png)
+```
+14fe08 : 1'40001389
+14fe00 :
+14fdfc :
+14fdf8 : 
+14fdf4 : 
+14fdf0 : xxxx'0ba1
+14fdec : b0ab'1edb
+14fde8 : 100d'xxxx
+14fde4 : xxxx'1edb
+14fde0 : cacb'xxxx
+14fddc : xxxx'xxxx
+14fdd8 : xxxx'ffff
+14fdd4 : babe'xxxx
+14fdd0 : xxxx'babe
+bytes  : 3 2  1 0  (lsb on the right)
+```
+### Solution
+![solution struct local variable](image-32.png)
+## Excersise
+
+### Solution
+
 ## Takeaways
 - `local variable` lead to an allocations of space on the stack, within the function where the variable is scoped to.
 - `0x18` reversed for only `0x4` (int) worth of data.
@@ -121,3 +146,5 @@ int main() {
 - `local variable` không nhất thiết phải lưu trong stack frame theo cùng thứ tự được khai báo tại ngôn ngữ lập trình bậc cao của nó. 
 - Trong Visual Studio ở chế độ unoptimization, truy cập mảng thường sẽ được thực hiện thông qua việc nhân kích cỡ một phần tử của mảng (trong ví dụ trên là `int` tức 4 bytes) với index muốn access (trong ví dụ trên là 1 và 4).
 - Khi chuyển giá trị bé vào một thanh ghi lớn hơn giá trị đó sẽ dẫn đến việc zero extend, phép cộng sử dụng số có dấu có thể dẫn đến sign extend nếu phép tính đó được thực hiện tại một thanh ghi lớn hơn giá trị biểu diễn.
+- `little endian` when stores value in memory, but `big endian` when represent value in assembly code because it is human-readable form.
+- các `attributes` trong `struct` phải được lưu trữ theo đúng thứ tự được định nghĩa trong struct đó tại high level language, do đó, `attribute` trên cùng sẽ có địa chỉ thấp nhất và các `attributes` sau sẽ nằm ở vị trí cao hơn.
