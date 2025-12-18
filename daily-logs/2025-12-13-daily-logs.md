@@ -26,4 +26,144 @@
 ### Đề xuất PDF-IR
 Đồ thị đối tượng có tuần tự hoá (Serializable Object Graph) với quyền kiểm soát chi tiết đối với cấu trúc vật lý của tệp
 1. Kiến trúc
+```
+// Root
+PDF-IR = {
+    // Phiên bản
+    Header: String,             // "%PDF-1.7" hoặc "%PDF-2.0"
+
+    // Danh sách đối tượng
+    Body: List<IndirectObject>, 
+
+    // Bảng tham chiếu
+    XRefTable: XRefStructure,   
+
+    // Từ điển chứa thông tin khởi tạo
+    Trailer: Dictionary,        // Chứa /Root, /Info, /Prev...
+
+    // Danh sách các bản cập nhật nối đuôi
+    IncrementalUpdates: List<UpdateBlock> 
+}
+
+// ---------------------------------------------------------
+// CHI TIẾT CÁC THÀNH PHẦN CON (SUB-STRUCTURES)
+// ---------------------------------------------------------
+
+// A. CẤU TRÚC ĐỐI TƯỢNG GIÁN TIẾP (INDIRECT OBJECT) - [2]
+// Đây là đơn vị cơ bản trong Body.
+IndirectObject = {
+    // Định danh đối tượng (theo chuẩn PDF)
+    ID: Integer,                // Mã số đối tượng (Object Number)
+    Generation: Integer,        // Số thế hệ (Generation Number)
+    
+    // Nội dung thực tế
+    Type: String,               // Ví dụ: "Dictionary", "Stream", "Array", "Integer"
+    Content: Data,              // Dữ liệu bên trong (Ví dụ: nội dung từ điển << /Key /Value >>)
+
+    // --- CÁC TRƯỜNG DÀNH RIÊNG CHO FUZZING (MUTATION METADATA) ---
+    // Cờ báo hiệu cho Serializer viết sai cú pháp cố ý
+    IsMalformed: Boolean,       // Nếu True: Viết thiếu dấu đóng ">>" hoặc "endobj"
+    
+    // Cờ gây nhầm lẫn kiểu (Type Confusion)
+    ForceTypeConfusion: Type    // Ví dụ: Content là Dictionary, nhưng ép Serializer ghi là Stream
+}
+
+// B. CẤU TRÚC ĐỐI TƯỢNG LUỒNG (STREAM) - [3]
+// Dùng để chứa dữ liệu lớn (ảnh, font). Đây là nơi gây lỗi bộ nhớ (Heap Overflow).
+StreamObject = {
+    // Phần từ điển mô tả luồng
+    Dictionary: Dictionary,     // Chứa khóa /Length, /Filter, /DecodeParms
+
+    // Dữ liệu nhị phân thực tế
+    RawData: BinaryBlob,        
+
+    // --- CÁC TRƯỜNG DÀNH RIÊNG CHO FUZZING ---
+    // Độ dài thực tế của RawData (Máy tính tự động)
+    CalculatedLength: Integer,  
+    
+    // Độ dài SẼ ĐƯỢC GHI vào file (Người dùng/Fuzzer chỉnh sửa)
+    // Nếu SpecifiedLength < CalculatedLength -> Gây lỗi cắt cụt hoặc buffer under-read
+    // Nếu SpecifiedLength > CalculatedLength -> Gây lỗi đọc trộm bộ nhớ (buffer over-read)
+    SpecifiedLength: Integer,   
+
+    // Danh sách bộ lọc nén
+    FilterPipeline: List        // Ví dụ: ["ASCII85Decode", "FlateDecode"]
+}
+
+// C. CẤU TRÚC BẢNG THAM CHIẾU (XREF STRUCTURE) - [4]
+// Bản đồ vị trí byte. Được phơi bày để tấn công cơ chế truy cập ngẫu nhiên.
+XRefStructure = {
+    Type: String,               // "Table" (cổ điển) hoặc "Stream" (nén - PDF 1.5+)
+    Entries: List<XRefEntry>    // Danh sách các dòng tham chiếu
+}
+
+XRefEntry = {
+    ObjectNumber: Integer,
+    
+    // Vị trí byte trong file
+    // Fuzzer có thể set số âm, hoặc trỏ ra ngoài file để gây lỗi Parser
+    Offset: Integer,            
+
+    Generation: Integer,
+    
+    // Trạng thái đối tượng
+    // Fuzzer có thể đổi 'n' thành 'f' khi đối tượng vẫn đang dùng -> Lỗi Use-After-Free
+    State: Enum [InUse ('n'), Free ('f')], 
+
+    // Dùng cho danh sách liên kết các đối tượng đã xóa
+    // Fuzzer có thể tạo vòng lặp vô hạn tại đây
+    NextFreeObject: Integer     
+}
+
+// D. CẤU TRÚC CẬP NHẬT TĂNG DẦN (INCREMENTAL UPDATE) - [1], [5]
+// Mô phỏng việc sửa file PDF nhiều lần (Versioning)
+UpdateBlock = {
+    Body: List<IndirectObject>, // Các đối tượng mới thêm vào hoặc bị sửa đổi
+    XRefTable: XRefStructure,   // Bảng XRef chỉ chứa các mục cập nhật
+    Trailer: Dictionary         // Trailer mới trỏ về Trailer cũ qua khóa /Prev
+}
+```
 2. Đột biến
+2.1. Đột biến Topo Đồ thị (Topological Mutations)
+
+Chiến lược này thay đổi cấu trúc kết nối của đồ thị đối tượng nhằm tấn công logic duyệt cây và quản lý bộ nhớ của trình phân tích.
+
+Tiêm Chu trình (Cycle Injection): Chọn một đối tượng container (Dictionary hoặc Array) và thêm một tham chiếu trỏ ngược về tổ tiên của nó. Mục tiêu là gây ra lỗi Stack Overflow trong các hàm đệ quy của trình phân tích (như ScanField trong Xpdf).   
+
+Hoán đổi Tham chiếu (Reference Swapping): Thay thế tham chiếu đến một đối tượng an toàn (ví dụ: chuỗi văn bản) bằng tham chiếu đến một đối tượng phức tạp hoặc khác kiểu (ví dụ: một Stream hình ảnh hoặc một Dictionary đệ quy). Điều này kiểm tra tính chặt chẽ trong kiểm tra kiểu dữ liệu (Type Checking) của parser.  
+
+Cô lập Đối tượng (Orphaning): Loại bỏ tham chiếu đến một đối tượng khỏi cây Root nhưng vẫn giữ đối tượng đó trong Body và XRef. Điều này kiểm tra cơ chế dọn dẹp bộ nhớ (Garbage Collection) hoặc xử lý lỗi của parser khi gặp đối tượng "ma".
+
+2.2. Đột biến Cấu trúc Vật lý (Layout & XRef Fuzzing)
+
+Nhắm vào cơ chế truy cập ngẫu nhiên và bảng tham chiếu.
+
+Dịch chuyển Offset (Offset Shift): Tăng hoặc giảm giá trị offset trong bảng XRef một lượng nhỏ (1-4 bytes). Điều này buộc trình phân tích đọc các từ khóa cấu trúc (obj, stream) như dữ liệu, hoặc ngược lại, gây ra sự nhầm lẫn trong luồng phân tích (Parsing Confusion).   
+
+Đảo trạng thái (State Flipping): Chuyển đổi cờ n (in-use) thành f (free) trong bảng XRef cho một đối tượng đang được sử dụng. Điều này nhằm kích hoạt lỗi Use-After-Free (UAF) khi parser cố gắng truy cập đối tượng mà nó cho là đã được giải phóng.  
+
+Phân mảnh Bảng (Table Fragmentation): Chia nhỏ bảng XRef thành hàng trăm subsection nhỏ với các khoảng trống (gaps) lớn về số thứ tự đối tượng. Mục tiêu là kiểm tra khả năng quản lý bộ nhớ của parser đối với các mảng thưa (sparse arrays).
+
+2.3. Đột biến Container Dữ liệu (Stream & Filter Fuzzing)
+
+Tập trung vào bộ lọc giải nén và siêu dữ liệu độ dài.
+
+Bất đồng bộ Độ dài (Length Desynchronization): Thiết lập SpecifiedLength trong PDF-IR thành các giá trị biên:
+
+    ActualLength - 1: Gây lỗi Buffer Under-read hoặc cắt cụt dữ liệu.
+
+    ActualLength + 1: Gây lỗi Buffer Over-read (đọc trộm bộ nhớ).
+
+    MAX_INT hoặc số âm: Gây lỗi Integer Overflow/Underflow khi tính toán kích thước bộ đệm.   
+
+Xáo trộn Chuỗi Bộ lọc (Filter Chain Fuzzing): Tạo ra các chuỗi bộ lọc hợp lệ nhưng phức tạp (ví dụ: nén Flate 10 lần) hoặc không hợp lệ (ví dụ: giải mã JPEG trước khi giải nén Flate). Mục tiêu là làm quá tải bộ nhớ hoặc gây lỗi logic trong pipeline xử lý luồng.  
+
+2.4. Đột biến Lịch sử và Cập nhật (Incremental Update Fuzzing)
+
+Khai thác tính năng versioning của PDF.
+
+Giả mạo Lịch sử (History Forgery): Thêm một phần Body, XRef và Trailer mới vào cuối tệp (giả lập Incremental Update) định nghĩa lại đối tượng Root (/Catalog) để trỏ đến một trang độc hại, mô phỏng kỹ thuật tấn công Shadow.   
+
+Cập nhật "Ma" (Ghost Updates): Tạo phần cập nhật tăng dần tuyên bố cập nhật các đối tượng không hề tồn tại trong phiên bản gốc.
+
+Phá vỡ Chuỗi Trailer: Làm hỏng offset /Prev trong từ điển Trailer để tạo ra chuỗi lịch sử vòng tròn hoặc trỏ vào vùng dữ liệu rác, buộc parser phải kích hoạt các quy trình khôi phục lỗi (thường kém an toàn hơn quy trình chuẩn).
