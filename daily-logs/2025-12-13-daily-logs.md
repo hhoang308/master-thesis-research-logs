@@ -1,5 +1,5 @@
-- Định dạng PDF sử dụng graph-based object model và cơ chế truy cập ngẫu nhiên, do đó nếu sử dụng biểu diễn trung gian dạng cây sẽ bỏ qua attack surface quan trọng của pdf là cross-reference table, stream objects và incremental updates mechanism. Các đối tượng trong PDF có thể tham chiếu đến các đối tượng khác thông qua object number và generation number, do đó một đối tượng có thể sử dụng được nhiều lần mà không cần sao chép dữ liệu. Do đó để quá trình fuzzing thực sự hiệu quả, cần mô hình hoá các mối quan hệ phức tạp này. Ngoài ra, PDF cho phép hiển thị nhanh bất kì trang tài liệu nào thông qua cơ chế cross-reference table nằm ở cuối tệp. Bảng này lưu trữ offset (vị trí byte) của từng object do đó có thể truy cập chính xác từng object, và do có sự phụ thuộc về offset này mà một sự thay đổi nhỏ có thể ảnh hưởng đến tính toàn vẹn của file nếu cross-reference table không được cập nhật.
-- PDF đóng gói dữ liệu lớn như ảnh, font vào các stream object và được nén hoặc mã hoá thông qua các filter. Đồng thời, mỗi stream sẽ đi kèm với stream dictionary, trong đó quan trọng nhất là `\Length` quy định độ dài thực tế của dữ liệu.  
+- Định dạng PDF sử dụng graph-based object model và cơ chế truy cập ngẫu nhiên, do đó nếu sử dụng biểu diễn trung gian dạng cây sẽ bỏ qua `attack surface` quan trọng của pdf là `cross-reference table`, `stream objects` và `incremental updates mechanism.` Các đối tượng trong PDF có thể tham chiếu đến các đối tượng khác thông qua `object number` và `generation number`, do đó một đối tượng có thể sử dụng được nhiều lần mà không cần sao chép dữ liệu. Do đó để quá trình fuzzing thực sự hiệu quả, cần mô hình hoá các mối quan hệ phức tạp này. Ngoài ra, PDF cho phép hiển thị nhanh bất kì trang tài liệu nào thông qua cơ chế `cross-reference table` nằm ở cuối tệp. Bảng này lưu trữ `offset` (vị trí byte) của từng object do đó có thể truy cập chính xác từng object, và do có sự phụ thuộc về `offset` này mà một sự thay đổi nhỏ có thể ảnh hưởng đến tính toàn vẹn của file nếu `cross-reference table` không được cập nhật.
+- PDF đóng gói dữ liệu lớn như ảnh, font vào các stream object và được nén hoặc mã hoá thông qua các filter. Đồng thời, mỗi stream sẽ đi kèm với stream dictionary, trong đó quan trọng nhất là `\Length` quy định độ dài thực tế của dữ liệu.
 - Định dạng HTML và XML được thiết kế  trên cấu trúc cây phân cấp, bắt đầu từ các thẻ gốc, rồi phân nhánh thành các thẻ con lồng nhau. Parser của HTML xử lý tài liệu theo tuần tự từ đầu đến cuối, khi gặp một thẻ mới, nó tạo thành một nút mới trong DOM (Document Object Model) và duy trì trạng thái ngữ cảnh cho đến khi gặp thẻ đóng tương ứng. Do đó cơ chế fuzzing cho HTML thường tập trung vào việc tạo các cây DOM phức tạp, lồng ghép thẻ hoặc sai lệch cặp thẻ.
 ### Phân vùng các lỗ hổng đặc thù
 1. Xref Table
@@ -53,8 +53,8 @@ PDF-IR = {
 // Đây là đơn vị cơ bản trong Body.
 IndirectObject = {
     // Định danh đối tượng (theo chuẩn PDF)
-    ID: Integer,                // Mã số đối tượng (Object Number)
-    Generation: Integer,        // Số thế hệ (Generation Number)
+    ID: Integer,                // Mã số đối tượng (`Object Number`)
+    Generation: Integer,        // Số thế hệ (`Generation Number`)
     
     // Nội dung thực tế
     Type: String,               // Ví dụ: "Dictionary", "Stream", "Array", "Integer"
@@ -162,8 +162,17 @@ Xáo trộn Chuỗi Bộ lọc (Filter Chain Fuzzing): Tạo ra các chuỗi b�
 
 Khai thác tính năng versioning của PDF.
 
-Giả mạo Lịch sử (History Forgery): Thêm một phần Body, XRef và Trailer mới vào cuối tệp (giả lập Incremental Update) định nghĩa lại đối tượng Root (/Catalog) để trỏ đến một trang độc hại, mô phỏng kỹ thuật tấn công Shadow.   
+Giả mạo Lịch sử (History Forgery): Thêm một phần Body, XRef và Trailer mới vào cuối tệp (giả lập Incremental Update) định nghĩa lại đối tượng Root (/Catalog) để trỏ đến một trang độc hại, mô phỏng kỹ thuật tấn công Shadow.
 
 Cập nhật "Ma" (Ghost Updates): Tạo phần cập nhật tăng dần tuyên bố cập nhật các đối tượng không hề tồn tại trong phiên bản gốc.
 
 Phá vỡ Chuỗi Trailer: Làm hỏng offset /Prev trong từ điển Trailer để tạo ra chuỗi lịch sử vòng tròn hoặc trỏ vào vùng dữ liệu rác, buộc parser phải kích hoạt các quy trình khôi phục lỗi (thường kém an toàn hơn quy trình chuẩn).
+### Danh sách các công việc cần làm
+1. Sử dụng bộ PDF SDK hoặc PDF library, cụ thể: Foxit SDK, PyPDF2, PDFBox,...để tạo một file PDF nhưng có các ràng buộc không khớp nhau, bao gồm:
+    - `/Length` = 100 nhưng độ dài stream thực tế khác 100 bytes (nhỏ hơn 100 hoặc lớn hơn 100 byte).
+        $\to$ Dự đoán kết quả: Thư viện hoặc SDK sẽ tự động sửa `/Length` thành độ dài stream thực tế hoặc báo lỗi
+
+2. Kiểm tra tính khả thi bằng việc sửa một file PDF hợp lệ và kiểm tra phản ứng của chương trình đọc PDF.
+
+3. Xây dựng một bộ Serializer cho PDF với mục đích phiên dịch từ biểu diễn trung gian sang dạng byte một cách tuần tự nếu PDF SDK hoặc PDF library không cho phép SDK và thư viện tạo ra các kết quả đặc biệt phía trên.
+
