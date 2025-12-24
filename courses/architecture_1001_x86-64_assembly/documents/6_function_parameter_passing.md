@@ -45,7 +45,7 @@ edx : 0x22
 ![solution too many parameters](image-36.png)
 ## Calling Conventions
 - caller-save registers will typically save volatile registers (e.g register `rax`, `rcx`, `rdx`, `r8`, `r9`, `r10`) right before the call and restore right after the call
-- callee-save registers will typically save non-volatile registers (e.g register `rbx`, `brp`, `bdi`, `rsi`, `r12` - `r15`) at the beginning of the function and restore at the end of the function.
+- callee-save registers will typically save non-volatile registers (e.g register `rbx`, `rbp`, `rdi`, `rsi`, `r12` - `r15`) at the beginning of the function and restore at the end of the function.
 ![caller vs callee save register](image-39.png)
 - volatile register is like a "scratch paper", used for temporary math,...non volatile register is for "long-term storage", used for variables that needs to be survived accross many function calls
 - Microsoft x86-64 ABI used rax (and maybe rdx for 128-bit in `System V`) for passing out the return value
