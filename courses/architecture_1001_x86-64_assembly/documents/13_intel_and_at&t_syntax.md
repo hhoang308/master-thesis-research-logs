@@ -1,0 +1,13 @@
+- Có 2 loại cú pháp hay được sử dụng là Intel Syntax cho kiến trúc x86 và AT&T Syntax cho các hệ thống kế thừa từ UNIX.
+- Cần phải biết cả 2 loại cú pháp này vì Security Reseacher sẽ có thể viết dưới dạng cả 2 loại cú pháp và cần phải đọc hiểu các báo cáo này.
+- Intel Syntax được ưa chuộng sử dụng cho Windows (và sự thật là nó đọc dễ hiểu hơn thật) với thứ tự sẽ từ trái sang phải, cụ thể: `des <- source`
+- AT&T Syntax được ưa chuộng sử dụng trên các hệ thống kế thừa từ Unix và GNU với thứ tự cú pháp sẽ là `source -> des`, trong đó register get a % prefix and immediates get a $.
+- Một vài sự khác nhau đáng chú ý như sau:
+    - Indicate sizes:
+        - Intel indicates size like `mov qword ptr [rax], rbx`
+        - AT&T Syntax indicates the size of memory operand is determined from the last character of the instruction, ví dụ: `movq` operates on quad word (qword). Do đó, vài lệnh sẽ được đổi tên to better conform to naming convention for lengths, ví dụ: `cwde` -> `cwtl` (convert sign extend word to long), `movsx` -> `movsbw`
+        - `movslq %eax, %rdx` in AT&T Syntax have the same meaning with `movsxd rdx, eax` in Intel Syntax
+    - Tính toán
+        - `[base + index*scale + disp]` trong Intel tương đương trong AT&T `disp(base, index, scale)`, ví dụ: `call qword ptr [rbx+rsi*4-0xe8]` tương đương `callq *-0xe8(%rbx,%rsi, 4)`, tuy nhiên có vài trường hợp đặc biệt, ví dụ: `mov rdi, qword ptr[rsi+0x8]` có thể được viết thành `mov 0x8(%rsi),%rdi` hoặc `movq` đều được (vì khuyết index và scale), nhưng thường là compiler sẽ lựa chọn cách viết `mov`.
+- `endbr` (end branch) is a security feature (`CET`, `control flow enforcement technology`, của intel nhằm đánh dấu các điểm an toàn cho các lệnh nhảy gián tiếp như jump và call, để nếu CPU nhảy đến một địa chỉ mà lệnh đầu tiên không phải là `endbr` thì sẽ coi đó là hành vi bất thường và crash), when the code is run on system doesn't support this, it acts as nop assembly instruction
+- AT&T Syntax được sử dụng trên Linux, Unix, GDB, GCC mặc định và Intel Syntax được dùng cho Windows, các công cụ dịch ngược như IDA, Ghida.
