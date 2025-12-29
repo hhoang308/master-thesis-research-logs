@@ -11,7 +11,7 @@
     - `start non-terminal` là điểm xuất phát
     - `derivation tree` là một dạng biểu diễn khác của kết quả sau khi được tạo ra bởi văn phạm phi ngữ cảnh, với `root` là kí hiệu bắt đầu và các cạnh là các `production rule`
 - Một Context-Free Grammar là một tập các quy tắc theo dạng "một biến X có thể được thay thế bởi một hoặc nhiều giá trị từ một mảng các biến hoặc chuỗi" miễn biến X này không phải kí tự kết thúc. Ngoài ra, có một kí tự khởi tạo đặc biệt chỉ thị nơi bắt đầu áp dụng các quy luật này.
-- Gọi đây là văn phạm phi ngữ cảnh vì trong các quy tắc của văn phạm, phía bên trái mũi tên chỉ được phép có duy nhất một non-terminal symbol, ví dụ: `A $\to$ B + C`, nghĩa là bất kì chỗ nào có A thì luôn có thể thay bằng B + C. Còn văn phạm có ngữ cảnh là `xAy $\to$ xBy`, nghĩa là chỉ được thay A bằng B khi phía trước và phía sau của A là x và y.
+- Gọi đây là văn phạm phi ngữ cảnh vì trong các quy tắc của văn phạm, phía bên trái mũi tên chỉ được phép có duy nhất một non-terminal symbol, ví dụ: `A` $\to$ `B + C`, nghĩa là bất kì chỗ nào có A thì luôn có thể thay bằng B + C. Còn văn phạm có ngữ cảnh là `xAy` $\to$ `xBy`, nghĩa là chỉ được thay A bằng B khi phía trước và phía sau của A là x và y.
 - Quy trình dẫn xuất, hay cách sinh ra chuỗi được thực hiện như sau:
     - Khởi động: Bắt đầu từ kí hiệu gốc `S`
     - Vòng lặp thay thế: Quét chuỗi hiện tại, tìm một rule bất kì rồi thay thế vế trái bằng vế phải, và chỉ dừng khi nào chuỗi chỉ chứa toàn là non-terminal symbol.
