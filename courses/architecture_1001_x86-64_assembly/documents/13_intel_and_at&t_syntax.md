@@ -25,3 +25,47 @@
     - `return address` chuẩn là phải nằm ở `previous frame` chứ không phải `current frame`, vì caller frame là nơi gọi hàm `call` và đẩy return address vào stack, tuy nhiên với góc nhìn ngữ cảnh, `return address` cũng có ý nghĩa quan trọng đối với callee function, do đó nhiều tài liệu vẫn ghi return address thuộc sở hữu của `current frame`
     - `rbp` đóng vai trò là trần và `rsp` đóng vai trò là sàn chứa toàn bộ stack frame của một hàm, khi cần khai báo thêm biến thì sàn sẽ hạ thấp xuống.
     - Khi sử dụng `-fstack-protector`, compiler sẽ chèn giá trị canary (một giá trị đặc biệt nào đó) ngay sát bên dưới địa chỉ mà `rbp` đang trỏ tới, cụ thể trên kiến trúc 64 bit thì nó nằm ở `rbp - 8`. Vì lỗ hổng Buffer Overflow thường bắt nguồn từ việc xuất phát từ các biến cục bộ rồi cố gắng tràn ngược lên trên để ghi đè lên `saved rbp` (`rbp + 0`) và `return address` (`rbp + 8`), và nếu muốn ghi đè thì bắt buộc phải ghi đè lên cả giá trị canary. Do vậy, tại cuối mỗi hàm chỉ cần sử dụng hàm kiểm tra giá trị canary là được, nếu nó khớp thì cho return còn không thì báo lỗi.
+### ArrayLocalVariable.c
+![aray local variable](image-62.png)
+- `0xbabe` được lưu tại `rbp - 0x2` cụ thể `0xbe` sẽ được lưu tại `rbp - 0x2` còn `0xba` sẽ được lưu tại `rbp - 0x1`. Khi hiển thị trên gdb sẽ được biểu diễn dưới dạng big endian cho người dùng dễ đọc, mà big endian nghĩa là sẽ hiển thị most significant byte lên trước để đọc như người đọc số bình thường, mà thực tế dữ liệu lưu trữ trong máy tính lại ở dạng little endian, tức least significant byte sẽ được lưu tại địa chỉ thấp nhất (tức `rbp-0x4`), do đó sẽ biểu diễn `0xbabe` (nằm ở `rbp - 0x1` và `rbp - 0x2` trước `rbp - 0x3` và `rbp - 0x4`) và hiển thị là `0xbabe7fff`.
+    ```
+    (gdb) si
+    0x0000555555555137 in main ()
+    1: x/10i $rip
+    => 0x555555555137 <main+14>:    movabs $0xba1b0ab1edb100d,%rax
+    0x555555555141 <main+24>:    mov    %rax,-0x10(%rbp)
+    0x555555555145 <main+28>:    movswl -0x2(%rbp),%eax
+    0x555555555149 <main+32>:    mov    %eax,-0x2c(%rbp)
+    0x55555555514c <main+35>:    mov    -0x2c(%rbp),%eax
+    0x55555555514f <main+38>:    mov    %eax,%edx
+    0x555555555151 <main+40>:    mov    -0x10(%rbp),%rax
+    0x555555555155 <main+44>:    add    %edx,%eax
+    0x555555555157 <main+46>:    mov    %eax,-0x20(%rbp)
+    0x55555555515a <main+49>:    mov    -0x20(%rbp),%eax
+    2: /x $rbp = 0x7fffffffdc90
+    3: /x $rsp = 0x7fffffffdc90
+    4: /x $rax = 0x555555555129
+    5: /x $rbx = 0x7fffffffddb8
+    6: /x $rcx = 0x555555557df8
+    7: /x $rdx = 0x7fffffffddc8
+    8: /x $rdi = 0x1
+    9: /x $rsi = 0x7fffffffddb8
+    10: /x $r8 = 0x0
+    11: /x $r9 = 0x7ffff7fca380
+    12: /x $r12 = 0x1
+    13: /x $r13 = 0x0
+    14: /x $r14 = 0x555555557df8
+    15: x/10xg $rsp
+    0x7fffffffdc90: 0x00007fffffffdd30      0x00007ffff7c2a1ca
+    0x7fffffffdca0: 0x00007fffffffdce0      0x00007fffffffddb8
+    0x7fffffffdcb0: 0x0000000155554040      0x0000555555555129
+    0x7fffffffdcc0: 0x00007fffffffddb8      0x2e0f48680b27b3b2
+    0x7fffffffdcd0: 0x0000000000000001      0x0000000000000000
+    16: x/11xw $rbp-0x2c
+    0x7fffffffdc64: 0x00000000      0x00000000      0x00000000      0x00000000
+    0x7fffffffdc74: 0x00000000      0xf7fe5af0      0x00007fff      0xffffdd70
+    0x7fffffffdc84: 0x00007fff      0xffffddb8      0xbabe7fff
+    (gdb) x/1hx $rbp-0x2
+    0x7fffffffdc8e: 0xbabe
+    ```
+- `movabs` can be used to encode the `mov` instruction with the 64-bit displacement or immediate operand.
