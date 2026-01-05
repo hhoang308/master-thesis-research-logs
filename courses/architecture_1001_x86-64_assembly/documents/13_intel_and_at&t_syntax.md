@@ -69,3 +69,22 @@
     0x7fffffffdc8e: 0xbabe
     ```
 - `movabs` can be used to encode the `mov` instruction with the 64-bit displacement or immediate operand.
+### StructLocalVariable.c
+![struct local variable](image-63.png)
+- `cwtl` (convert word to long)
+- Việc thêm/bỏ `#pragma` sẽ làm thay đổi hoàn toàn kích trước và cách bố trí bộ nhớ của struct này trong RAM. Cụ thể:
+    - Trường hợp có `#pragma pack(1)`, compiler sẽ sắp xếp các biến sát sàn sạt vào nhau, căn chỉnh theo 1 byte và do đó không có kẽ hở nào cả. 
+    ```
+    16: x/12xw $rbp-0x30
+    0x7fffffffdc80: 0xabcdbabe      0xcdef0000      0x12340000      0x56780000
+    0x7fffffffdc90: 0x12ab0000      0x34cd0000      0x100d0000      0xb0ab1edb
+    0x7fffffffdca0: 0xffff0ba1      0x00007fff      0xffffddd8      0x00007fff
+    ```
+    - Trường hợp không có `#pragma pack(1)`, compiler sẽ sử dụng chế độ `natural alignment` để căn chỉnh kích cỡ tự nhiên nhằm tối ưu tốc độ CPU. CPU truy xuất dữ liệu nhanh nhất khi địa chỉ của biến chia hết cho kích thước của nó (ví dụ, biến `int` là 4 byte thì địa chỉ của biến này phải nằm ở địa chỉ chia hết cho 4) và hệ quả là sẽ có hiện tượng padding để các biến nằm ở vị trí tối ưu.
+    ```
+    16: x/10xw $rbp-0x30
+    0x7fffffffdc80: 0x0000babe      0x0000abcd      0x0000cdef      0x00001234
+    0x7fffffffdc90: 0x00005678      0x000012ab      0x000034cd      0x00007fff
+    0x7fffffffdca0: 0x1edb100d      0x0ba1b0ab
+    ```
+- Địa chỉ của các `member` trong `struct` trong bộ nhớ phải giống hệt thứ tự khai báo trong code, địa chỉ của `member` khai báo trước luôn nhỏ hơn địa chỉ của `member` khai báo sau. Tuy nhiên, không có quy định nào quyết định thứ tự của biến local trong bộ nhớ, compiler sẽ có toàn quyền quyết định các biến này và thường sẽ cố gắng nhét các biến nhỏ vào các khe hở để tiết kiệm stack.
