@@ -54,9 +54,38 @@ ctx.rule(u'FLOAT', u'0.0')
 
 ctx.rule(u'PROP', u'contents: "{STRING}"')
 ctx.rule(u'PROP', u'author: "{STRING}"')
-ctx.rule(u'STRING', u'Fuzzing Test')
-ctx.rule(u'STRING', u'A' * 128)
-ctx.rule(u'STRING', u'B' * 1000)
+
+ctx.rule(u'STRING', u'{NAUGHTY_CONTENT}')
+
+ctx.rule(u'NAUGHTY_CONTENT', u'A' * 128)
+ctx.rule(u'NAUGHTY_CONTENT', u'B' * 1024)
+ctx.rule(u'NAUGHTY_CONTENT', u'C' * 4096)
+
+ctx.rule(u'NAUGHTY_CONTENT', u'%s%s%s%s%s')
+ctx.rule(u'NAUGHTY_CONTENT', u'%n%n%n%n')
+ctx.rule(u'NAUGHTY_CONTENT', u'%x%x%x%x')
+
+ctx.rule(u'NAUGHTY_CONTENT', u'../../../../windows/system32/cmd.exe')
+ctx.rule(u'NAUGHTY_CONTENT', u'\\\\\\\\127.0.0.1\\\\C$\\\\Windows') # SMB path
+ctx.rule(u'NAUGHTY_CONTENT', u'/etc/passwd')
+ctx.rule(u'NAUGHTY_CONTENT', u'COM1')
+
+ctx.rule(u'NAUGHTY_CONTENT', u'Text\\0NullByte')
+ctx.rule(u'NAUGHTY_CONTENT', u'\\0')
+ctx.rule(u'NAUGHTY_CONTENT', u'\\n\\r\\t' * 10)
+
+ctx.rule(u'NAUGHTY_CONTENT', u'\ufeff') # BOM
+ctx.rule(u'NAUGHTY_CONTENT', u'\ufffe')
+ctx.rule(u'NAUGHTY_CONTENT', u'\u4141\u4141') # Wide characters
+
+ctx.rule(u'NAUGHTY_CONTENT', u"' OR '1'='1")
+ctx.rule(u'NAUGHTY_CONTENT', u'"; DROP TABLE annotations; --')
+
+ctx.rule(u'NAUGHTY_CONTENT', u'<script>app.alert(1)</script>')
+
+ctx.rule(u'NAUGHTY_CONTENT', u'undefined')
+ctx.rule(u'NAUGHTY_CONTENT', u'null')
+ctx.rule(u'NAUGHTY_CONTENT', u'NaN')
 
 ctx.rule(u'PROP', u'AP: "{STAMP_NAME}"')
 ctx.rule(u'STAMP_NAME', u'Confidential')
