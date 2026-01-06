@@ -88,3 +88,7 @@
     0x7fffffffdca0: 0x1edb100d      0x0ba1b0ab
     ```
 - Địa chỉ của các `member` trong `struct` trong bộ nhớ phải giống hệt thứ tự khai báo trong code, địa chỉ của `member` khai báo trước luôn nhỏ hơn địa chỉ của `member` khai báo sau. Tuy nhiên, không có quy định nào quyết định thứ tự của biến local trong bộ nhớ, compiler sẽ có toàn quyền quyết định các biến này và thường sẽ cố gắng nhét các biến nhỏ vào các khe hở để tiết kiệm stack.
+### Pass1Parameter.c
+![pass 1 parameter](image-64.png)
+![stack frame](image-65.png)
+- `0x555555555137 <func+14>:    mov    %eax,-0x4(%rbp)` nếu muốn xem giá trị tại lệnh này thì cần sử dụng `x/5xw $rbp-0x14` vì tổng dung lượng xem được của lệnh `x/4wx` là 4 * 4 = 16 bytes, bao gồm từ `$rbp - 0x14` (byte từ -20 đến -17) đến `$rbp - 0x8` (byte từ -8 đến -5), trong khi giá trị cần xem lại nằm tại `$rbp - 0x4`, tức giá trị từ `$rbp - 0x4` đến `$rbp`.
