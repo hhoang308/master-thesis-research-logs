@@ -1,0 +1,28 @@
+%PDF-1.3
+%¿÷¢þ
+1 0 obj
+<< /OpenAction << /JS (var myAnn = null;\nmyAnn = this.addAnnot\({ type: "Text", page: 0, strokeColor: ["RGB", 0.0, 0.5, 0.5] }\);) /S /JavaScript >> /Pages 2 0 R /Type /Catalog >>
+endobj
+2 0 obj
+<< /Count 1 /Kids [ 3 0 R ] /Type /Pages >>
+endobj
+3 0 obj
+<< /Contents 4 0 R /MediaBox [ 0 0 612 792 ] /Parent 2 0 R /Resources << >> /Type /Page >>
+endobj
+4 0 obj
+<< /Length 0 /Filter /FlateDecode >>
+stream
+
+endstream
+endobj
+xref
+0 5
+0000000000 65535 f 
+0000000015 00000 n 
+0000000211 00000 n 
+0000000270 00000 n 
+0000000376 00000 n 
+trailer << /Root 1 0 R /Size 5 /ID [<87f8bceb05d08cd0b228418b27150d30><87f8bceb05d08cd0b228418b27150d30>] >>
+startxref
+446
+%%EOF

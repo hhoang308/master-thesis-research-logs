@@ -1,0 +1,2 @@
+var myAnn = null;
+myAnn = this.addAnnot({ type: "Text", page: 0, strokeColor: ["RGB", 0.0, 0.5, 0.5] });

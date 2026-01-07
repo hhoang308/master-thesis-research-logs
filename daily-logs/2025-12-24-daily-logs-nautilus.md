@@ -19,4 +19,10 @@
     ![n, t, r](image-27.png)
     ![s](image-28.png)
 
+### Fuzzing Phase
+- Sau khi tạo được một vài input ban đầu, `scheduler` quyết định input nào trong queue nên được thử tiếp theo. Trong queue luôn luôn chứa interesting input, tức những input được generate ra hoặc được mutate từ một input trước đó, và các input này trigger được ít nhất một transition giữa các basic block mà các input khác không trigger được.
 
+
+## Question
+1. Nautilus chỉ cho phép generation ngẫu nhiên hay có cơ chế mutation và ưu tiên luật này so với luật khác không? Nếu có cơ chế mutation thì nó thu thập feedback như thế nào?
+2. Có nên và được phép bắt chước lại phần minimization của nautilus không?
