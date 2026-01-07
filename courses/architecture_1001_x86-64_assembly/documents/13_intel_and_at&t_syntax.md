@@ -92,3 +92,10 @@
 ![pass 1 parameter](image-64.png)
 ![stack frame](image-65.png)
 - `0x555555555137 <func+14>:    mov    %eax,-0x4(%rbp)` nếu muốn xem giá trị tại lệnh này thì cần sử dụng `x/5xw $rbp-0x14` vì tổng dung lượng xem được của lệnh `x/4wx` là 4 * 4 = 16 bytes, bao gồm từ `$rbp - 0x14` (byte từ -20 đến -17) đến `$rbp - 0x8` (byte từ -8 đến -5), trong khi giá trị cần xem lại nằm tại `$rbp - 0x4`, tức giá trị từ `$rbp - 0x4` đến `$rbp`.
+### TooManyParameter.c
+- 5 parameters
+    ![too many parameter](image-66.png)
+    ![stack frame of too many parameter](image-67.png)
+- 7 parameters
+    ![7 parameters](image-70.png)
+    ![stack frame of 7 parameters](image-69.png)
