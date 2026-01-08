@@ -11,6 +11,8 @@
         - `[base + index*scale + disp]` trong Intel tương đương trong AT&T `disp(base, index, scale)`, ví dụ: `call qword ptr [rbx+rsi*4-0xe8]` tương đương `callq *-0xe8(%rbx,%rsi, 4)`, tuy nhiên có vài trường hợp đặc biệt, ví dụ: `mov rdi, qword ptr[rsi+0x8]` có thể được viết thành `mov 0x8(%rsi),%rdi` hoặc `movq` đều được (vì khuyết index và scale), nhưng thường là compiler sẽ lựa chọn cách viết `mov`.
 - `endbr` (end branch) is a security feature (`CET`, `control flow enforcement technology`, của intel nhằm đánh dấu các điểm an toàn cho các lệnh nhảy gián tiếp như `jump` và `call`, để nếu CPU nhảy đến một địa chỉ mà lệnh đầu tiên không phải là `endbr` thì sẽ coi đó là hành vi bất thường và crash), when the code is run on system doesn't support this, it acts as nop assembly instruction
 - AT&T Syntax được sử dụng trên Linux, Unix, GDB, GCC mặc định và Intel Syntax được dùng cho Windows, các công cụ dịch ngược như IDA, Ghida.
+### leave - Exit a function
+- Xuất hiện khi bật tối ưu, lệnh này sẽ nằm ở vị trí ngay trước khi return từ một hàm và nó chỉ đơn giản là sử dụng 2 lệnh này `mov rsp, rbp` và `pop rbp` như vẫn thường thấy.
 ## Example
 ### SingleLocalVariable.c
 ![stack frame with base pointer](image-60.png)
@@ -99,3 +101,32 @@
 - 7 parameters
     ![7 parameters](image-70.png)
     ![stack frame of 7 parameters](image-69.png)
+### SpecialMaths.c
+![special maths](image-71.png)
+![stack frame](image-72.png)
+```
+1: x/10i $rip
+=> 0x555555555151 <main+8>:     sub    $0x20,%rsp $\to$ không sử dụng red zone để lưu giá trị
+0x555555555155 <main+12>:    mov    %edi,-0x14(%rbp)
+0x555555555158 <main+15>:    mov    %rsi,-0x20(%rbp)
+0x55555555515c <main+19>:    mov    -0x20(%rbp),%rax
+0x555555555160 <main+23>:    add    $0x8,%rax
+0x555555555164 <main+27>:    mov    (%rax),%rax
+0x555555555167 <main+30>:    mov    %rax,%rdi
+0x55555555516a <main+33>:    call   0x555555555050 <atoi@plt>
+0x55555555516f <main+38>:    mov    %eax,-0x4(%rbp)
+0x555555555172 <main+41>:    mov    -0x4(%rbp),%eax
+16: x/4xg $rbp-0x20
+0x7fffffffdc50: 0x00007fffffffdd98      0x00000002f7fe5af0
+0x7fffffffdc60: 0x00007fffffffdd50      0x00007fffffffdd98
+(gdb) x/2gx 0x00007fffffffdd98
+0x7fffffffdd98: 0x00007fffffffe08b      0x00007fffffffe0ed
+(gdb) x/s 0x00007fffffffe08b
+0x7fffffffe08b: "/home/hoangnh8/master-thesis-daily-logs/courses/architecture_1001_x86-64_assembly/exercises/a.out"
+(gdb) x/s 0x00007fffffffe0ed
+0x7fffffffe0ed: "31192"
+(gdb) x/x 0x00007fffffffe0ed $\to$ do lệnh trước đó là `x/s` (đơn vị byte) nên gdb tiếp tục sử dụng đơn vị 1 byte, do đó kết quả ra như này
+0x7fffffffe0ed: 0x33
+(gdb) x/gx 0x00007fffffffe0ed $\to$ đọc 1 lúc 8 byte và hiển thị theo chuẩn little endian
+0x7fffffffe0ed: 0x4853003239313133
+```
