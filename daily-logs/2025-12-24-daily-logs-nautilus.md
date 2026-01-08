@@ -43,4 +43,5 @@
 
 ## Question
 1. Nautilus chỉ cho phép generation ngẫu nhiên hay có cơ chế mutation và ưu tiên luật này so với luật khác không? Nếu có cơ chế mutation thì nó thu thập feedback như thế nào?
+- có cơ chế mutation và thu thập feedback giống afl++
 2. Có nên và được phép bắt chước lại phần minimization của nautilus không?
