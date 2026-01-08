@@ -19,9 +19,27 @@
     ![n, t, r](image-27.png)
     ![s](image-28.png)
 
+### Minimization
+- `subtree minimization` tạo subtree càng ngắn càng tốt bằng việc tuần tự thay thế subtree của từng node bằng subtree nhỏ nhất có thể tạo được tại vị trí subtree chuẩn bị thay thế.
+- `recursive minimization` áp dụng sau `subtree minimization` với mục đích phát hiện các đệ quy và thay thế nó. Đệ quy ở đây nghĩa là tồn tại các rule cho phép thay thế bởi chính nó, ví dụ `expr` thay thế thành `expr + expr` hoặc thành `num`, và `num` thì chỉ thay thế được bằng một số ngẫu nhiên là được phép dừng rồi, nhưng nếu thay thế thành `expr + expr`, và rồi tiếp tục lặp lại như thế sẽ rất dài.
+
+### Mutation
+- `random mutation` chọn ngẫu nhiên một nút và thay thế subtree tại nút đấy bằng một subtree khác tương đương về mặt ngữ pháp, tưc phải có cùng gốc `non-terminal`, tức là có cùng root. Ví dụ thay thế biểu thức `expr` từ 1 thành 1 + 2 là hợp lệ.
+- `rules mutation` thay thế một nút bằng một nút khác ngẫu nhiên có cùng gốc `non-terminal`.
+- `random recursion mutation` chọn một subtree có tồn tại recursion và lặp lại quá trình recursion đấy một số lần nhất định.
+- `splicing mutation` thay thế một subtree bằng một subtree từ input khác đang trong queue (và dĩ nhiên nó cũng phải cùng root).
+- `afl mutation`
+
 ### Fuzzing Phase
 - Sau khi tạo được một vài input ban đầu, `scheduler` quyết định input nào trong queue nên được thử tiếp theo. Trong queue luôn luôn chứa interesting input, tức những input được generate ra hoặc được mutate từ một input trước đó, và các input này trigger được ít nhất một transition giữa các basic block mà các input khác không trigger được.
-
+- Quá trình lập lịch (hay lựa chọn input, scheduler) thực hiện tuần tự bằng việc xử lý từng input một, và để xử lý điều này, mỗi input sẽ được gán một state.
+    - `init` $\to$ `det` $\to$ `detafl` $\to$ `random`
+    - `init` là input mới tìm được (và chỉ có input tìm thêm được path mới thì nó mới nhét vào queue) sẽ được minimize ngay lập tức để giảm thời gian thực thi.
+    - `det` (`deterministic`) áp dụng đột biến có tính quy luật (tuần tự và vét cạn), do đó, về mặt lý thuyết thì sẽ không thể tự tạo ra đột biến trùng lặp. Tuy nhiên, nó vẫn lưu trữ các input tạo ra được dưới dạng hash rồi và có kiểm tra lại nếu có trùng lặp (bước `check for duplicates`).
+    - `detafl` áp dụng đột biến afl
+    - `random` chỉ dùng đột biến ngẫu nhiên
+- Nautilus chỉ thực hiện đột biến trên cấu trúc cây, do đó cần phải chuyển nó về dữ liệu thật thì mới dùng được.
+- Nautilus chỉ dành một khoảng thời gian ngắn để đột biến input, hết giờ nó sẽ ngưng đột biến lại để chuyển sang input khác.
 
 ## Question
 1. Nautilus chỉ cho phép generation ngẫu nhiên hay có cơ chế mutation và ưu tiên luật này so với luật khác không? Nếu có cơ chế mutation thì nó thu thập feedback như thế nào?
