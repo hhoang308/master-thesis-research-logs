@@ -130,3 +130,72 @@
 (gdb) x/gx 0x00007fffffffe0ed $\to$ đọc 1 lúc 8 byte và hiển thị theo chuẩn little endian
 0x7fffffffe0ed: 0x4853003239313133
 ```
+### GotoExample.c
+![go to example](image-73.png)
+```
+1: x/10i $rip
+=> 0x555555555151 <main+8>:     nop
+   0x555555555152 <main+9>:     lea    0xeab(%rip),%rax        # 0x555555556004 -> rax chứa địa chỉ nơi lưu chuỗi kí tự "goto ftw". Giá trị "goto ftw" được compiler tính toán và lưu vào section .rodata, còn giá trị offset "0xeab" sẽ được tính và ghép vào bởi linker. Kể cả nếu chuỗi dài hơn thì vẫn chỉ là lệnh này, vì hàm printf() sẽ đọc và in ra hết tất cả mọi thứ cho đến khi gặp null termination.
+   0x555555555159 <main+16>:    mov    %rax,%rdi
+   0x55555555515c <main+19>:    mov    $0x0,%eax
+   0x555555555161 <main+24>:    call   0x555555555050 <printf@plt>
+   0x555555555166 <main+29>:    mov    $0xb01dface,%eax
+   0x55555555516b <main+34>:    pop    %rbp
+   0x55555555516c <main+35>:    ret
+   0x55555555516d:      add    %al,(%rax)
+   0x55555555516f:      add    %dh,%bl
+2: /x $rbp = 0x7fffffffdcb0
+3: /x $rsp = 0x7fffffffdcb0
+4: /x $rax = 0x555555555149
+5: /x $rbx = 0x7fffffffddd8
+6: /x $rcx = 0x555555557dc0
+7: /x $rdx = 0x7fffffffdde8
+8: /x $rdi = 0x1
+9: /x $rsi = 0x7fffffffddd8
+10: /x $r8 = 0x0
+11: /x $r9 = 0x7ffff7fca380
+12: /x $r12 = 0x1
+13: /x $r13 = 0x0
+14: /x $r14 = 0x555555557dc0
+15: x/10xg $rsp
+0x7fffffffdcb0: 0x00007fffffffdd50      0x00007ffff7c2a1ca
+0x7fffffffdcc0: 0x00007fffffffdd00      0x00007fffffffddd8
+0x7fffffffdcd0: 0x0000000155554040      0x0000555555555149
+0x7fffffffdce0: 0x00007fffffffddd8      0x889c234f4289f0ad
+0x7fffffffdcf0: 0x0000000000000001      0x0000000000000000
+(gdb) 
+0x0000555555555161 in main ()
+1: x/10i $rip
+=> 0x555555555161 <main+24>:    call   0x555555555050 <printf@plt>
+   0x555555555166 <main+29>:    mov    $0xb01dface,%eax
+   0x55555555516b <main+34>:    pop    %rbp
+   0x55555555516c <main+35>:    ret
+   0x55555555516d:      add    %al,(%rax)
+   0x55555555516f:      add    %dh,%bl
+   0x555555555171 <_fini+1>:    nop    %edx
+   0x555555555174 <_fini+4>:    sub    $0x8,%rsp
+   0x555555555178 <_fini+8>:    add    $0x8,%rsp
+   0x55555555517c <_fini+12>:   ret
+2: /x $rbp = 0x7fffffffdcb0
+3: /x $rsp = 0x7fffffffdcb0
+4: /x $rax = 0x0
+5: /x $rbx = 0x7fffffffddd8
+6: /x $rcx = 0x555555557dc0
+7: /x $rdx = 0x7fffffffdde8
+8: /x $rdi = 0x555555556004
+9: /x $rsi = 0x7fffffffddd8
+10: /x $r8 = 0x0
+11: /x $r9 = 0x7ffff7fca380
+12: /x $r12 = 0x1
+13: /x $r13 = 0x0
+14: /x $r14 = 0x555555557dc0
+15: x/10xg $rsp
+0x7fffffffdcb0: 0x00007fffffffdd50      0x00007ffff7c2a1ca
+0x7fffffffdcc0: 0x00007fffffffdd00      0x00007fffffffddd8
+0x7fffffffdcd0: 0x0000000155554040      0x0000555555555149
+0x7fffffffdce0: 0x00007fffffffddd8      0x889c234f4289f0ad
+0x7fffffffdcf0: 0x0000000000000001      0x0000000000000000
+(gdb) x/s 0x555555556004
+0x555555556004: "goto ftw"
+```
+- Các giá trị lưu trong `.rodata` được viết liền tù tì vào nhau mà không có ký tự ngăn cách nào cả (nếu coi `null termination` cũng chỉ là 1 ký tự thông thường). Tuy nhiên, để CPU không đọc nhầm thì chúng có 2 cơ chế chính là kích thước cố định (`fixed size`) và căn chỉnh (`alignment`). Cụ thể, các số nguyên như `int`,...có kích thước cố định là `4 byte`,...thì khi đọc giá trị, cứ đọc `4 byte` tính từ địa chỉ cho trước là được. Thỉnh thoảng, việc lưu trữ giá trị có thể khiến cho giá trị nằm ở vị trí không đẹp, ví dụ như 0x03, nên có thể sẽ chèn thêm giá trị rác 0x00 vào để đẩy địa chỉ lên vị trí đẹp hơn là 0x04 (quá trình `alignment`).
