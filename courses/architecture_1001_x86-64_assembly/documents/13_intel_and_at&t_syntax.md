@@ -199,3 +199,19 @@
 0x555555556004: "goto ftw"
 ```
 - Các giá trị lưu trong `.rodata` được viết liền tù tì vào nhau mà không có ký tự ngăn cách nào cả (nếu coi `null termination` cũng chỉ là 1 ký tự thông thường). Tuy nhiên, để CPU không đọc nhầm thì chúng có 2 cơ chế chính là kích thước cố định (`fixed size`) và căn chỉnh (`alignment`). Cụ thể, các số nguyên như `int`,...có kích thước cố định là `4 byte`,...thì khi đọc giá trị, cứ đọc `4 byte` tính từ địa chỉ cho trước là được. Thỉnh thoảng, việc lưu trữ giá trị có thể khiến cho giá trị nằm ở vị trí không đẹp, ví dụ như 0x03, nên có thể sẽ chèn thêm giá trị rác 0x00 vào để đẩy địa chỉ lên vị trí đẹp hơn là 0x04 (quá trình `alignment`).
+### IfExample.c
+![if example](image-74.png)
+```
+1: x/10i $rip
+=> 0x55555555514e <main+37>:    mov    -0x4(%rbp),%eax
+   0x555555555151 <main+40>:    cmp    -0x8(%rbp),%eax
+   0x555555555154 <main+43>:    jle    0x55555555515d <main+52>
+   0x555555555156 <main+45>:    mov    $0x2,%eax
+   0x55555555515b <main+50>:    jmp    0x555555555171 <main+72>
+   0x55555555515d <main+52>:    mov    -0x4(%rbp),%eax
+   0x555555555160 <main+55>:    cmp    -0x8(%rbp),%eax
+   0x555555555163 <main+58>:    jge    0x55555555516c <main+67>
+   0x555555555165 <main+60>:    mov    $0x3,%eax
+   0x55555555516a <main+65>:    jmp    0x555555555171 <main+72>
+```
+- Trong assembly, không có dấu `{}` để gom lệnh, do đó để hoạt động theo như đoạn Code C `if(a > b){...}`, assembly sẽ tư duy rằng nếu điều kiện sai (tức `a <= b`) thì hãy nhảy qua đoạn code `return 2` để đi tiếp còn nếu không thì cứ đi thẳng xuống. 
