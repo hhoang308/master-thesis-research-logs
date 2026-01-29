@@ -101,6 +101,12 @@
 - `string slice` is written as `&str`.
 - `string literal` is a `string slice` so that it is immutatble.
 
+### packages, crates and modules
+- `packages` contains `crates`, `crates` contains `modules`.
+- `crate` is the smallest amount of code (even if a single file) that the Rust compiler consider at a time. `crates` can contain modules, and the modules may be defined in other files that get compiled with the crate. a `crate` can come in one of two forms: a binary crate or a library crate. the `crate root` is a source file that the Rust compiler starts from and makes up the `root module` of your `crate`.
+- a `package` is a bundle of one or more crates that provides a set of functionality. a `package` contains a `Cargo.toml` file that describes how to build those crates. a `package` can contains many binary crates but at most only one library crate. a `package` must contain at least one crate, whether that's a library or binary.
+- 
+
 
 ### control scope and privacy with modules
 - how compiler works:
@@ -124,3 +130,4 @@
 ### something
 - `free memory` is to mark a location as being free, not "clear" the data in that location, because of performace.
 - the concept ownership, borrowing and slices ensure memory safety at compile time.
+- `cargo` is actually a package that contains the binary crate for the command line tool you've been using to build your code, it also contains a library crate that the binary crate depends on. `cargo` follows a convention that the `src/main.rs` is the `crate root` of a binary crate with the same name as the package, and if the package directory contains `src/lib.rs`, the package contains a library crate with the same name as the package, and `src/lib.rs` is its `crate root`. 
