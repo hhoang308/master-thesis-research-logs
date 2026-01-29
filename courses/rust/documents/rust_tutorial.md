@@ -102,6 +102,22 @@
 - `string literal` is a `string slice` so that it is immutatble.
 
 
+### control scope and privacy with modules
+- how compiler works:
+	- start from the crate root (usually `src/lib.rs` for lib and `src/main.rs` for binary) to compile.
+	- declare new modules in crate root file, for example `mod garden;`, the compiler will look for the module's code in these place (priority order):
+		- inline, within `{}` following `mod garden`
+		- `src/garden.rs`
+		- `src/garden/mod.rs`
+	- declare submodules in any file other than the crate root, for example `mod vegetables;` in `src/garden.rs`, the compiler will look for the submodule's code in these place (priority order):
+		- inline, within `{}` following `mod vegetables`
+		- `src/garden/vegetables.rs`
+		- `src/garden/vegetables/mod.rs`
+	- refer to code in that module in that same crate using the path.
+	- code within a module is private from its parent modules by default, to make a module or items public, use `pub` before their declaration.
+	- within a scope, the `use` keyword creates shortcuts to iemts to reduce repetition of long paths.
+
+
 ### useful funtions
 - dbg!() similar to print() a variable in C.
 
