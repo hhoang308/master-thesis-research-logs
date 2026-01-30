@@ -102,32 +102,41 @@
 - `string literal` is a `string slice` so that it is immutatble.
 
 ### packages, crates and modules
+#### packages and crates
 - `packages` contains `crates`, `crates` contains `modules`.
 - `crate` is the smallest amount of code (even if a single file) that the Rust compiler consider at a time. `crates` can contain modules, and the modules may be defined in other files that get compiled with the crate. a `crate` can come in one of two forms: a binary crate or a library crate. the `crate root` is a source file that the Rust compiler starts from and makes up the `root module` of your `crate`.
 - a `package` is a bundle of one or more crates that provides a set of functionality. a `package` contains a `Cargo.toml` file that describes how to build those crates. a `package` can contains many binary crates but at most only one library crate. a `package` must contain at least one crate, whether that's a library or binary.
-- 
 
-
-### control scope and privacy with modules
+#### control scope and privacy with modules
 - how compiler works:
 	- start from the crate root (usually `src/lib.rs` for lib and `src/main.rs` for binary) to compile.
 	- declare new modules in crate root file, for example `mod garden;`, the compiler will look for the module's code in these place (priority order):
 		- inline, within `{}` following `mod garden`
 		- `src/garden.rs`
-		- `src/garden/mod.rs`
+		- `src/garden/mod.rs` (not recommend, because the project may end up with many files named `mod.rs`)
 	- declare submodules in any file other than the crate root, for example `mod vegetables;` in `src/garden.rs`, the compiler will look for the submodule's code in these place (priority order):
 		- inline, within `{}` following `mod vegetables`
 		- `src/garden/vegetables.rs`
-		- `src/garden/vegetables/mod.rs`
+		- `src/garden/vegetables/mod.rs` (not recommend, because the project may end up with many files named `mod.rs`)
 	- refer to code in that module in that same crate using the path.
 	- code within a module is private from its parent modules by default, to make a module or items public, use `pub` before their declaration.
 	- within a scope, the `use` keyword creates shortcuts to iemts to reduce repetition of long paths.
 
+#### paths for referring to an item in the module tree
+- `absolute path` is the full path starting from a crate root, it starts with the literal `crate`.
+- `relative path` starts from the current module and uses `self`, `super` or an identifier in the current module.
+- all items (functions, methods, structs, enums, modules and constants) are private to parent modules by default. items in a parent module can't use the private items inside child modules, but items in child modules can use the items in their ancestor modules. however, Rust does give you the option to expose inner parts of child modules's code to outer ancestor modules by using the `pub` keyword to make an item public.
+- `super` allows us to reference an item that we know is in the parent module (just like `..` syntax to traverse directory).
+- we can provide new name with the `as` keyword that allows bringing two types of the same name into the same scope with `use`.
+
+#### bringing paths into scope with the `use` keyword
+- adding `use` and a path in a scope is similar to creating a symbolic link in the filesystem.
+- adding external package as a dependency in `Cargo.toml` tells `cargo` to download that package and any dependencies from `crates.io` and make that external package available to out project.
 
 ### useful funtions
-- dbg!() similar to print() a variable in C.
+- `dbg!()` similar to `print()` a variable in C.
 
 ### something
 - `free memory` is to mark a location as being free, not "clear" the data in that location, because of performace.
 - the concept ownership, borrowing and slices ensure memory safety at compile time.
-- `cargo` is actually a package that contains the binary crate for the command line tool you've been using to build your code, it also contains a library crate that the binary crate depends on. `cargo` follows a convention that the `src/main.rs` is the `crate root` of a binary crate with the same name as the package, and if the package directory contains `src/lib.rs`, the package contains a library crate with the same name as the package, and `src/lib.rs` is its `crate root`. 
+- `cargo` is actually a package that contains the binary crate for the command line tool you've been using to build your code, it also contains a library crate that the binary crate depends on. `cargo` follows a convention that the `src/main.rs` is the `crate root` of a binary crate with the same name as the package, and if the package directory contains `src/lib.rs`, the package contains a library crate with the same name as the package, and `src/lib.rs` is its `crate root`.
