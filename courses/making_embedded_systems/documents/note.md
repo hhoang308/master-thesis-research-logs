@@ -36,3 +36,31 @@ Bonus (Power-on behavior):
 - Processor reset/initialization delay: self reset and ready to execute the first command.
 
 ### C2. Creating a System Architecture
+- Have a good view of the whole system (system architecture design) to understand solutions, hidden dependencies, write good-quality code.
+- Start with OK design then improving on it before you start implement it.
+- Product functions $\to$ software and hardware architecture (which hardware is necessary to support functions).
+- Better way is to go from an existing product.
+#### Creating System Diagrams
+- A series of diagrams that show the relationships between various part of the software. These will give you a view of the whole system, help you identifies bottle-neck, dependencies, new features,...
+- 
+#### Context Diagram
+- How the system will be used by the customer, focus on the relationship between device, users, servers, other devices, other entities.
+- Help define system requirements, goals of the device.
+#### Block Diagram
+- How the **physical elements of the system** communicates.
+- The schematics (simplified view of the hardware) + the hardware block diagram $\to$ software block diagram.
+- For examples, SPI box inside the processor to show that we need to write some SPI code. If there are multiple chups connected via the same method, they should go to the same communications block in the chip.
+![comparision of schematic and hardware and software block diagram](image-1.png)
+- Keep the detailed pieces in a different place.
+- Better to have too many boxes at this stage than too few.
+#### Organigram
+- Looks like an organization chart, the upper-level components tell the lower one what to do and the lower-level pieces will provide requested information and notify when errors arise. Communication shouldn't be one direction.
+- **Identifies and manage dependencies and shared resources** because its increase the complexity.
+![organizational diagram with a shared resources](image-3.png)
+- To understand an existing codebases, should runs through the code in a debugger, from `main()` $\to$ interesting functions (not to get lost in the details) $\to$ again.
+#### Layering Diagram
+- Each object that uses something below it should touch all of the things it uses, if possible.
+- Group resources if they are always used together or next to each others.
+- The size of box is directly proportional to the complexity of elements.
+- **Determines layers of code, interfaces and encapsulates the complexity.**
+![software architecture layering diagram](image-2.png)
