@@ -81,3 +81,9 @@ Bonus (Power-on behavior):
 - Driver are stackable, for example, `open` for display $\to$ subsystem initialization code $\to$ `open` for the flash and `open` for SPI driver.
 - Layer and adapter add delays, complexity and more memory to your code, but still a good trade with good maintainability, testing, portability.
 - Testing should be considered right from the architecture design stage.
+### Creating Interfaces
+- Most modules will need an initialization function (though driver often use `open` for this).
+- A good initialize function should be able to be called multiple times if it is used by different subsystems. A very good initialization function can reset the subsystem (or hardware resource) to a known good state in case of partial system failure.
+- As you fill in the interface, just focus on whichever one is most useful to you (or clearest to your 'boss' or 'minion')
+#### Example: A Logging Interface
+- Specify requirements: 
