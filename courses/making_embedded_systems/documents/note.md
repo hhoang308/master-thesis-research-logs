@@ -86,4 +86,11 @@ Bonus (Power-on behavior):
 - A good initialize function should be able to be called multiple times if it is used by different subsystems. A very good initialization function can reset the subsystem (or hardware resource) to a known good state in case of partial system failure.
 - As you fill in the interface, just focus on whichever one is most useful to you (or clearest to your 'boss' or 'minion')
 #### Example: A Logging Interface
-- Specify requirements: 
+- Specify requirements: encapsulates, handle different underlying implementations (subsystem-specific), priority-level,...
+- Design interface: may changes as the interface develops, the successful criteria is "The other subsystems do not depend on the wayu XYZ is carried out, they just call the given interface".
+- Version your code: should be available via the primary communication path (USB, Wifi, UART,...) and print out automatically on boot, or through a query, or compiled into objects file and located in a specific address. Notice that each piece that gets built or updated seperately should have a version that is part of the protocol.
+- Object-Oriented Programming in C: used C instead of C++ for speed or match what is already there. `data hiding` in C by scoping a variable appropriately, you can mimic the idea of private variables (and even friend objects). sharing private variable (sometimes you need a backdoor to the information, consider guarding against it during normal development) by returning a pointer to the private variables.
+- Keep in mind that you will also need methods for verifying your system.
+### A Sandbox to Play In
+- MVC (model-view-controller) is a pattern achitecture to isolate application from user interface so they can be developed and tested independently. `view` is the interface to user, both input and output. `model` is the domain-specific data and logic, takes input and creates something useful. `controller` is the glue that works between the model and the view.
+- Another way to use the MVC pattern is a virtual box (or sandbox), this is a valuable way to develop and verify complex algorithm in embedded systems. Keep the `model`, switch input back and forth between a file on a PC and the actual system, redirect output to a file, changes the `controller`, so that you can do regression tests to verify algorithm.
