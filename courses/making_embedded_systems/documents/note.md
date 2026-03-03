@@ -94,3 +94,20 @@ Bonus (Power-on behavior):
 ### A Sandbox to Play In
 - MVC (model-view-controller) is a pattern achitecture to isolate application from user interface so they can be developed and tested independently. `view` is the interface to user, both input and output. `model` is the domain-specific data and logic, takes input and creates something useful. `controller` is the glue that works between the model and the view.
 - Another way to use the MVC pattern is a virtual box (or sandbox), this is a valuable way to develop and verify complex algorithm in embedded systems. Keep the `model`, switch input back and forth between a file on a PC and the actual system, redirect output to a file, changes the `controller`, so that you can do regression tests to verify algorithm.
+### Back to the Drawing Board
+- Should make 4 sketches of your system. Remember that change sketches much more easily than change a system source code.
+- Some of the diagrams may become part of the documentation and need to be maintained.
+- Making the high-level diagram too detailed is a good way to lose the whole-system picture. Sometimes a large box need to be moved to a new page for more detail.
+### Further Reading
+- Design Patterns: Elements of Reusable Object-Oriented Software.
+- Documenting Software Architectures.
+- Real-Time Software Design for Embedded Systems
+### Interview Question: Create an Architecture
+Q: Describe the architecture for this [pick an object in the room]
+A:
+The purpose of the interviewer is they want to know that candidate can break problem down into pieces, deconstruct an object, see a good overview of the whole system and also still dig deep into some areas (to know the experience of interviewee), enthusiasm for problem solving and effectively communicate their ideas.
+- Choose suitable object (phones, projector,...).
+- Start with inputs and outputs. Shouldn't be afraid to pick up the object and see the connections it has.
+- Making connections by asking (yourself) how each component works.
+- Mentioning good software design practices.
+- Ask questions about specific features or possible design goals.
