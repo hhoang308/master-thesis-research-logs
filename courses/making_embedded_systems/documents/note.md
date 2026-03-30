@@ -109,5 +109,54 @@ The purpose of the interviewer is they want to know that candidate can break pro
 - Choose suitable object (phones, projector,...).
 - Start with inputs and outputs. Shouldn't be afraid to pick up the object and see the connections it has.
 - Making connections by asking (yourself) how each component works.
-- Mentioning good software design practices.
-- Ask questions about specific features or possible design goals.
+- Mentioning good software design practices. Use organization diagram, encapsulate modules so that some parts of system can be reused in the future.
+- Ask questions about specific features or possible design goals (because you are requested to redesign the object, so you can suggest changes in feature or design to optimize the object).
+- Admit what you know and what you dont.
+## C3. Getting Your Hands on the Hardware
+### Hardware Design
+**hardware team:** datasheet + reference designs $\to$ choose components $\to$ purchase development kits (riskiest peripheral + processor) $\to$ creates schematics $\to$ generates PDF schematics at checkpoints or review for software team $\to$ when the schematics complete, processor + peripheral in delelopment kit are suitable, the board can be laid out $\to$ the board goes to fabrication to make printed circuit board (PCB) $\to$ start assembled component froms gathering items on the BOM to make PCBA $\to$ verify power issues and other hardware subsystems.
+**software team:** have development kits $\to$ finding (or building) toolchain with compiler and debugger, create debug system,... $\to$ define software to test hardware
+### Board Bring-up
+- when design, make each component individually testable.
+- when get PCBA, start on the lowest level pieces (for example, blink led, motor moves,...) then take smallest step possible.
+- make your tools independent of you being present to run them $\to$ someone can runs and reproduce the issue.
+### Reading a Datasheet
+- as a software engineer, consider each chip as a seperate software library $\to$ learn to familiar with processor + peripheral as hard as learning a software package (Qt, OpenCV,...), know which susbet of the documentation is important and get away with it.
+- make sure you have the latest version of component and datasheet.
+- reading datasheet requires experience and patience.
+- the overview sections near the top of each datasheet isn't likely to be very helpful if you haven't already used a component with a datasheet that is 85% the same as this one $\to$ skip the overview header (or come back later)
+- functional diagrams are a lot like the overview it is helpful if you know what you are looking for $\to$ skip functional diagram
+- **start at the description**, read this section thoroughly, underline important information and try to explain it to someone else.
+#### Conclusion
+**read first :** description, application information (or theory of operation), timing diagram, user manual (optional), vendor code repo for example code, example codes in github or other web.
+**read when debug:** pin out, pin description, performance characteristics, sample schematics (ask electrical engineer about the difference if the schematic doesn't match sample), overview.
+### Datasheet Sections you need when things go wrong
+- skip informations relates to hardware team (max rating, operating conditions, layout,...) come back when you have to pull out an oscilloscope. $\to$ safe to ignore on the first pass
+- need to know the pinout if you have to probe the chip during debugging, the pin names with bar over them (for example, /OUT) indicate that these pins are `active low`.
+### Datasheet Sections for Software Developer
+- read **application information** (or **theory of operation**) from start to end, consider how you'll need to implement the driver for your system
+- focus on timing diagram
+- **generally:** write the driver $\to$ re-reading parts as you write the interface to the chip $\to$ communication method $\to$ actually use the chip
+- when the driver working, read through the feature summary at the top of the datasheet to have better overview.
+### How Timing Diagrams Help Software Developers
+- timing diagram shows relationship between transition on the same or different signal.
+- most diagrams focus on the digital states, showing you when a signal is high or low (check active low or active high).
+- some diagrams include a ramp to show you when the signal is in a transitory state.
+- signal may also both high and low, indicates the signal is in an indeterminate logical state (for output)  or isn't monitored (for input).
+- focus on highlighted lines with arrow, signal ordering, causal relationship and footnotes.
+### Evaluating Components Using the Datasheet
+- evaluating a component is a more advanced skill than reading the datasheet (**electrical engineer generally develop before software engineer**).
+- start with a list of must-haves and a list of wants -> potential pool of parts -> talking with vendor to ask guidance -> check maximum rating, electrical characteristics, typical characteristics -> selects a few parts -> read application sections, may be a good reason if a parts directedly particularly for a limited scope -> performance characteristic -> choose 2 best componets per parts -> prototype the parts with actual hardware (if possible, otherwise, estimate what will happen) -> gain enough knowledge to dealing with similar parts, so that, next time you can start with the overview and compare the difference or trade-off.
+- datasheet don't have prices and lead times -> be careful.
+### Your Processor is a Language
+- This is the most important component.
+- Some vendor (NXP, ST, Microchip) uses a common core (ARM Cortex M4F) and provide different on-chip peripherals (timer,...) -> expect differences.
+- Getting to know a processor is the same with learning a new programming language. As you learn several programming language or processor, you will find that learning the new ones becomes easier and easier.
+- The primary goal is to learn what you need to get things accomplished because the amount of documentation for a processor scales with its complexity.
+- Useful information will be in:
+    - User Manual for the processor: most of what you need to know, skip to the parts that will be on your system.
+    - User Manual for the dev kit: lets you setup compiler, debugger before custom hardware comes in (give you something to compare with your hardware if it doesn't work)
+    - Application Notes: describe how to accomplish different goals.
+    - Errata: know what parts of the chip have errors.
+    - Examples.
+    
