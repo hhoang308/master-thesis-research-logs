@@ -65,3 +65,17 @@ $\Rightarrow$ dùng Format Fuzzer?
 - Không có grammar cho toàn bộ PDF format
 - Chỉ có thẻ tạo grammer cho 1 khối bộ phận thôi, nhưng format pdf lại cần sự thống nhất giữa nhiều object với nhau.
 
+### Các OpenSource xử lý PDF
+1. PDFium (Của Google)
+2. Poppler
+3. MuPDF
+4. Xpdf (xpdfreader)
+
+### Cải tiến structure-aware mutator cho PDF
+- Phương pháp 1: Fuzzing cấp độ khối dữ liệu (Chunk-level Fuzzing - Mô hình AFLSmart)
+Thay vì mô hình hóa toàn bộ cú pháp, bạn chỉ cần xây dựng một Biểu diễn trung gian (Intermediate Representation - IR) rất cơ bản mô tả các "khối" (chunk) của PDF (ví dụ: đâu là Header, đâu là Body, đâu là XRef). Mutator của bạn sẽ thực hiện xáo trộn cấp độ cao như: Xóa nguyên một khối Object, hoán đổi vị trí hai khối, hoặc nhân bản một khối lên nhiều lần. Sau đó mới dùng đột biến byte ngẫu nhiên bên trong lõi của khối đó. 
+    - Sử dụng thêm kỹ thuật Hậu xử lý (Post-Processing) để tự động quét lại toàn bộ file PDF vừa sinh ra, tự động đếm lại số lượng byte, tính toán lại trường /Length của các Stream bị thay đổi, và tạo lại bảng tham chiếu XRef mới hoàn toàn. Sau khi sửa xong cấu trúc cho hợp lệ, buffer mới được bơm vào phần mềm mục tiêu.
+    - Thiết kế một mutator có khả năng nhận thức cấu trúc ở cả cấp độ thấp (bit/byte/word/dword) ngay bên trong ranh giới của khối dữ liệu đó để tránh làm hỏng cú pháp cục bộ.
+    - Tự định nghĩa một cấu trúc Biểu diễn trung gian (PDF-IR) siêu nhẹ bằng C/C++ (hoặc dùng FormatFuzzer/Protobuf) tích hợp thẳng vào AFL++. Việc này sẽ giúp tốc độ thực thi (executions/second) của bạn vượt trội hoàn toàn so với AFLSmart gốc.
+- Phương pháp 2: Fuzzing cấp độ Token (Token-Level Fuzzing)
+Đây là phương pháp xuất hiện tại hội nghị USENIX Security. Bạn viết một script đơn giản đọc file PDF hạt giống, cắt nó ra thành các "từ vựng" (Token) như /Type, /Font, obj, endobj, <<, >>. Mutator của bạn không quan tâm đến ngữ pháp cây AST mà chỉ bốc ngẫu nhiên các Token này chèn, hoán đổi hoặc xóa chúng. Việc này tạo ra các file PDF "gần đúng" cú pháp nhưng sai logic, lừa được parser đi rất sâu để tìm lỗi.
