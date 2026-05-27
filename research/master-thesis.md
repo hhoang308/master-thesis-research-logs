@@ -23,7 +23,8 @@ Phương pháp:
 ## Công việc
 1. Thu thập seed corpus + chạy afl++ thuần tuý cho các pdf reader/parser/library.
 https://github.com/mozilla/pdf.js/tree/master/test/pdfs
-Sau khi tìm xong phải duyệt bằng afl-cmin để lọc bớt seed
+Từ các CVE tìm được, tự tạo các seed đặc biệt. 
+Sau khi tìm xong phải duyệt bằng afl-cmin để lọc bớt seed.
 
 2. Round-trip test lopdf:
 Mục tiêu: Sử dụng lopdf (hiện tại chưa liên quan gì đến mutate) load ~ 40 files pdf dạng bytes, sau đó parse thành IR, rồi từ IR parse lại thành bytes. Đảm bảo tất cả các file đều phải parse được, nếu không được phải xử lý.
@@ -88,3 +89,4 @@ Chương 6 — Kết luận (3-5 trang)
 
 ## Khái niệm liên quan
 1. RNG (Random Number Generator) là bộ sinh số ngẫu nhiên. Trong bối cảnh fuzzing thì RNG được dùng để quyết định xem chọn mutator nào (L1, L2 hay L3) và chọn object nào để mutate và thay nó bằng giá trị gì. Nếu cần reproduce lại một mutation cụ thể, có thể chạy lại với cùng seed và ra đúng kết quả đó. "Seed" ở đây là một số nguyen truyền vào trước khi fuzzing, nếu sử dụng cùng số seed thì mọi quyết định ngẫu nhiên của fuzzing đều reproduce được, từ đó quá trình fuzzing có thể được tái hiện lại.
+2. IR (Intermediate Representation) của cấu trúc PDF trông như thế nào?
