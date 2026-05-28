@@ -25,6 +25,7 @@ Không phải CVE cũng dẫn đến RCE (Remote Code Execution).
     - Mitigation: Tìm hiểu các cơ chế bảo mật hiện tại có ngăn chặn được không, ví dụ, ASLR, Stack Canaries.
 
 ## Template
+1. Reference
 2. Triage
     - CPE:
     - CWE:
