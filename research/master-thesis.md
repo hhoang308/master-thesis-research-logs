@@ -22,10 +22,20 @@ Phương pháp:
 - Phương pháp 2 (khó hơn, làm khi cách 1 gặp vấn đề không khắc phục được): Sử dụng LibAFL + lopdf để tự build 1 fuzzer chuyên dụng cho PDF.
 ## Công việc
 1. Thu thập seed corpus + chạy afl++ thuần tuý cho các pdf reader/parser/library.
-https://github.com/mozilla/pdf.js/tree/master/test/pdfs
-Từ các CVE tìm được, tự tạo các seed đặc biệt. 
+Thu thập các seed corpus
+  https://github.com/mozilla/pdf.js/tree/master/test/pdfs
+  https://gitlab.freedesktop.org/poppler/test.git
+    Sử dụng --depth để chỉ lấy các commit ở gần thay vì lấy full lịch sử $\to$ nặng
+    Các file .link là những file chứa URL dẫn đến 1 file PDF mà ví lí do nào đó (nặng, bản quyền,...) nên không có, tạm bỏ qua các file này đã đủ đa dạng rồi.
 Sau khi tìm xong phải duyệt bằng afl-cmin để lọc bớt seed.
-
+  $\leftarrow$ Sử dụng afl-cmin với các seed tìm được ở bước trên
+Từ các CVE tìm được, tự tạo các seed đặc biệt. 
+  $\leftarrow$ Kiểm tra pipeline có thực sự hoạt động, nếu hoạt động thì phải tái hiện lại được CVE. 
+  $\leftarrow$ Tạo seed gần vùng code đáng khai thác, giúp fuzzer có khởi đầu tốt hơn.
+  $\leftarrow$ Tạo baseline để so sánh, cụ thể, so sánh khoảng thời gian tìm lại được CVE
+    1. Sử dụng AFL++ và seed thông thường
+    2. Sử dụng AFL++ và seed đã được ép theo tương tự CVE
+    3. Sử dụng AFL++ và IR mutator và seed đã được sửa đổi dựa trên CVE.
 2. Round-trip test lopdf:
 Mục tiêu: Sử dụng lopdf (hiện tại chưa liên quan gì đến mutate) load ~ 40 files pdf dạng bytes, sau đó parse thành IR, rồi từ IR parse lại thành bytes. Đảm bảo tất cả các file đều phải parse được, nếu không được phải xử lý.
 
