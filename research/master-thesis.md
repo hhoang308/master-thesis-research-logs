@@ -38,6 +38,9 @@ Từ các CVE tìm được, tự tạo các seed đặc biệt.
     3. Sử dụng AFL++ và IR mutator và seed đã được sửa đổi dựa trên CVE.
 2. Round-trip test lopdf:
 Mục tiêu: Sử dụng lopdf (hiện tại chưa liên quan gì đến mutate) load ~ 40 files pdf dạng bytes, sau đó parse thành IR, rồi từ IR parse lại thành bytes. Đảm bảo tất cả các file đều phải parse được, nếu không được phải xử lý.
+- Máy WSL đang sử dụng rust tải về từ apt nên version thấp -> chỉ sử dụng lopdf version thấp -> vẫn ổn trong quá trình test, nhưng để làm các bước khác trong luận văn cần cài đặt lại rust bằng rustup `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
+- Sử dụng lopdf để parse file pdf thành công, tuy nhiên không phải file nào cũng parse được, thử nghiệm thành công với 24/40 pdf files (60%), các file failed sẽ chia làm 2 loại: lopdf không parser được hoặc lopdf parse thành công nhưng khi serialize lại thì file kết quả khác file input ban đầu.
+
 
 3. Phát triển mutator tối giản bằng Rush cdylib
 Mục tiêu: AFL++ có thể nhận và sử dụng được mutator này.
