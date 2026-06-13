@@ -1,0 +1,32 @@
+syntax = "proto2";
+
+// The three mandatory objects only
+message Catalog {
+  required uint32 pages_ref = 1;  // object number of Pages node
+}
+
+message PageTree {
+  repeated uint32 kids = 1;       // object numbers of Page objects
+}
+
+message Page {
+  // MediaBox: [x1 y1 x2 y2]
+  optional float width  = 1 [default = 612];
+  optional float height = 2 [default = 792];
+  optional uint32 parent_ref = 3;
+}
+
+message IndirectObject {
+  required uint32 number = 1;
+  oneof body {
+    Catalog   catalog   = 2;
+    PageTree  page_tree = 3;
+    Page      page      = 4;
+  }
+}
+
+message PdfDocument {
+  // serializer assigns object numbers itself —
+  // you don't need LPM to control them at this stage
+  repeated Page pages = 1;
+}

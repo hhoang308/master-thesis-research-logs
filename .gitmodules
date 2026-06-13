@@ -13,3 +13,6 @@
 [submodule "research/AFLplusplus"]
 	path = research/AFLplusplus
 	url = https://github.com/hhoang308/AFLplusplus.git
+[submodule "research/pdf-proto-schema/libprotobuf-mutator"]
+	path = research/pdf-proto-schema/libprotobuf-mutator
+	url = https://github.com/google/libprotobuf-mutator.git
