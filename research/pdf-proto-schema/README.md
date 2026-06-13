@@ -1,0 +1,243 @@
+# pdf-proto-schema
+
+A libFuzzer + libprotobuf-mutator pipeline for fuzzing xpdf with structure-aware PDF inputs.
+
+## Pipeline overview
+
+`pdf.proto` $\to$ libprotobuf-mutator mutates PdfDocument $\to$ `SerializePdf()` $\to$ raw PDF bytes $\to$ xpdf PDFDoc
+
+## Files
+
+| File | Purpose |
+|------|---------|
+| `pdf.proto` | Protobuf schema defining the PDF structure (Catalog, PageTree, Page). libprotobuf-mutator uses this to generate and mutate valid `PdfDocument` messages. |
+| `pdf.pb.h` / `pdf.pb.cc` | C++ classes generated from `pdf.proto` by `protoc`. Do not edit manually. |
+| `serializer.h` / `serializer.cpp` | Converts a `PdfDocument` proto message into raw PDF bytes. Assigns object numbers, computes xref offsets, and writes a valid `%%EOF` trailer. |
+| `harness.cpp` | libFuzzer entry point. Uses `DEFINE_PROTO_FUZZER` to receive a mutated `PdfDocument`, calls `SerializePdf`, writes to a temp file, and feeds it to xpdf's `PDFDoc`. |
+| `verify_serializer.cpp` | Standalone test binary (no fuzzer, no xpdf). Constructs a hardcoded 1-page document, serializes it, and dumps the PDF bytes to stdout for manual validation. |
+| `CMakeLists.txt` | Build config for the fuzzer binary. Requires Clang, links xpdf as an object library, and compiles with `-fsanitize=fuzzer,address`. |
+| `libprotobuf-mutator/` | Git submodule -- google/libprotobuf-mutator. Provides `DEFINE_PROTO_FUZZER` and the libprotobuf-mutator integration with libFuzzer. |
+
+---
+
+## How to create the base pipeline combining libFuzzer and libprotobuf-mutator
+
+This section documents all the issues encountered and fixes applied when building
+the pipeline on Ubuntu 22.04 with clang-14 and protobuf installed via miniconda.
+
+### Issue 1 -- Missing `#include "pdf.pb.h"` in serializer.cpp
+
+`serializer.cpp` uses `PdfDocument` and `Page` from the generated protobuf code but
+did not include the generated header.
+
+**Fix:** add to the top of `serializer.cpp`:
+
+```cpp
+#include "pdf.pb.h"
+```
+
+### Issue 2 -- Name collision between protobuf Catalog and xpdf Catalog
+
+Both the protobuf-generated code and xpdf define a class named `Catalog` in the
+global namespace. When `harness.cpp` includes both `pdf.pb.h` and xpdf's `PDFDoc.h`,
+the compiler resolves xpdf's `catalog->findDest()` calls against the wrong class
+and fails.
+
+**Fix:** add a package declaration to `pdf.proto` so all generated types live in
+the `pdf_proto` namespace:
+
+```proto
+package pdf_proto;
+```
+
+Then update all references in `serializer.h`, `serializer.cpp`, `harness.cpp`, and
+`verify_serializer.cpp` to use the fully-qualified type:
+
+```cpp
+pdf_proto::PdfDocument
+pdf_proto::Page
+```
+
+### Issue 3 -- clang++-14 auto-selects GCC 12 but only GCC 11 headers are installed
+
+clang-14 detects the newest GCC installation on the system and uses its C++ standard
+library headers. GCC 12 is installed but `libstdc++-12-dev` is not, so headers like
+`<atomic>` are missing.
+
+Verify which GCC clang-14 selected:
+```bash
+clang++-14 -v 2>&1 | grep "Selected GCC"
+# Selected GCC installation: /usr/bin/../lib/gcc/x86_64-linux-gnu/12  <-- wrong
+```
+
+**Fix:** explicitly add GCC 11 C++ include paths in `CMakeLists.txt`:
+
+```cmake
+add_compile_options(
+  -I/usr/include/c++/11
+  -I/usr/include/x86_64-linux-gnu/c++/11)
+```
+
+### Issue 4 -- abseil (from miniconda protobuf) cannot find `sanitizer/common_interface_defs.h`
+
+Protobuf v22+ depends on abseil. Abseil's `dynamic_annotations.h` includes
+`<sanitizer/common_interface_defs.h>` when compiled with sanitizers. This header
+lives in clang's resource directory but is not on the default include path.
+
+Verify the header exists:
+```bash
+find $(clang-14 -print-resource-dir) -name "common_interface_defs.h"
+# /usr/lib/llvm-14/lib/clang/14.0.0/include/sanitizer/common_interface_defs.h
+```
+
+**Fix:** add the clang-14 resource include directory explicitly (as `-I`, not
+`-resource-dir` -- the latter replaces all runtime headers and breaks SSE
+intrinsics):
+
+```cmake
+add_compile_options(-I/usr/lib/llvm-14/lib/clang/14.0.0/include)
+```
+
+### Issue 5 -- linker cannot find libstdc++
+
+clang++-14 on this machine does not add `/usr/lib/gcc/x86_64-linux-gnu/11` to the
+linker search path automatically. CMake's compiler test fails at configure time
+before any `add_link_options` in CMakeLists.txt takes effect.
+
+**Fix:** pass the linker path on the cmake command line so it applies during the
+compiler test phase:
+
+```bash
+cmake .. -DCMAKE_EXE_LINKER_FLAGS="-L/usr/lib/gcc/x86_64-linux-gnu/11"
+```
+
+And mirror it in `CMakeLists.txt`:
+
+```cmake
+add_link_options(-L/usr/lib/gcc/x86_64-linux-gnu/11)
+```
+
+### Issue 6 -- `port/protobuf.h` not found when compiling harness.cpp
+
+`libfuzzer_macro.h` (from libprotobuf-mutator) includes `port/protobuf.h` using a
+path relative to the libprotobuf-mutator root. That root directory must be on the
+compiler include path.
+
+**Fix:** add the libprotobuf-mutator root to `include_directories` in
+`CMakeLists.txt`:
+
+```cmake
+include_directories(
+  ${CMAKE_CURRENT_SOURCE_DIR}/libprotobuf-mutator
+  ...
+)
+```
+
+### Issue 7 -- undefined reference to abseil symbols at link time
+
+`${Protobuf_LIBRARIES}` from CMake's module-mode `find_package(Protobuf)` does not
+carry transitive abseil dependencies. Linking fails with missing symbols like
+`absl::log_internal::MakeCheckOpString`.
+
+**Fix:** switch to CMake config mode and use the modern target:
+
+```cmake
+find_package(Protobuf REQUIRED CONFIG)  # CONFIG mode carries transitive deps
+
+target_link_libraries(pdf_fuzzer
+  ...
+  protobuf::libprotobuf   # instead of ${Protobuf_LIBRARIES}
+  ...
+)
+```
+
+---
+
+## Build verify_serializer (serializer validation only)
+
+No fuzzer flags, no xpdf dependency -- just protobuf.
+
+```bash
+cd research/pdf-proto-schema
+
+# 1. Generate protobuf C++ sources
+protoc --cpp_out=. pdf.proto
+
+# 2. Compile
+g++ -std=c++17 -o verify_serializer \
+    verify_serializer.cpp serializer.cpp pdf.pb.cc \
+    $(pkg-config --cflags --libs protobuf) \
+    -Wl,-rpath,$(pkg-config --variable=libdir protobuf)
+
+# 3. Validate output
+./verify_serializer > /tmp/test.pdf
+pdfinfo /tmp/test.pdf
+pdftotext /tmp/test.pdf -
+```
+
+**Expected result:**
+
+```
+Custom Metadata: no
+Metadata Stream: no
+Tagged:          no
+...
+Pages:           1
+Encrypted:       no
+Page size:       612 x 792 pts (letter)
+Page rot:        0
+File size:       330 bytes
+PDF version:     1.4
+```
+
+`pdftotext` produces empty output -- correct, because the page has no content stream.
+
+---
+
+## Build the fuzzer (pdf_fuzzer)
+
+Requires clang-14, xpdf 4.06 source at `../xpdf-4.06`, and protobuf from miniconda.
+
+```bash
+cd research/pdf-proto-schema/build
+
+cmake .. \
+  -DCMAKE_CXX_COMPILER=clang++-14 \
+  -DCMAKE_C_COMPILER=clang-14 \
+  -DCMAKE_EXE_LINKER_FLAGS="-L/usr/lib/gcc/x86_64-linux-gnu/11"
+
+cmake --build . -j$(nproc)
+```
+
+## Run the fuzzer
+
+```bash
+cd research/pdf-proto-schema/build
+
+# smoke test: 100 runs to confirm the pipeline works
+./pdf_fuzzer -runs=100 -max_len=1024
+
+# real fuzzing session: runs indefinitely, saves corpus
+mkdir -p corpus
+./pdf_fuzzer -max_len=65536 corpus/
+```
+
+**Expected result for smoke test (`-runs=100`):**
+
+```
+INFO: found LLVMFuzzerCustomMutator (...). Disabling -len_control by default.
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: ...
+INFO: A corpus is not provided, starting from an empty corpus
+#2    INITED cov: 15 ft: 16 corp: 1/1b ...
+#3    NEW    cov: 628 ft: 636 ...
+...
+#100  DONE   cov: 664 ft: 1124 corp: 24/1539b lim: 1024 exec/s: 0 rss: 52Mb
+Done 100 runs in 0 second(s)
+```
+
+Key things to verify in the output:
+- `found LLVMFuzzerCustomMutator` -- confirms libprotobuf-mutator is active, not raw byte mutation
+- `INITED` appears -- the fuzzer initialized successfully and fed at least one input to xpdf
+- `cov` grows over runs -- xpdf is being exercised and new code paths are discovered
+- No `CRASH` or `AddressSanitizer` lines -- the baseline PDF structure is valid

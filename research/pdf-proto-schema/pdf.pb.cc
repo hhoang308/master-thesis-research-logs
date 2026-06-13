@@ -24,6 +24,7 @@ PROTOBUF_PRAGMA_INIT_SEG
 namespace _pb = ::google::protobuf;
 namespace _pbi = ::google::protobuf::internal;
 namespace _fl = ::google::protobuf::internal::field_layout;
+namespace pdf_proto {
 
 inline constexpr PageTree::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
@@ -153,6 +154,7 @@ struct IndirectObjectDefaultTypeInternal {
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 IndirectObjectDefaultTypeInternal _IndirectObject_default_instance_;
+}  // namespace pdf_proto
 static constexpr const ::_pb::EnumDescriptor* PROTOBUF_NONNULL* PROTOBUF_NULLABLE
     file_level_enum_descriptors_pdf_2eproto = nullptr;
 static constexpr const ::_pb::ServiceDescriptor* PROTOBUF_NONNULL* PROTOBUF_NULLABLE
@@ -161,75 +163,76 @@ const ::uint32_t
     TableStruct_pdf_2eproto::offsets[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
         protodesc_cold) = {
         0x081, // bitmap
-        PROTOBUF_FIELD_OFFSET(::Catalog, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::Catalog, _impl_._has_bits_),
         4, // hasbit index offset
-        PROTOBUF_FIELD_OFFSET(::Catalog, _impl_.pages_ref_),
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::Catalog, _impl_.pages_ref_),
         0,
         0x081, // bitmap
-        PROTOBUF_FIELD_OFFSET(::PageTree, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::PageTree, _impl_._has_bits_),
         4, // hasbit index offset
-        PROTOBUF_FIELD_OFFSET(::PageTree, _impl_.kids_),
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::PageTree, _impl_.kids_),
         0,
         0x081, // bitmap
-        PROTOBUF_FIELD_OFFSET(::Page, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::Page, _impl_._has_bits_),
         6, // hasbit index offset
-        PROTOBUF_FIELD_OFFSET(::Page, _impl_.width_),
-        PROTOBUF_FIELD_OFFSET(::Page, _impl_.height_),
-        PROTOBUF_FIELD_OFFSET(::Page, _impl_.parent_ref_),
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::Page, _impl_.width_),
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::Page, _impl_.height_),
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::Page, _impl_.parent_ref_),
         1,
         2,
         0,
         0x085, // bitmap
-        PROTOBUF_FIELD_OFFSET(::IndirectObject, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::IndirectObject, _impl_._oneof_case_[0]),
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::IndirectObject, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::IndirectObject, _impl_._oneof_case_[0]),
         9, // hasbit index offset
-        PROTOBUF_FIELD_OFFSET(::IndirectObject, _impl_.number_),
-        PROTOBUF_FIELD_OFFSET(::IndirectObject, _impl_.body_),
-        PROTOBUF_FIELD_OFFSET(::IndirectObject, _impl_.body_),
-        PROTOBUF_FIELD_OFFSET(::IndirectObject, _impl_.body_),
-        PROTOBUF_FIELD_OFFSET(::IndirectObject, _impl_.body_),
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::IndirectObject, _impl_.number_),
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::IndirectObject, _impl_.body_),
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::IndirectObject, _impl_.body_),
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::IndirectObject, _impl_.body_),
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::IndirectObject, _impl_.body_),
         0,
         ~0u,
         ~0u,
         ~0u,
         0x081, // bitmap
-        PROTOBUF_FIELD_OFFSET(::PdfDocument, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::PdfDocument, _impl_._has_bits_),
         4, // hasbit index offset
-        PROTOBUF_FIELD_OFFSET(::PdfDocument, _impl_.pages_),
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::PdfDocument, _impl_.pages_),
         0,
 };
 
 static const ::_pbi::MigrationSchema
     schemas[] ABSL_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-        {0, sizeof(::Catalog)},
-        {5, sizeof(::PageTree)},
-        {10, sizeof(::Page)},
-        {19, sizeof(::IndirectObject)},
-        {32, sizeof(::PdfDocument)},
+        {0, sizeof(::pdf_proto::Catalog)},
+        {5, sizeof(::pdf_proto::PageTree)},
+        {10, sizeof(::pdf_proto::Page)},
+        {19, sizeof(::pdf_proto::IndirectObject)},
+        {32, sizeof(::pdf_proto::PdfDocument)},
 };
 static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
-    &::_Catalog_default_instance_._instance,
-    &::_PageTree_default_instance_._instance,
-    &::_Page_default_instance_._instance,
-    &::_IndirectObject_default_instance_._instance,
-    &::_PdfDocument_default_instance_._instance,
+    &::pdf_proto::_Catalog_default_instance_._instance,
+    &::pdf_proto::_PageTree_default_instance_._instance,
+    &::pdf_proto::_Page_default_instance_._instance,
+    &::pdf_proto::_IndirectObject_default_instance_._instance,
+    &::pdf_proto::_PdfDocument_default_instance_._instance,
 };
 const char descriptor_table_protodef_pdf_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
     protodesc_cold) = {
-    "\n\tpdf.proto\"\034\n\007Catalog\022\021\n\tpages_ref\030\001 \002("
-    "\r\"\030\n\010PageTree\022\014\n\004kids\030\001 \003(\r\"C\n\004Page\022\022\n\005w"
-    "idth\030\001 \001(\002:\003612\022\023\n\006height\030\002 \001(\002:\003792\022\022\n\n"
-    "parent_ref\030\003 \001(\r\"|\n\016IndirectObject\022\016\n\006nu"
-    "mber\030\001 \002(\r\022\033\n\007catalog\030\002 \001(\0132\010.CatalogH\000\022"
-    "\036\n\tpage_tree\030\003 \001(\0132\t.PageTreeH\000\022\025\n\004page\030"
-    "\004 \001(\0132\005.PageH\000B\006\n\004body\"#\n\013PdfDocument\022\024\n"
-    "\005pages\030\001 \003(\0132\005.Page"
+    "\n\tpdf.proto\022\tpdf_proto\"\034\n\007Catalog\022\021\n\tpag"
+    "es_ref\030\001 \002(\r\"\030\n\010PageTree\022\014\n\004kids\030\001 \003(\r\"C"
+    "\n\004Page\022\022\n\005width\030\001 \001(\002:\003612\022\023\n\006height\030\002 \001"
+    "(\002:\003792\022\022\n\nparent_ref\030\003 \001(\r\"\232\001\n\016Indirect"
+    "Object\022\016\n\006number\030\001 \002(\r\022%\n\007catalog\030\002 \001(\0132"
+    "\022.pdf_proto.CatalogH\000\022(\n\tpage_tree\030\003 \001(\013"
+    "2\023.pdf_proto.PageTreeH\000\022\037\n\004page\030\004 \001(\0132\017."
+    "pdf_proto.PageH\000B\006\n\004body\"-\n\013PdfDocument\022"
+    "\036\n\005pages\030\001 \003(\0132\017.pdf_proto.Page"
 };
 static ::absl::once_flag descriptor_table_pdf_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_pdf_2eproto = {
     false,
     false,
-    299,
+    351,
     descriptor_table_protodef_pdf_2eproto,
     "pdf.proto",
     &descriptor_table_pdf_2eproto_once,
@@ -242,6 +245,7 @@ PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_pdf_2eproto = 
     file_level_enum_descriptors_pdf_2eproto,
     file_level_service_descriptors_pdf_2eproto,
 };
+namespace pdf_proto {
 // ===================================================================
 
 class Catalog::_Internal {
@@ -262,7 +266,7 @@ Catalog::Catalog(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:Catalog)
+  // @@protoc_insertion_point(arena_constructor:pdf_proto.Catalog)
 }
 Catalog::Catalog(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Catalog& from)
@@ -285,7 +289,7 @@ inline void Catalog::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   _impl_.pages_ref_ = {};
 }
 Catalog::~Catalog() {
-  // @@protoc_insertion_point(destructor:Catalog)
+  // @@protoc_insertion_point(destructor:pdf_proto.Catalog)
   SharedDtor(*this);
 }
 inline void Catalog::SharedDtor(MessageLite& self) {
@@ -357,7 +361,7 @@ Catalog::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::Catalog>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::pdf_proto::Catalog>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     // required uint32 pages_ref = 1;
@@ -375,7 +379,7 @@ Catalog::_table_ = {
   }},
 };
 PROTOBUF_NOINLINE void Catalog::Clear() {
-// @@protoc_insertion_point(message_clear_start:Catalog)
+// @@protoc_insertion_point(message_clear_start:pdf_proto.Catalog)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -400,7 +404,7 @@ PROTOBUF_NOINLINE void Catalog::Clear() {
   if constexpr (::_pbi::DebugHardenCheckHasBitConsistency()) {
     this_.CheckHasBitConsistency();
   }
-  // @@protoc_insertion_point(serialize_to_array_start:Catalog)
+  // @@protoc_insertion_point(serialize_to_array_start:pdf_proto.Catalog)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -417,7 +421,7 @@ PROTOBUF_NOINLINE void Catalog::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:Catalog)
+  // @@protoc_insertion_point(serialize_to_array_end:pdf_proto.Catalog)
   return target;
 }
 
@@ -428,7 +432,7 @@ PROTOBUF_NOINLINE void Catalog::Clear() {
 ::size_t Catalog::ByteSizeLong() const {
   const Catalog& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:Catalog)
+  // @@protoc_insertion_point(message_byte_size_start:pdf_proto.Catalog)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -455,7 +459,7 @@ void Catalog::MergeImpl(::google::protobuf::MessageLite& to_msg,
   if constexpr (::_pbi::DebugHardenCheckHasBitConsistency()) {
     from.CheckHasBitConsistency();
   }
-  // @@protoc_insertion_point(class_specific_merge_from_start:Catalog)
+  // @@protoc_insertion_point(class_specific_merge_from_start:pdf_proto.Catalog)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
@@ -470,7 +474,7 @@ void Catalog::MergeImpl(::google::protobuf::MessageLite& to_msg,
 }
 
 void Catalog::CopyFrom(const Catalog& from) {
-  // @@protoc_insertion_point(class_specific_copy_from_start:Catalog)
+  // @@protoc_insertion_point(class_specific_copy_from_start:pdf_proto.Catalog)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -512,12 +516,12 @@ PageTree::PageTree(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:PageTree)
+  // @@protoc_insertion_point(arena_constructor:pdf_proto.PageTree)
 }
 PROTOBUF_NDEBUG_INLINE PageTree::Impl_::Impl_(
     [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
     [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    [[maybe_unused]] const ::PageTree& from_msg)
+    [[maybe_unused]] const ::pdf_proto::PageTree& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         kids_{visibility, arena, from.kids_} {}
@@ -536,7 +540,7 @@ PageTree::PageTree(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
 
-  // @@protoc_insertion_point(copy_constructor:PageTree)
+  // @@protoc_insertion_point(copy_constructor:pdf_proto.PageTree)
 }
 PROTOBUF_NDEBUG_INLINE PageTree::Impl_::Impl_(
     [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
@@ -548,7 +552,7 @@ inline void PageTree::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
 }
 PageTree::~PageTree() {
-  // @@protoc_insertion_point(destructor:PageTree)
+  // @@protoc_insertion_point(destructor:pdf_proto.PageTree)
   SharedDtor(*this);
 }
 inline void PageTree::SharedDtor(MessageLite& self) {
@@ -632,7 +636,7 @@ PageTree::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::PageTree>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::pdf_proto::PageTree>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     // repeated uint32 kids = 1;
@@ -650,7 +654,7 @@ PageTree::_table_ = {
   }},
 };
 PROTOBUF_NOINLINE void PageTree::Clear() {
-// @@protoc_insertion_point(message_clear_start:PageTree)
+// @@protoc_insertion_point(message_clear_start:pdf_proto.PageTree)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -678,7 +682,7 @@ PROTOBUF_NOINLINE void PageTree::Clear() {
   if constexpr (::_pbi::DebugHardenCheckHasBitConsistency()) {
     this_.CheckHasBitConsistency();
   }
-  // @@protoc_insertion_point(serialize_to_array_start:PageTree)
+  // @@protoc_insertion_point(serialize_to_array_start:pdf_proto.PageTree)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -697,7 +701,7 @@ PROTOBUF_NOINLINE void PageTree::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:PageTree)
+  // @@protoc_insertion_point(serialize_to_array_end:pdf_proto.PageTree)
   return target;
 }
 
@@ -708,7 +712,7 @@ PROTOBUF_NOINLINE void PageTree::Clear() {
 ::size_t PageTree::ByteSizeLong() const {
   const PageTree& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:PageTree)
+  // @@protoc_insertion_point(message_byte_size_start:pdf_proto.PageTree)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -739,7 +743,7 @@ void PageTree::MergeImpl(::google::protobuf::MessageLite& to_msg,
   if constexpr (::_pbi::DebugHardenCheckHasBitConsistency()) {
     from.CheckHasBitConsistency();
   }
-  // @@protoc_insertion_point(class_specific_merge_from_start:PageTree)
+  // @@protoc_insertion_point(class_specific_merge_from_start:pdf_proto.PageTree)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
@@ -754,7 +758,7 @@ void PageTree::MergeImpl(::google::protobuf::MessageLite& to_msg,
 }
 
 void PageTree::CopyFrom(const PageTree& from) {
-  // @@protoc_insertion_point(class_specific_copy_from_start:PageTree)
+  // @@protoc_insertion_point(class_specific_copy_from_start:pdf_proto.PageTree)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -788,7 +792,7 @@ Page::Page(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:Page)
+  // @@protoc_insertion_point(arena_constructor:pdf_proto.Page)
 }
 Page::Page(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Page& from)
@@ -813,7 +817,7 @@ inline void Page::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   _impl_.parent_ref_ = {};
 }
 Page::~Page() {
-  // @@protoc_insertion_point(destructor:Page)
+  // @@protoc_insertion_point(destructor:pdf_proto.Page)
   SharedDtor(*this);
 }
 inline void Page::SharedDtor(MessageLite& self) {
@@ -885,7 +889,7 @@ Page::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::Page>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::pdf_proto::Page>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     {::_pbi::TcParser::MiniParse, {}},
@@ -916,7 +920,7 @@ Page::_table_ = {
   }},
 };
 PROTOBUF_NOINLINE void Page::Clear() {
-// @@protoc_insertion_point(message_clear_start:Page)
+// @@protoc_insertion_point(message_clear_start:pdf_proto.Page)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -946,7 +950,7 @@ PROTOBUF_NOINLINE void Page::Clear() {
   if constexpr (::_pbi::DebugHardenCheckHasBitConsistency()) {
     this_.CheckHasBitConsistency();
   }
-  // @@protoc_insertion_point(serialize_to_array_start:Page)
+  // @@protoc_insertion_point(serialize_to_array_start:pdf_proto.Page)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -977,7 +981,7 @@ PROTOBUF_NOINLINE void Page::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:Page)
+  // @@protoc_insertion_point(serialize_to_array_end:pdf_proto.Page)
   return target;
 }
 
@@ -988,7 +992,7 @@ PROTOBUF_NOINLINE void Page::Clear() {
 ::size_t Page::ByteSizeLong() const {
   const Page& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:Page)
+  // @@protoc_insertion_point(message_byte_size_start:pdf_proto.Page)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -1017,7 +1021,7 @@ void Page::MergeImpl(::google::protobuf::MessageLite& to_msg,
   if constexpr (::_pbi::DebugHardenCheckHasBitConsistency()) {
     from.CheckHasBitConsistency();
   }
-  // @@protoc_insertion_point(class_specific_merge_from_start:Page)
+  // @@protoc_insertion_point(class_specific_merge_from_start:pdf_proto.Page)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
@@ -1040,7 +1044,7 @@ void Page::MergeImpl(::google::protobuf::MessageLite& to_msg,
 }
 
 void Page::CopyFrom(const Page& from) {
-  // @@protoc_insertion_point(class_specific_copy_from_start:Page)
+  // @@protoc_insertion_point(class_specific_copy_from_start:pdf_proto.Page)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -1071,13 +1075,13 @@ class IndirectObject::_Internal {
   static constexpr ::int32_t kHasBitsOffset =
       8 * PROTOBUF_FIELD_OFFSET(IndirectObject, _impl_._has_bits_);
   static constexpr ::int32_t kOneofCaseOffset =
-      PROTOBUF_FIELD_OFFSET(::IndirectObject, _impl_._oneof_case_);
+      PROTOBUF_FIELD_OFFSET(::pdf_proto::IndirectObject, _impl_._oneof_case_);
   static bool MissingRequiredFields(const HasBits& has_bits) {
     return ((has_bits[0] & 0x00000001) ^ 0x00000001) != 0;
   }
 };
 
-void IndirectObject::set_allocated_catalog(::Catalog* PROTOBUF_NULLABLE catalog) {
+void IndirectObject::set_allocated_catalog(::pdf_proto::Catalog* PROTOBUF_NULLABLE catalog) {
   ::google::protobuf::Arena* message_arena = GetArena();
   clear_body();
   if (catalog) {
@@ -1088,9 +1092,9 @@ void IndirectObject::set_allocated_catalog(::Catalog* PROTOBUF_NULLABLE catalog)
     set_has_catalog();
     _impl_.body_.catalog_ = catalog;
   }
-  // @@protoc_insertion_point(field_set_allocated:IndirectObject.catalog)
+  // @@protoc_insertion_point(field_set_allocated:pdf_proto.IndirectObject.catalog)
 }
-void IndirectObject::set_allocated_page_tree(::PageTree* PROTOBUF_NULLABLE page_tree) {
+void IndirectObject::set_allocated_page_tree(::pdf_proto::PageTree* PROTOBUF_NULLABLE page_tree) {
   ::google::protobuf::Arena* message_arena = GetArena();
   clear_body();
   if (page_tree) {
@@ -1101,9 +1105,9 @@ void IndirectObject::set_allocated_page_tree(::PageTree* PROTOBUF_NULLABLE page_
     set_has_page_tree();
     _impl_.body_.page_tree_ = page_tree;
   }
-  // @@protoc_insertion_point(field_set_allocated:IndirectObject.page_tree)
+  // @@protoc_insertion_point(field_set_allocated:pdf_proto.IndirectObject.page_tree)
 }
-void IndirectObject::set_allocated_page(::Page* PROTOBUF_NULLABLE page) {
+void IndirectObject::set_allocated_page(::pdf_proto::Page* PROTOBUF_NULLABLE page) {
   ::google::protobuf::Arena* message_arena = GetArena();
   clear_body();
   if (page) {
@@ -1114,7 +1118,7 @@ void IndirectObject::set_allocated_page(::Page* PROTOBUF_NULLABLE page) {
     set_has_page();
     _impl_.body_.page_ = page;
   }
-  // @@protoc_insertion_point(field_set_allocated:IndirectObject.page)
+  // @@protoc_insertion_point(field_set_allocated:pdf_proto.IndirectObject.page)
 }
 IndirectObject::IndirectObject(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
@@ -1123,12 +1127,12 @@ IndirectObject::IndirectObject(::google::protobuf::Arena* PROTOBUF_NULLABLE aren
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:IndirectObject)
+  // @@protoc_insertion_point(arena_constructor:pdf_proto.IndirectObject)
 }
 PROTOBUF_NDEBUG_INLINE IndirectObject::Impl_::Impl_(
     [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
     [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    [[maybe_unused]] const ::IndirectObject& from_msg)
+    [[maybe_unused]] const ::pdf_proto::IndirectObject& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         body_{},
@@ -1162,7 +1166,7 @@ IndirectObject::IndirectObject(
         break;
   }
 
-  // @@protoc_insertion_point(copy_constructor:IndirectObject)
+  // @@protoc_insertion_point(copy_constructor:pdf_proto.IndirectObject)
 }
 PROTOBUF_NDEBUG_INLINE IndirectObject::Impl_::Impl_(
     [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
@@ -1176,7 +1180,7 @@ inline void IndirectObject::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   _impl_.number_ = {};
 }
 IndirectObject::~IndirectObject() {
-  // @@protoc_insertion_point(destructor:IndirectObject)
+  // @@protoc_insertion_point(destructor:pdf_proto.IndirectObject)
   SharedDtor(*this);
 }
 inline void IndirectObject::SharedDtor(MessageLite& self) {
@@ -1193,7 +1197,7 @@ inline void IndirectObject::SharedDtor(MessageLite& self) {
 }
 
 void IndirectObject::clear_body() {
-// @@protoc_insertion_point(one_of_clear_start:IndirectObject)
+// @@protoc_insertion_point(one_of_clear_start:pdf_proto.IndirectObject)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   switch (body_case()) {
     case kCatalog: {
@@ -1287,7 +1291,7 @@ IndirectObject::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::IndirectObject>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::pdf_proto::IndirectObject>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     // required uint32 number = 1;
@@ -1299,23 +1303,23 @@ IndirectObject::_table_ = {
   }}, {{
     // required uint32 number = 1;
     {PROTOBUF_FIELD_OFFSET(IndirectObject, _impl_.number_), _Internal::kHasBitsOffset + 0, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
-    // .Catalog catalog = 2;
+    // .pdf_proto.Catalog catalog = 2;
     {PROTOBUF_FIELD_OFFSET(IndirectObject, _impl_.body_.catalog_), _Internal::kOneofCaseOffset + 0, 0, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
-    // .PageTree page_tree = 3;
+    // .pdf_proto.PageTree page_tree = 3;
     {PROTOBUF_FIELD_OFFSET(IndirectObject, _impl_.body_.page_tree_), _Internal::kOneofCaseOffset + 0, 1, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
-    // .Page page = 4;
+    // .pdf_proto.Page page = 4;
     {PROTOBUF_FIELD_OFFSET(IndirectObject, _impl_.body_.page_), _Internal::kOneofCaseOffset + 0, 2, (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
   }},
   {{
-      {::_pbi::TcParser::GetTable<::Catalog>()},
-      {::_pbi::TcParser::GetTable<::PageTree>()},
-      {::_pbi::TcParser::GetTable<::Page>()},
+      {::_pbi::TcParser::GetTable<::pdf_proto::Catalog>()},
+      {::_pbi::TcParser::GetTable<::pdf_proto::PageTree>()},
+      {::_pbi::TcParser::GetTable<::pdf_proto::Page>()},
   }},
   {{
   }},
 };
 PROTOBUF_NOINLINE void IndirectObject::Clear() {
-// @@protoc_insertion_point(message_clear_start:IndirectObject)
+// @@protoc_insertion_point(message_clear_start:pdf_proto.IndirectObject)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -1341,7 +1345,7 @@ PROTOBUF_NOINLINE void IndirectObject::Clear() {
   if constexpr (::_pbi::DebugHardenCheckHasBitConsistency()) {
     this_.CheckHasBitConsistency();
   }
-  // @@protoc_insertion_point(serialize_to_array_start:IndirectObject)
+  // @@protoc_insertion_point(serialize_to_array_start:pdf_proto.IndirectObject)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -1380,7 +1384,7 @@ PROTOBUF_NOINLINE void IndirectObject::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:IndirectObject)
+  // @@protoc_insertion_point(serialize_to_array_end:pdf_proto.IndirectObject)
   return target;
 }
 
@@ -1391,7 +1395,7 @@ PROTOBUF_NOINLINE void IndirectObject::Clear() {
 ::size_t IndirectObject::ByteSizeLong() const {
   const IndirectObject& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:IndirectObject)
+  // @@protoc_insertion_point(message_byte_size_start:pdf_proto.IndirectObject)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -1407,19 +1411,19 @@ PROTOBUF_NOINLINE void IndirectObject::Clear() {
     }
   }
   switch (this_.body_case()) {
-    // .Catalog catalog = 2;
+    // .pdf_proto.Catalog catalog = 2;
     case kCatalog: {
       total_size += 1 +
                     ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.body_.catalog_);
       break;
     }
-    // .PageTree page_tree = 3;
+    // .pdf_proto.PageTree page_tree = 3;
     case kPageTree: {
       total_size += 1 +
                     ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.body_.page_tree_);
       break;
     }
-    // .Page page = 4;
+    // .pdf_proto.Page page = 4;
     case kPage: {
       total_size += 1 +
                     ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.body_.page_);
@@ -1442,7 +1446,7 @@ void IndirectObject::MergeImpl(::google::protobuf::MessageLite& to_msg,
     from.CheckHasBitConsistency();
   }
   ::google::protobuf::Arena* arena = _this->GetArena();
-  // @@protoc_insertion_point(class_specific_merge_from_start:IndirectObject)
+  // @@protoc_insertion_point(class_specific_merge_from_start:pdf_proto.IndirectObject)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
@@ -1497,7 +1501,7 @@ void IndirectObject::MergeImpl(::google::protobuf::MessageLite& to_msg,
 }
 
 void IndirectObject::CopyFrom(const IndirectObject& from) {
-  // @@protoc_insertion_point(class_specific_copy_from_start:IndirectObject)
+  // @@protoc_insertion_point(class_specific_copy_from_start:pdf_proto.IndirectObject)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -1557,12 +1561,12 @@ PdfDocument::PdfDocument(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:PdfDocument)
+  // @@protoc_insertion_point(arena_constructor:pdf_proto.PdfDocument)
 }
 PROTOBUF_NDEBUG_INLINE PdfDocument::Impl_::Impl_(
     [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
     [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    [[maybe_unused]] const ::PdfDocument& from_msg)
+    [[maybe_unused]] const ::pdf_proto::PdfDocument& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         pages_{visibility, arena, from.pages_} {}
@@ -1581,7 +1585,7 @@ PdfDocument::PdfDocument(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
 
-  // @@protoc_insertion_point(copy_constructor:PdfDocument)
+  // @@protoc_insertion_point(copy_constructor:pdf_proto.PdfDocument)
 }
 PROTOBUF_NDEBUG_INLINE PdfDocument::Impl_::Impl_(
     [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
@@ -1593,7 +1597,7 @@ inline void PdfDocument::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
 }
 PdfDocument::~PdfDocument() {
-  // @@protoc_insertion_point(destructor:PdfDocument)
+  // @@protoc_insertion_point(destructor:pdf_proto.PdfDocument)
   SharedDtor(*this);
 }
 inline void PdfDocument::SharedDtor(MessageLite& self) {
@@ -1677,27 +1681,27 @@ PdfDocument::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::PdfDocument>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::pdf_proto::PdfDocument>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // repeated .Page pages = 1;
+    // repeated .pdf_proto.Page pages = 1;
     {::_pbi::TcParser::FastMtR1,
      {10, 0, 0,
       PROTOBUF_FIELD_OFFSET(PdfDocument, _impl_.pages_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // repeated .Page pages = 1;
+    // repeated .pdf_proto.Page pages = 1;
     {PROTOBUF_FIELD_OFFSET(PdfDocument, _impl_.pages_), _Internal::kHasBitsOffset + 0, 0, (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
   }},
   {{
-      {::_pbi::TcParser::GetTable<::Page>()},
+      {::_pbi::TcParser::GetTable<::pdf_proto::Page>()},
   }},
   {{
   }},
 };
 PROTOBUF_NOINLINE void PdfDocument::Clear() {
-// @@protoc_insertion_point(message_clear_start:PdfDocument)
+// @@protoc_insertion_point(message_clear_start:pdf_proto.PdfDocument)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -1725,12 +1729,12 @@ PROTOBUF_NOINLINE void PdfDocument::Clear() {
   if constexpr (::_pbi::DebugHardenCheckHasBitConsistency()) {
     this_.CheckHasBitConsistency();
   }
-  // @@protoc_insertion_point(serialize_to_array_start:PdfDocument)
+  // @@protoc_insertion_point(serialize_to_array_start:pdf_proto.PdfDocument)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
   cached_has_bits = this_._impl_._has_bits_[0];
-  // repeated .Page pages = 1;
+  // repeated .pdf_proto.Page pages = 1;
   if (CheckHasBitForRepeated(cached_has_bits, 0x00000001U)) {
     for (unsigned i = 0, n = static_cast<unsigned>(
                              this_._internal_pages_size());
@@ -1748,7 +1752,7 @@ PROTOBUF_NOINLINE void PdfDocument::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:PdfDocument)
+  // @@protoc_insertion_point(serialize_to_array_end:pdf_proto.PdfDocument)
   return target;
 }
 
@@ -1759,7 +1763,7 @@ PROTOBUF_NOINLINE void PdfDocument::Clear() {
 ::size_t PdfDocument::ByteSizeLong() const {
   const PdfDocument& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:PdfDocument)
+  // @@protoc_insertion_point(message_byte_size_start:pdf_proto.PdfDocument)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -1768,7 +1772,7 @@ PROTOBUF_NOINLINE void PdfDocument::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
    {
-    // repeated .Page pages = 1;
+    // repeated .pdf_proto.Page pages = 1;
     cached_has_bits = this_._impl_._has_bits_[0];
     if (CheckHasBitForRepeated(cached_has_bits, 0x00000001U)) {
       total_size += 1UL * this_._internal_pages_size();
@@ -1790,7 +1794,7 @@ void PdfDocument::MergeImpl(::google::protobuf::MessageLite& to_msg,
     from.CheckHasBitConsistency();
   }
   ::google::protobuf::Arena* arena = _this->GetArena();
-  // @@protoc_insertion_point(class_specific_merge_from_start:PdfDocument)
+  // @@protoc_insertion_point(class_specific_merge_from_start:pdf_proto.PdfDocument)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
@@ -1807,7 +1811,7 @@ void PdfDocument::MergeImpl(::google::protobuf::MessageLite& to_msg,
 }
 
 void PdfDocument::CopyFrom(const PdfDocument& from) {
-  // @@protoc_insertion_point(class_specific_copy_from_start:PdfDocument)
+  // @@protoc_insertion_point(class_specific_copy_from_start:pdf_proto.PdfDocument)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -1825,6 +1829,7 @@ void PdfDocument::InternalSwap(PdfDocument* PROTOBUF_RESTRICT PROTOBUF_NONNULL o
   return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
 }
 // @@protoc_insertion_point(namespace_scope)
+}  // namespace pdf_proto
 namespace google {
 namespace protobuf {
 }  // namespace protobuf

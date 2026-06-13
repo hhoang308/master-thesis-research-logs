@@ -4,6 +4,6 @@
 #include <string>
 #include "pdf.pb.h"
 
-std::string SerializePdf(const PdfDocument& doc);
+std::string SerializePdf(const pdf_proto::PdfDocument& doc);
 
 #endif // SERIALIZER_H

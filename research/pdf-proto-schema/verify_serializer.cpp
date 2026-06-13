@@ -6,8 +6,8 @@
 int main() {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-    PdfDocument doc;
-    Page* p = doc.add_pages();
+    pdf_proto::PdfDocument doc;
+    pdf_proto::Page* p = doc.add_pages();
     p->set_width(612);
     p->set_height(792);
 

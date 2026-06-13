@@ -52,6 +52,7 @@ struct TableStruct_pdf_2eproto {
 extern "C" {
 extern const ::google::protobuf::internal::DescriptorTable descriptor_table_pdf_2eproto;
 }  // extern "C"
+namespace pdf_proto {
 class Catalog;
 struct CatalogDefaultTypeInternal;
 extern CatalogDefaultTypeInternal _Catalog_default_instance_;
@@ -72,11 +73,13 @@ class PdfDocument;
 struct PdfDocumentDefaultTypeInternal;
 extern PdfDocumentDefaultTypeInternal _PdfDocument_default_instance_;
 extern const ::google::protobuf::internal::ClassDataFull PdfDocument_class_data_;
+}  // namespace pdf_proto
 namespace google {
 namespace protobuf {
 }  // namespace protobuf
 }  // namespace google
 
+namespace pdf_proto {
 
 // ===================================================================
 
@@ -84,7 +87,7 @@ namespace protobuf {
 // -------------------------------------------------------------------
 
 class PageTree final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:PageTree) */ {
+/* @@protoc_insertion_point(class_definition:pdf_proto.PageTree) */ {
  public:
   inline PageTree() : PageTree(nullptr) {}
   ~PageTree() PROTOBUF_FINAL;
@@ -202,7 +205,7 @@ class PageTree final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "PageTree"; }
+  static ::absl::string_view FullMessageName() { return "pdf_proto.PageTree"; }
 
   explicit PageTree(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   PageTree(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const PageTree& from);
@@ -245,7 +248,7 @@ class PageTree final : public ::google::protobuf::Message
   ::google::protobuf::RepeatedField<::uint32_t>* PROTOBUF_NONNULL _internal_mutable_kids();
 
   public:
-  // @@protoc_insertion_point(class_scope:PageTree)
+  // @@protoc_insertion_point(class_scope:pdf_proto.PageTree)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
@@ -282,7 +285,7 @@ extern const ::google::protobuf::internal::ClassDataFull PageTree_class_data_;
 // -------------------------------------------------------------------
 
 class Page final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:Page) */ {
+/* @@protoc_insertion_point(class_definition:pdf_proto.Page) */ {
  public:
   inline Page() : Page(nullptr) {}
   ~Page() PROTOBUF_FINAL;
@@ -400,7 +403,7 @@ class Page final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "Page"; }
+  static ::absl::string_view FullMessageName() { return "pdf_proto.Page"; }
 
   explicit Page(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   Page(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Page& from);
@@ -460,7 +463,7 @@ class Page final : public ::google::protobuf::Message
   void _internal_set_height(float value);
 
   public:
-  // @@protoc_insertion_point(class_scope:Page)
+  // @@protoc_insertion_point(class_scope:pdf_proto.Page)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
@@ -499,7 +502,7 @@ extern const ::google::protobuf::internal::ClassDataFull Page_class_data_;
 // -------------------------------------------------------------------
 
 class Catalog final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:Catalog) */ {
+/* @@protoc_insertion_point(class_definition:pdf_proto.Catalog) */ {
  public:
   inline Catalog() : Catalog(nullptr) {}
   ~Catalog() PROTOBUF_FINAL;
@@ -622,7 +625,7 @@ class Catalog final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "Catalog"; }
+  static ::absl::string_view FullMessageName() { return "pdf_proto.Catalog"; }
 
   explicit Catalog(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   Catalog(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Catalog& from);
@@ -658,7 +661,7 @@ class Catalog final : public ::google::protobuf::Message
   void _internal_set_pages_ref(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:Catalog)
+  // @@protoc_insertion_point(class_scope:pdf_proto.Catalog)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
@@ -695,7 +698,7 @@ extern const ::google::protobuf::internal::ClassDataFull Catalog_class_data_;
 // -------------------------------------------------------------------
 
 class PdfDocument final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:PdfDocument) */ {
+/* @@protoc_insertion_point(class_definition:pdf_proto.PdfDocument) */ {
  public:
   inline PdfDocument() : PdfDocument(nullptr) {}
   ~PdfDocument() PROTOBUF_FINAL;
@@ -813,7 +816,7 @@ class PdfDocument final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "PdfDocument"; }
+  static ::absl::string_view FullMessageName() { return "pdf_proto.PdfDocument"; }
 
   explicit PdfDocument(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   PdfDocument(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const PdfDocument& from);
@@ -838,24 +841,24 @@ class PdfDocument final : public ::google::protobuf::Message
   enum : int {
     kPagesFieldNumber = 1,
   };
-  // repeated .Page pages = 1;
+  // repeated .pdf_proto.Page pages = 1;
   int pages_size() const;
   private:
   int _internal_pages_size() const;
 
   public:
   void clear_pages() ;
-  ::Page* PROTOBUF_NONNULL mutable_pages(int index);
-  ::google::protobuf::RepeatedPtrField<::Page>* PROTOBUF_NONNULL mutable_pages();
+  ::pdf_proto::Page* PROTOBUF_NONNULL mutable_pages(int index);
+  ::google::protobuf::RepeatedPtrField<::pdf_proto::Page>* PROTOBUF_NONNULL mutable_pages();
 
   private:
-  const ::google::protobuf::RepeatedPtrField<::Page>& _internal_pages() const;
-  ::google::protobuf::RepeatedPtrField<::Page>* PROTOBUF_NONNULL _internal_mutable_pages();
+  const ::google::protobuf::RepeatedPtrField<::pdf_proto::Page>& _internal_pages() const;
+  ::google::protobuf::RepeatedPtrField<::pdf_proto::Page>* PROTOBUF_NONNULL _internal_mutable_pages();
   public:
-  const ::Page& pages(int index) const;
-  ::Page* PROTOBUF_NONNULL add_pages();
-  const ::google::protobuf::RepeatedPtrField<::Page>& pages() const;
-  // @@protoc_insertion_point(class_scope:PdfDocument)
+  const ::pdf_proto::Page& pages(int index) const;
+  ::pdf_proto::Page* PROTOBUF_NONNULL add_pages();
+  const ::google::protobuf::RepeatedPtrField<::pdf_proto::Page>& pages() const;
+  // @@protoc_insertion_point(class_scope:pdf_proto.PdfDocument)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
@@ -881,7 +884,7 @@ class PdfDocument final : public ::google::protobuf::Message
         const PdfDocument& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
-    ::google::protobuf::RepeatedPtrField< ::Page > pages_;
+    ::google::protobuf::RepeatedPtrField< ::pdf_proto::Page > pages_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -892,7 +895,7 @@ extern const ::google::protobuf::internal::ClassDataFull PdfDocument_class_data_
 // -------------------------------------------------------------------
 
 class IndirectObject final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:IndirectObject) */ {
+/* @@protoc_insertion_point(class_definition:pdf_proto.IndirectObject) */ {
  public:
   inline IndirectObject() : IndirectObject(nullptr) {}
   ~IndirectObject() PROTOBUF_FINAL;
@@ -1021,7 +1024,7 @@ class IndirectObject final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "IndirectObject"; }
+  static ::absl::string_view FullMessageName() { return "pdf_proto.IndirectObject"; }
 
   explicit IndirectObject(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   IndirectObject(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const IndirectObject& from);
@@ -1060,66 +1063,66 @@ class IndirectObject final : public ::google::protobuf::Message
   void _internal_set_number(::uint32_t value);
 
   public:
-  // .Catalog catalog = 2;
+  // .pdf_proto.Catalog catalog = 2;
   bool has_catalog() const;
   private:
   bool _internal_has_catalog() const;
 
   public:
   void clear_catalog() ;
-  const ::Catalog& catalog() const;
-  [[nodiscard]] ::Catalog* PROTOBUF_NULLABLE release_catalog();
-  ::Catalog* PROTOBUF_NONNULL mutable_catalog();
-  void set_allocated_catalog(::Catalog* PROTOBUF_NULLABLE value);
-  void unsafe_arena_set_allocated_catalog(::Catalog* PROTOBUF_NULLABLE value);
-  ::Catalog* PROTOBUF_NULLABLE unsafe_arena_release_catalog();
+  const ::pdf_proto::Catalog& catalog() const;
+  [[nodiscard]] ::pdf_proto::Catalog* PROTOBUF_NULLABLE release_catalog();
+  ::pdf_proto::Catalog* PROTOBUF_NONNULL mutable_catalog();
+  void set_allocated_catalog(::pdf_proto::Catalog* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_catalog(::pdf_proto::Catalog* PROTOBUF_NULLABLE value);
+  ::pdf_proto::Catalog* PROTOBUF_NULLABLE unsafe_arena_release_catalog();
 
   private:
-  const ::Catalog& _internal_catalog() const;
-  ::Catalog* PROTOBUF_NONNULL _internal_mutable_catalog();
+  const ::pdf_proto::Catalog& _internal_catalog() const;
+  ::pdf_proto::Catalog* PROTOBUF_NONNULL _internal_mutable_catalog();
 
   public:
-  // .PageTree page_tree = 3;
+  // .pdf_proto.PageTree page_tree = 3;
   bool has_page_tree() const;
   private:
   bool _internal_has_page_tree() const;
 
   public:
   void clear_page_tree() ;
-  const ::PageTree& page_tree() const;
-  [[nodiscard]] ::PageTree* PROTOBUF_NULLABLE release_page_tree();
-  ::PageTree* PROTOBUF_NONNULL mutable_page_tree();
-  void set_allocated_page_tree(::PageTree* PROTOBUF_NULLABLE value);
-  void unsafe_arena_set_allocated_page_tree(::PageTree* PROTOBUF_NULLABLE value);
-  ::PageTree* PROTOBUF_NULLABLE unsafe_arena_release_page_tree();
+  const ::pdf_proto::PageTree& page_tree() const;
+  [[nodiscard]] ::pdf_proto::PageTree* PROTOBUF_NULLABLE release_page_tree();
+  ::pdf_proto::PageTree* PROTOBUF_NONNULL mutable_page_tree();
+  void set_allocated_page_tree(::pdf_proto::PageTree* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_page_tree(::pdf_proto::PageTree* PROTOBUF_NULLABLE value);
+  ::pdf_proto::PageTree* PROTOBUF_NULLABLE unsafe_arena_release_page_tree();
 
   private:
-  const ::PageTree& _internal_page_tree() const;
-  ::PageTree* PROTOBUF_NONNULL _internal_mutable_page_tree();
+  const ::pdf_proto::PageTree& _internal_page_tree() const;
+  ::pdf_proto::PageTree* PROTOBUF_NONNULL _internal_mutable_page_tree();
 
   public:
-  // .Page page = 4;
+  // .pdf_proto.Page page = 4;
   bool has_page() const;
   private:
   bool _internal_has_page() const;
 
   public:
   void clear_page() ;
-  const ::Page& page() const;
-  [[nodiscard]] ::Page* PROTOBUF_NULLABLE release_page();
-  ::Page* PROTOBUF_NONNULL mutable_page();
-  void set_allocated_page(::Page* PROTOBUF_NULLABLE value);
-  void unsafe_arena_set_allocated_page(::Page* PROTOBUF_NULLABLE value);
-  ::Page* PROTOBUF_NULLABLE unsafe_arena_release_page();
+  const ::pdf_proto::Page& page() const;
+  [[nodiscard]] ::pdf_proto::Page* PROTOBUF_NULLABLE release_page();
+  ::pdf_proto::Page* PROTOBUF_NONNULL mutable_page();
+  void set_allocated_page(::pdf_proto::Page* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_page(::pdf_proto::Page* PROTOBUF_NULLABLE value);
+  ::pdf_proto::Page* PROTOBUF_NULLABLE unsafe_arena_release_page();
 
   private:
-  const ::Page& _internal_page() const;
-  ::Page* PROTOBUF_NONNULL _internal_mutable_page();
+  const ::pdf_proto::Page& _internal_page() const;
+  ::pdf_proto::Page* PROTOBUF_NONNULL _internal_mutable_page();
 
   public:
   void clear_body();
   BodyCase body_case() const;
-  // @@protoc_insertion_point(class_scope:IndirectObject)
+  // @@protoc_insertion_point(class_scope:pdf_proto.IndirectObject)
  private:
   class _Internal;
   void set_has_catalog();
@@ -1195,13 +1198,13 @@ inline void Catalog::clear_pages_ref() {
                   0x00000001U);
 }
 inline ::uint32_t Catalog::pages_ref() const {
-  // @@protoc_insertion_point(field_get:Catalog.pages_ref)
+  // @@protoc_insertion_point(field_get:pdf_proto.Catalog.pages_ref)
   return _internal_pages_ref();
 }
 inline void Catalog::set_pages_ref(::uint32_t value) {
   _internal_set_pages_ref(value);
   SetHasBit(_impl_._has_bits_[0], 0x00000001U);
-  // @@protoc_insertion_point(field_set:Catalog.pages_ref)
+  // @@protoc_insertion_point(field_set:pdf_proto.Catalog.pages_ref)
 }
 inline ::uint32_t Catalog::_internal_pages_ref() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1230,28 +1233,28 @@ inline void PageTree::clear_kids() {
                   0x00000001U);
 }
 inline ::uint32_t PageTree::kids(int index) const {
-  // @@protoc_insertion_point(field_get:PageTree.kids)
+  // @@protoc_insertion_point(field_get:pdf_proto.PageTree.kids)
   return _internal_kids().Get(index);
 }
 inline void PageTree::set_kids(int index, ::uint32_t value) {
   _internal_mutable_kids()->Set(index, value);
-  // @@protoc_insertion_point(field_set:PageTree.kids)
+  // @@protoc_insertion_point(field_set:pdf_proto.PageTree.kids)
 }
 inline void PageTree::add_kids(::uint32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _internal_mutable_kids()->Add(value);
   SetHasBitForRepeated(_impl_._has_bits_[0], 0x00000001U);
-  // @@protoc_insertion_point(field_add:PageTree.kids)
+  // @@protoc_insertion_point(field_add:pdf_proto.PageTree.kids)
 }
 inline const ::google::protobuf::RepeatedField<::uint32_t>& PageTree::kids() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:PageTree.kids)
+  // @@protoc_insertion_point(field_list:pdf_proto.PageTree.kids)
   return _internal_kids();
 }
 inline ::google::protobuf::RepeatedField<::uint32_t>* PROTOBUF_NONNULL PageTree::mutable_kids()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   SetHasBitForRepeated(_impl_._has_bits_[0], 0x00000001U);
-  // @@protoc_insertion_point(field_mutable_list:PageTree.kids)
+  // @@protoc_insertion_point(field_mutable_list:pdf_proto.PageTree.kids)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   return _internal_mutable_kids();
 }
@@ -1282,13 +1285,13 @@ inline void Page::clear_width() {
                   0x00000002U);
 }
 inline float Page::width() const {
-  // @@protoc_insertion_point(field_get:Page.width)
+  // @@protoc_insertion_point(field_get:pdf_proto.Page.width)
   return _internal_width();
 }
 inline void Page::set_width(float value) {
   _internal_set_width(value);
   SetHasBit(_impl_._has_bits_[0], 0x00000002U);
-  // @@protoc_insertion_point(field_set:Page.width)
+  // @@protoc_insertion_point(field_set:pdf_proto.Page.width)
 }
 inline float Page::_internal_width() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1311,13 +1314,13 @@ inline void Page::clear_height() {
                   0x00000004U);
 }
 inline float Page::height() const {
-  // @@protoc_insertion_point(field_get:Page.height)
+  // @@protoc_insertion_point(field_get:pdf_proto.Page.height)
   return _internal_height();
 }
 inline void Page::set_height(float value) {
   _internal_set_height(value);
   SetHasBit(_impl_._has_bits_[0], 0x00000004U);
-  // @@protoc_insertion_point(field_set:Page.height)
+  // @@protoc_insertion_point(field_set:pdf_proto.Page.height)
 }
 inline float Page::_internal_height() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1340,13 +1343,13 @@ inline void Page::clear_parent_ref() {
                   0x00000001U);
 }
 inline ::uint32_t Page::parent_ref() const {
-  // @@protoc_insertion_point(field_get:Page.parent_ref)
+  // @@protoc_insertion_point(field_get:pdf_proto.Page.parent_ref)
   return _internal_parent_ref();
 }
 inline void Page::set_parent_ref(::uint32_t value) {
   _internal_set_parent_ref(value);
   SetHasBit(_impl_._has_bits_[0], 0x00000001U);
-  // @@protoc_insertion_point(field_set:Page.parent_ref)
+  // @@protoc_insertion_point(field_set:pdf_proto.Page.parent_ref)
 }
 inline ::uint32_t Page::_internal_parent_ref() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1373,13 +1376,13 @@ inline void IndirectObject::clear_number() {
                   0x00000001U);
 }
 inline ::uint32_t IndirectObject::number() const {
-  // @@protoc_insertion_point(field_get:IndirectObject.number)
+  // @@protoc_insertion_point(field_get:pdf_proto.IndirectObject.number)
   return _internal_number();
 }
 inline void IndirectObject::set_number(::uint32_t value) {
   _internal_set_number(value);
   SetHasBit(_impl_._has_bits_[0], 0x00000001U);
-  // @@protoc_insertion_point(field_set:IndirectObject.number)
+  // @@protoc_insertion_point(field_set:pdf_proto.IndirectObject.number)
 }
 inline ::uint32_t IndirectObject::_internal_number() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1390,7 +1393,7 @@ inline void IndirectObject::_internal_set_number(::uint32_t value) {
   _impl_.number_ = value;
 }
 
-// .Catalog catalog = 2;
+// .pdf_proto.Catalog catalog = 2;
 inline bool IndirectObject::has_catalog() const {
   return body_case() == kCatalog;
 }
@@ -1411,11 +1414,11 @@ inline void IndirectObject::clear_catalog() {
     clear_has_body();
   }
 }
-inline ::Catalog* PROTOBUF_NULLABLE IndirectObject::release_catalog() {
-  // @@protoc_insertion_point(field_release:IndirectObject.catalog)
+inline ::pdf_proto::Catalog* PROTOBUF_NULLABLE IndirectObject::release_catalog() {
+  // @@protoc_insertion_point(field_release:pdf_proto.IndirectObject.catalog)
   if (body_case() == kCatalog) {
     clear_has_body();
-    auto* temp = reinterpret_cast<::Catalog*>(_impl_.body_.catalog_);
+    auto* temp = reinterpret_cast<::pdf_proto::Catalog*>(_impl_.body_.catalog_);
     if (GetArena() != nullptr) {
       temp = ::google::protobuf::internal::DuplicateIfNonNull(temp);
     }
@@ -1425,19 +1428,19 @@ inline ::Catalog* PROTOBUF_NULLABLE IndirectObject::release_catalog() {
     return nullptr;
   }
 }
-inline const ::Catalog& IndirectObject::_internal_catalog() const {
-  return body_case() == kCatalog ? static_cast<const ::Catalog&>(*reinterpret_cast<::Catalog*>(_impl_.body_.catalog_))
-                     : reinterpret_cast<const ::Catalog&>(::_Catalog_default_instance_);
+inline const ::pdf_proto::Catalog& IndirectObject::_internal_catalog() const {
+  return body_case() == kCatalog ? static_cast<const ::pdf_proto::Catalog&>(*reinterpret_cast<::pdf_proto::Catalog*>(_impl_.body_.catalog_))
+                     : reinterpret_cast<const ::pdf_proto::Catalog&>(::pdf_proto::_Catalog_default_instance_);
 }
-inline const ::Catalog& IndirectObject::catalog() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:IndirectObject.catalog)
+inline const ::pdf_proto::Catalog& IndirectObject::catalog() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:pdf_proto.IndirectObject.catalog)
   return _internal_catalog();
 }
-inline ::Catalog* PROTOBUF_NULLABLE IndirectObject::unsafe_arena_release_catalog() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:IndirectObject.catalog)
+inline ::pdf_proto::Catalog* PROTOBUF_NULLABLE IndirectObject::unsafe_arena_release_catalog() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:pdf_proto.IndirectObject.catalog)
   if (body_case() == kCatalog) {
     clear_has_body();
-    auto* temp = reinterpret_cast<::Catalog*>(_impl_.body_.catalog_);
+    auto* temp = reinterpret_cast<::pdf_proto::Catalog*>(_impl_.body_.catalog_);
     _impl_.body_.catalog_ = nullptr;
     return temp;
   } else {
@@ -1445,7 +1448,7 @@ inline ::Catalog* PROTOBUF_NULLABLE IndirectObject::unsafe_arena_release_catalog
   }
 }
 inline void IndirectObject::unsafe_arena_set_allocated_catalog(
-    ::Catalog* PROTOBUF_NULLABLE value) {
+    ::pdf_proto::Catalog* PROTOBUF_NULLABLE value) {
   // We rely on the oneof clear method to free the earlier contents
   // of this oneof. We can directly use the pointer we're given to
   // set the new value.
@@ -1454,25 +1457,25 @@ inline void IndirectObject::unsafe_arena_set_allocated_catalog(
     set_has_catalog();
     _impl_.body_.catalog_ = reinterpret_cast<::google::protobuf::Message*>(value);
   }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:IndirectObject.catalog)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:pdf_proto.IndirectObject.catalog)
 }
-inline ::Catalog* PROTOBUF_NONNULL IndirectObject::_internal_mutable_catalog() {
+inline ::pdf_proto::Catalog* PROTOBUF_NONNULL IndirectObject::_internal_mutable_catalog() {
   if (body_case() != kCatalog) {
     clear_body();
     set_has_catalog();
     _impl_.body_.catalog_ = reinterpret_cast<::google::protobuf::Message*>(
-        ::google::protobuf::Message::DefaultConstruct<::Catalog>(GetArena()));
+        ::google::protobuf::Message::DefaultConstruct<::pdf_proto::Catalog>(GetArena()));
   }
-  return reinterpret_cast<::Catalog*>(_impl_.body_.catalog_);
+  return reinterpret_cast<::pdf_proto::Catalog*>(_impl_.body_.catalog_);
 }
-inline ::Catalog* PROTOBUF_NONNULL IndirectObject::mutable_catalog()
+inline ::pdf_proto::Catalog* PROTOBUF_NONNULL IndirectObject::mutable_catalog()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  ::Catalog* _msg = _internal_mutable_catalog();
-  // @@protoc_insertion_point(field_mutable:IndirectObject.catalog)
+  ::pdf_proto::Catalog* _msg = _internal_mutable_catalog();
+  // @@protoc_insertion_point(field_mutable:pdf_proto.IndirectObject.catalog)
   return _msg;
 }
 
-// .PageTree page_tree = 3;
+// .pdf_proto.PageTree page_tree = 3;
 inline bool IndirectObject::has_page_tree() const {
   return body_case() == kPageTree;
 }
@@ -1493,11 +1496,11 @@ inline void IndirectObject::clear_page_tree() {
     clear_has_body();
   }
 }
-inline ::PageTree* PROTOBUF_NULLABLE IndirectObject::release_page_tree() {
-  // @@protoc_insertion_point(field_release:IndirectObject.page_tree)
+inline ::pdf_proto::PageTree* PROTOBUF_NULLABLE IndirectObject::release_page_tree() {
+  // @@protoc_insertion_point(field_release:pdf_proto.IndirectObject.page_tree)
   if (body_case() == kPageTree) {
     clear_has_body();
-    auto* temp = reinterpret_cast<::PageTree*>(_impl_.body_.page_tree_);
+    auto* temp = reinterpret_cast<::pdf_proto::PageTree*>(_impl_.body_.page_tree_);
     if (GetArena() != nullptr) {
       temp = ::google::protobuf::internal::DuplicateIfNonNull(temp);
     }
@@ -1507,19 +1510,19 @@ inline ::PageTree* PROTOBUF_NULLABLE IndirectObject::release_page_tree() {
     return nullptr;
   }
 }
-inline const ::PageTree& IndirectObject::_internal_page_tree() const {
-  return body_case() == kPageTree ? static_cast<const ::PageTree&>(*reinterpret_cast<::PageTree*>(_impl_.body_.page_tree_))
-                     : reinterpret_cast<const ::PageTree&>(::_PageTree_default_instance_);
+inline const ::pdf_proto::PageTree& IndirectObject::_internal_page_tree() const {
+  return body_case() == kPageTree ? static_cast<const ::pdf_proto::PageTree&>(*reinterpret_cast<::pdf_proto::PageTree*>(_impl_.body_.page_tree_))
+                     : reinterpret_cast<const ::pdf_proto::PageTree&>(::pdf_proto::_PageTree_default_instance_);
 }
-inline const ::PageTree& IndirectObject::page_tree() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:IndirectObject.page_tree)
+inline const ::pdf_proto::PageTree& IndirectObject::page_tree() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:pdf_proto.IndirectObject.page_tree)
   return _internal_page_tree();
 }
-inline ::PageTree* PROTOBUF_NULLABLE IndirectObject::unsafe_arena_release_page_tree() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:IndirectObject.page_tree)
+inline ::pdf_proto::PageTree* PROTOBUF_NULLABLE IndirectObject::unsafe_arena_release_page_tree() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:pdf_proto.IndirectObject.page_tree)
   if (body_case() == kPageTree) {
     clear_has_body();
-    auto* temp = reinterpret_cast<::PageTree*>(_impl_.body_.page_tree_);
+    auto* temp = reinterpret_cast<::pdf_proto::PageTree*>(_impl_.body_.page_tree_);
     _impl_.body_.page_tree_ = nullptr;
     return temp;
   } else {
@@ -1527,7 +1530,7 @@ inline ::PageTree* PROTOBUF_NULLABLE IndirectObject::unsafe_arena_release_page_t
   }
 }
 inline void IndirectObject::unsafe_arena_set_allocated_page_tree(
-    ::PageTree* PROTOBUF_NULLABLE value) {
+    ::pdf_proto::PageTree* PROTOBUF_NULLABLE value) {
   // We rely on the oneof clear method to free the earlier contents
   // of this oneof. We can directly use the pointer we're given to
   // set the new value.
@@ -1536,25 +1539,25 @@ inline void IndirectObject::unsafe_arena_set_allocated_page_tree(
     set_has_page_tree();
     _impl_.body_.page_tree_ = reinterpret_cast<::google::protobuf::Message*>(value);
   }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:IndirectObject.page_tree)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:pdf_proto.IndirectObject.page_tree)
 }
-inline ::PageTree* PROTOBUF_NONNULL IndirectObject::_internal_mutable_page_tree() {
+inline ::pdf_proto::PageTree* PROTOBUF_NONNULL IndirectObject::_internal_mutable_page_tree() {
   if (body_case() != kPageTree) {
     clear_body();
     set_has_page_tree();
     _impl_.body_.page_tree_ = reinterpret_cast<::google::protobuf::Message*>(
-        ::google::protobuf::Message::DefaultConstruct<::PageTree>(GetArena()));
+        ::google::protobuf::Message::DefaultConstruct<::pdf_proto::PageTree>(GetArena()));
   }
-  return reinterpret_cast<::PageTree*>(_impl_.body_.page_tree_);
+  return reinterpret_cast<::pdf_proto::PageTree*>(_impl_.body_.page_tree_);
 }
-inline ::PageTree* PROTOBUF_NONNULL IndirectObject::mutable_page_tree()
+inline ::pdf_proto::PageTree* PROTOBUF_NONNULL IndirectObject::mutable_page_tree()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  ::PageTree* _msg = _internal_mutable_page_tree();
-  // @@protoc_insertion_point(field_mutable:IndirectObject.page_tree)
+  ::pdf_proto::PageTree* _msg = _internal_mutable_page_tree();
+  // @@protoc_insertion_point(field_mutable:pdf_proto.IndirectObject.page_tree)
   return _msg;
 }
 
-// .Page page = 4;
+// .pdf_proto.Page page = 4;
 inline bool IndirectObject::has_page() const {
   return body_case() == kPage;
 }
@@ -1575,11 +1578,11 @@ inline void IndirectObject::clear_page() {
     clear_has_body();
   }
 }
-inline ::Page* PROTOBUF_NULLABLE IndirectObject::release_page() {
-  // @@protoc_insertion_point(field_release:IndirectObject.page)
+inline ::pdf_proto::Page* PROTOBUF_NULLABLE IndirectObject::release_page() {
+  // @@protoc_insertion_point(field_release:pdf_proto.IndirectObject.page)
   if (body_case() == kPage) {
     clear_has_body();
-    auto* temp = reinterpret_cast<::Page*>(_impl_.body_.page_);
+    auto* temp = reinterpret_cast<::pdf_proto::Page*>(_impl_.body_.page_);
     if (GetArena() != nullptr) {
       temp = ::google::protobuf::internal::DuplicateIfNonNull(temp);
     }
@@ -1589,19 +1592,19 @@ inline ::Page* PROTOBUF_NULLABLE IndirectObject::release_page() {
     return nullptr;
   }
 }
-inline const ::Page& IndirectObject::_internal_page() const {
-  return body_case() == kPage ? static_cast<const ::Page&>(*reinterpret_cast<::Page*>(_impl_.body_.page_))
-                     : reinterpret_cast<const ::Page&>(::_Page_default_instance_);
+inline const ::pdf_proto::Page& IndirectObject::_internal_page() const {
+  return body_case() == kPage ? static_cast<const ::pdf_proto::Page&>(*reinterpret_cast<::pdf_proto::Page*>(_impl_.body_.page_))
+                     : reinterpret_cast<const ::pdf_proto::Page&>(::pdf_proto::_Page_default_instance_);
 }
-inline const ::Page& IndirectObject::page() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:IndirectObject.page)
+inline const ::pdf_proto::Page& IndirectObject::page() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:pdf_proto.IndirectObject.page)
   return _internal_page();
 }
-inline ::Page* PROTOBUF_NULLABLE IndirectObject::unsafe_arena_release_page() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:IndirectObject.page)
+inline ::pdf_proto::Page* PROTOBUF_NULLABLE IndirectObject::unsafe_arena_release_page() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:pdf_proto.IndirectObject.page)
   if (body_case() == kPage) {
     clear_has_body();
-    auto* temp = reinterpret_cast<::Page*>(_impl_.body_.page_);
+    auto* temp = reinterpret_cast<::pdf_proto::Page*>(_impl_.body_.page_);
     _impl_.body_.page_ = nullptr;
     return temp;
   } else {
@@ -1609,7 +1612,7 @@ inline ::Page* PROTOBUF_NULLABLE IndirectObject::unsafe_arena_release_page() {
   }
 }
 inline void IndirectObject::unsafe_arena_set_allocated_page(
-    ::Page* PROTOBUF_NULLABLE value) {
+    ::pdf_proto::Page* PROTOBUF_NULLABLE value) {
   // We rely on the oneof clear method to free the earlier contents
   // of this oneof. We can directly use the pointer we're given to
   // set the new value.
@@ -1618,21 +1621,21 @@ inline void IndirectObject::unsafe_arena_set_allocated_page(
     set_has_page();
     _impl_.body_.page_ = reinterpret_cast<::google::protobuf::Message*>(value);
   }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:IndirectObject.page)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:pdf_proto.IndirectObject.page)
 }
-inline ::Page* PROTOBUF_NONNULL IndirectObject::_internal_mutable_page() {
+inline ::pdf_proto::Page* PROTOBUF_NONNULL IndirectObject::_internal_mutable_page() {
   if (body_case() != kPage) {
     clear_body();
     set_has_page();
     _impl_.body_.page_ = reinterpret_cast<::google::protobuf::Message*>(
-        ::google::protobuf::Message::DefaultConstruct<::Page>(GetArena()));
+        ::google::protobuf::Message::DefaultConstruct<::pdf_proto::Page>(GetArena()));
   }
-  return reinterpret_cast<::Page*>(_impl_.body_.page_);
+  return reinterpret_cast<::pdf_proto::Page*>(_impl_.body_.page_);
 }
-inline ::Page* PROTOBUF_NONNULL IndirectObject::mutable_page()
+inline ::pdf_proto::Page* PROTOBUF_NONNULL IndirectObject::mutable_page()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  ::Page* _msg = _internal_mutable_page();
-  // @@protoc_insertion_point(field_mutable:IndirectObject.page)
+  ::pdf_proto::Page* _msg = _internal_mutable_page();
+  // @@protoc_insertion_point(field_mutable:pdf_proto.IndirectObject.page)
   return _msg;
 }
 
@@ -1649,7 +1652,7 @@ inline IndirectObject::BodyCase IndirectObject::body_case() const {
 
 // PdfDocument
 
-// repeated .Page pages = 1;
+// repeated .pdf_proto.Page pages = 1;
 inline int PdfDocument::_internal_pages_size() const {
   return _internal_pages().size();
 }
@@ -1662,44 +1665,44 @@ inline void PdfDocument::clear_pages() {
   ClearHasBitForRepeated(_impl_._has_bits_[0],
                   0x00000001U);
 }
-inline ::Page* PROTOBUF_NONNULL PdfDocument::mutable_pages(int index)
+inline ::pdf_proto::Page* PROTOBUF_NONNULL PdfDocument::mutable_pages(int index)
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable:PdfDocument.pages)
+  // @@protoc_insertion_point(field_mutable:pdf_proto.PdfDocument.pages)
   return _internal_mutable_pages()->Mutable(index);
 }
-inline ::google::protobuf::RepeatedPtrField<::Page>* PROTOBUF_NONNULL PdfDocument::mutable_pages()
+inline ::google::protobuf::RepeatedPtrField<::pdf_proto::Page>* PROTOBUF_NONNULL PdfDocument::mutable_pages()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   SetHasBitForRepeated(_impl_._has_bits_[0], 0x00000001U);
-  // @@protoc_insertion_point(field_mutable_list:PdfDocument.pages)
+  // @@protoc_insertion_point(field_mutable_list:pdf_proto.PdfDocument.pages)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   return _internal_mutable_pages();
 }
-inline const ::Page& PdfDocument::pages(int index) const
+inline const ::pdf_proto::Page& PdfDocument::pages(int index) const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:PdfDocument.pages)
+  // @@protoc_insertion_point(field_get:pdf_proto.PdfDocument.pages)
   return _internal_pages().Get(index);
 }
-inline ::Page* PROTOBUF_NONNULL PdfDocument::add_pages()
+inline ::pdf_proto::Page* PROTOBUF_NONNULL PdfDocument::add_pages()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  ::Page* _add =
+  ::pdf_proto::Page* _add =
       _internal_mutable_pages()->InternalAddWithArena(
           ::google::protobuf::MessageLite::internal_visibility(), GetArena());
   SetHasBitForRepeated(_impl_._has_bits_[0], 0x00000001U);
-  // @@protoc_insertion_point(field_add:PdfDocument.pages)
+  // @@protoc_insertion_point(field_add:pdf_proto.PdfDocument.pages)
   return _add;
 }
-inline const ::google::protobuf::RepeatedPtrField<::Page>& PdfDocument::pages() const
+inline const ::google::protobuf::RepeatedPtrField<::pdf_proto::Page>& PdfDocument::pages() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:PdfDocument.pages)
+  // @@protoc_insertion_point(field_list:pdf_proto.PdfDocument.pages)
   return _internal_pages();
 }
-inline const ::google::protobuf::RepeatedPtrField<::Page>&
+inline const ::google::protobuf::RepeatedPtrField<::pdf_proto::Page>&
 PdfDocument::_internal_pages() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.pages_;
 }
-inline ::google::protobuf::RepeatedPtrField<::Page>* PROTOBUF_NONNULL
+inline ::google::protobuf::RepeatedPtrField<::pdf_proto::Page>* PROTOBUF_NONNULL
 PdfDocument::_internal_mutable_pages() {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return &_impl_.pages_;
@@ -1710,6 +1713,7 @@ PdfDocument::_internal_mutable_pages() {
 #endif  // __GNUC__
 
 // @@protoc_insertion_point(namespace_scope)
+}  // namespace pdf_proto
 
 
 // @@protoc_insertion_point(global_scope)

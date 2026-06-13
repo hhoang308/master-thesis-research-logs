@@ -1,4 +1,5 @@
 syntax = "proto2";
+package pdf_proto;
 
 // The three mandatory objects only
 message Catalog {

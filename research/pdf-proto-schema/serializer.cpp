@@ -10,7 +10,7 @@ struct XrefEntry {
   bool in_use;
 };
 
-std::string SerializePdf(const PdfDocument& doc) {
+std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
   std::ostringstream out;
   std::vector<XrefEntry> xref;
 
@@ -43,7 +43,7 @@ std::string SerializePdf(const PdfDocument& doc) {
   // Objects 3..N: Pages
   for (int i = 0; i < page_count; i++) {
     record_offset();  // → object 3+i
-    const Page& p = doc.pages(i);
+    const pdf_proto::Page& p = doc.pages(i);
     float w = p.has_width()  ? p.width()  : 612.0f;
     float h = p.has_height() ? p.height() : 792.0f;
     // clamp to sane range — LPM will try NaN, negative, huge values
