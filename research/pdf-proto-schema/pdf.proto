@@ -1,20 +1,28 @@
 syntax = "proto2";
 package pdf_proto;
 
-// The three mandatory objects only
 message Catalog {
-  required uint32 pages_ref = 1;  // object number of Pages node
+  required uint32 pages_ref = 1;
 }
 
 message PageTree {
-  repeated uint32 kids = 1;       // object numbers of Page objects
+  repeated uint32 kids = 1;
+}
+
+message ContentStream {
+  enum FilterType {
+    NONE  = 0;  // raw bytes, no compression
+    FLATE = 1;  // FlateDecode -- zlib/deflate (ISO 32000-1 s7.4.4)
+  }
+  optional FilterType filter    = 1 [default = NONE];
+  optional bytes      raw_content = 2;  // uncompressed payload; serializer compresses when FLATE
 }
 
 message Page {
-  // MediaBox: [x1 y1 x2 y2]
   optional float width  = 1 [default = 612];
   optional float height = 2 [default = 792];
   optional uint32 parent_ref = 3;
+  optional ContentStream content_stream = 4;
 }
 
 message IndirectObject {
@@ -27,7 +35,5 @@ message IndirectObject {
 }
 
 message PdfDocument {
-  // serializer assigns object numbers itself —
-  // you don't need LPM to control them at this stage
   repeated Page pages = 1;
 }

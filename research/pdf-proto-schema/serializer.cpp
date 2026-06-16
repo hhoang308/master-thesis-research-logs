@@ -1,6 +1,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <algorithm>
 #include <zlib.h>
 #include "pdf.pb.h"
 
@@ -9,6 +10,19 @@ struct XrefEntry {
   uint32_t generation;
   bool in_use;
 };
+
+// Compress src with zlib (deflate). Returns empty string on failure.
+static std::string zlib_compress(const std::string& src) {
+  uLongf bound = compressBound((uLong)src.size());
+  std::string dst(bound, '\0');
+  int rc = compress2(
+      reinterpret_cast<Bytef*>(&dst[0]), &bound,
+      reinterpret_cast<const Bytef*>(src.data()), (uLong)src.size(),
+      Z_DEFAULT_COMPRESSION);
+  if (rc != Z_OK) return {};
+  dst.resize(bound);
+  return dst;
+}
 
 std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
   std::ostringstream out;
@@ -20,45 +34,82 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
   auto record_offset = [&]() -> uint32_t {
     uint32_t pos = (uint32_t)out.tellp();
     xref.push_back({pos, 0, true});
-    return (uint32_t)xref.size() - 1;  // object number just assigned
+    return (uint32_t)xref.size() - 1;
   };
 
   out << "%PDF-1.4\n";
 
-  // Object 1: Catalog — always object number 1
-  record_offset();  // → object 1
-  uint32_t pages_obj_num = 2;  // we know Pages will be object 2
-  out << "1 0 obj\n<< /Type /Catalog /Pages " << pages_obj_num << " 0 R >>\nendobj\n";
+  // Pre-assign content-stream object numbers.
+  // Layout: obj1=Catalog, obj2=Pages, obj3..2+N=Page objects, then content streams.
+  int page_count = doc.pages_size();
+  int cs_base = 3 + page_count;
+  std::vector<int> cs_obj(page_count, 0);
+  {
+    int next = cs_base;
+    for (int i = 0; i < page_count; i++) {
+      if (doc.pages(i).has_content_stream())
+        cs_obj[i] = next++;
+    }
+  }
+
+  // Object 1: Catalog
+  record_offset();
+  out << "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n";
 
   // Object 2: Pages (page tree root)
-  record_offset();  // → object 2
-  int page_count = doc.pages_size();
-  // kids will be objects 3, 4, 5, ...
+  record_offset();
   out << "2 0 obj\n<< /Type /Pages /Count " << page_count << " /Kids [";
-  for (int i = 0; i < page_count; i++) {
+  for (int i = 0; i < page_count; i++)
     out << (3 + i) << " 0 R ";
-  }
   out << "] >>\nendobj\n";
 
-  // Objects 3..N: Pages
+  // Objects 3..2+N: Page objects
   for (int i = 0; i < page_count; i++) {
-    record_offset();  // → object 3+i
+    record_offset();
     const pdf_proto::Page& p = doc.pages(i);
     float w = p.has_width()  ? p.width()  : 612.0f;
     float h = p.has_height() ? p.height() : 792.0f;
-    // clamp to sane range — LPM will try NaN, negative, huge values
+    // clamp to sane range -- libprotobuf-mutator will try NaN, negative, huge values
     w = std::max(1.0f, std::min(w, 14400.0f));
     h = std::max(1.0f, std::min(h, 14400.0f));
     out << (3 + i) << " 0 obj\n"
-        << "<< /Type /Page /Parent 2 0 R "
-        << "/MediaBox [0 0 " << w << " " << h << "] >>\n"
-        << "endobj\n";
+        << "<< /Type /Page /Parent 2 0 R"
+        << " /MediaBox [0 0 " << w << " " << h << "]";
+    if (cs_obj[i] != 0)
+      out << " /Contents " << cs_obj[i] << " 0 R";
+    out << " >>\nendobj\n";
+  }
+
+  // Content-stream objects
+  for (int i = 0; i < page_count; i++) {
+    if (cs_obj[i] == 0) continue;
+    record_offset();
+    const pdf_proto::ContentStream& cs = doc.pages(i).content_stream();
+    const std::string& raw = cs.raw_content();
+
+    bool use_flate = (cs.filter() == pdf_proto::ContentStream::FLATE);
+    std::string compressed;
+    if (use_flate) {
+      compressed = zlib_compress(raw);
+      if (compressed.empty())
+        use_flate = false;  // fall back to raw on compress failure
+    }
+
+    const std::string& payload = use_flate ? compressed : raw;
+
+    // PDF spec 7.3.8.1: /Length is the byte count between the line ending
+    // after "stream" and the keyword "endstream" (not counting the final \n).
+    out << cs_obj[i] << " 0 obj\n<< /Length " << payload.size();
+    if (use_flate)
+      out << " /Filter /FlateDecode";
+    out << " >>\nstream\n"
+        << payload
+        << "\nendstream\nendobj\n";
   }
 
   // Xref table
   uint32_t xref_offset = (uint32_t)out.tellp();
-  out << "xref\n";
-  out << "0 " << xref.size() << "\n";
+  out << "xref\n0 " << xref.size() << "\n";
   for (auto& e : xref) {
     char buf[21];
     if (e.in_use)

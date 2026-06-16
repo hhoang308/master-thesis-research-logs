@@ -28,6 +28,7 @@
 #include "google/protobuf/message_lite.h"
 #include "google/protobuf/repeated_field.h"  // IWYU pragma: export
 #include "google/protobuf/extension_set.h"  // IWYU pragma: export
+#include "google/protobuf/generated_enum_reflection.h"
 #include "google/protobuf/unknown_field_set.h"
 // @@protoc_insertion_point(includes)
 
@@ -53,10 +54,16 @@ extern "C" {
 extern const ::google::protobuf::internal::DescriptorTable descriptor_table_pdf_2eproto;
 }  // extern "C"
 namespace pdf_proto {
+enum ContentStream_FilterType : int;
+extern const uint32_t ContentStream_FilterType_internal_data_[];
 class Catalog;
 struct CatalogDefaultTypeInternal;
 extern CatalogDefaultTypeInternal _Catalog_default_instance_;
 extern const ::google::protobuf::internal::ClassDataFull Catalog_class_data_;
+class ContentStream;
+struct ContentStreamDefaultTypeInternal;
+extern ContentStreamDefaultTypeInternal _ContentStream_default_instance_;
+extern const ::google::protobuf::internal::ClassDataFull ContentStream_class_data_;
 class IndirectObject;
 struct IndirectObjectDefaultTypeInternal;
 extern IndirectObjectDefaultTypeInternal _IndirectObject_default_instance_;
@@ -76,10 +83,45 @@ extern const ::google::protobuf::internal::ClassDataFull PdfDocument_class_data_
 }  // namespace pdf_proto
 namespace google {
 namespace protobuf {
+template <>
+internal::EnumTraitsT<::pdf_proto::ContentStream_FilterType_internal_data_>
+    internal::EnumTraitsImpl::value<::pdf_proto::ContentStream_FilterType>;
 }  // namespace protobuf
 }  // namespace google
 
 namespace pdf_proto {
+enum ContentStream_FilterType : int {
+  ContentStream_FilterType_NONE = 0,
+  ContentStream_FilterType_FLATE = 1,
+};
+
+extern const uint32_t ContentStream_FilterType_internal_data_[];
+inline constexpr ContentStream_FilterType ContentStream_FilterType_FilterType_MIN =
+    static_cast<ContentStream_FilterType>(0);
+inline constexpr ContentStream_FilterType ContentStream_FilterType_FilterType_MAX =
+    static_cast<ContentStream_FilterType>(1);
+inline bool ContentStream_FilterType_IsValid(int value) {
+  return 0 <= value && value <= 1;
+}
+inline constexpr int ContentStream_FilterType_FilterType_ARRAYSIZE = 1 + 1;
+const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL ContentStream_FilterType_descriptor();
+template <typename T>
+const ::std::string& ContentStream_FilterType_Name(T value) {
+  static_assert(::std::is_same<T, ContentStream_FilterType>::value ||
+                    ::std::is_integral<T>::value,
+                "Incorrect type passed to FilterType_Name().");
+  return ContentStream_FilterType_Name(static_cast<ContentStream_FilterType>(value));
+}
+template <>
+inline const ::std::string& ContentStream_FilterType_Name(ContentStream_FilterType value) {
+  return ::google::protobuf::internal::NameOfDenseEnum<ContentStream_FilterType_descriptor, 0, 1>(
+      static_cast<int>(value));
+}
+inline bool ContentStream_FilterType_Parse(
+    ::absl::string_view name, ContentStream_FilterType* PROTOBUF_NONNULL value) {
+  return ::google::protobuf::internal::ParseNamedEnum<ContentStream_FilterType>(ContentStream_FilterType_descriptor(), name,
+                                           value);
+}
 
 // ===================================================================
 
@@ -284,30 +326,30 @@ class PageTree final : public ::google::protobuf::Message
 extern const ::google::protobuf::internal::ClassDataFull PageTree_class_data_;
 // -------------------------------------------------------------------
 
-class Page final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:pdf_proto.Page) */ {
+class ContentStream final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:pdf_proto.ContentStream) */ {
  public:
-  inline Page() : Page(nullptr) {}
-  ~Page() PROTOBUF_FINAL;
+  inline ContentStream() : ContentStream(nullptr) {}
+  ~ContentStream() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(Page* PROTOBUF_NONNULL msg, ::std::destroying_delete_t) {
+  void operator delete(ContentStream* PROTOBUF_NONNULL msg, ::std::destroying_delete_t) {
     SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(Page));
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(ContentStream));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR Page(::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR ContentStream(::google::protobuf::internal::ConstantInitialized);
 
-  inline Page(const Page& from) : Page(nullptr, from) {}
-  inline Page(Page&& from) noexcept
-      : Page(nullptr, ::std::move(from)) {}
-  inline Page& operator=(const Page& from) {
+  inline ContentStream(const ContentStream& from) : ContentStream(nullptr, from) {}
+  inline ContentStream(ContentStream&& from) noexcept
+      : ContentStream(nullptr, ::std::move(from)) {}
+  inline ContentStream& operator=(const ContentStream& from) {
     CopyFrom(from);
     return *this;
   }
-  inline Page& operator=(Page&& from) noexcept {
+  inline ContentStream& operator=(ContentStream&& from) noexcept {
     if (this == &from) return *this;
     if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
       InternalSwap(&from);
@@ -335,13 +377,13 @@ class Page final : public ::google::protobuf::Message
   static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
-  static const Page& default_instance() {
-    return *reinterpret_cast<const Page*>(
-        &_Page_default_instance_);
+  static const ContentStream& default_instance() {
+    return *reinterpret_cast<const ContentStream*>(
+        &_ContentStream_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 2;
-  friend void swap(Page& a, Page& b) { a.Swap(&b); }
-  inline void Swap(Page* PROTOBUF_NONNULL other) {
+  friend void swap(ContentStream& a, ContentStream& b) { a.Swap(&b); }
+  inline void Swap(ContentStream* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -349,7 +391,7 @@ class Page final : public ::google::protobuf::Message
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(Page* PROTOBUF_NONNULL other) {
+  void UnsafeArenaSwap(ContentStream* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -357,13 +399,13 @@ class Page final : public ::google::protobuf::Message
 
   // implements Message ----------------------------------------------
 
-  Page* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<Page>(arena);
+  ContentStream* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<ContentStream>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const Page& from);
+  void CopyFrom(const ContentStream& from);
   using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const Page& from) { Page::MergeImpl(*this, from); }
+  void MergeFrom(const ContentStream& from) { ContentStream::MergeImpl(*this, from); }
 
   private:
   static void MergeImpl(::google::protobuf::MessageLite& to_msg,
@@ -399,17 +441,17 @@ class Page final : public ::google::protobuf::Message
   private:
   void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(Page* PROTOBUF_NONNULL other);
+  void InternalSwap(ContentStream* PROTOBUF_NONNULL other);
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "pdf_proto.Page"; }
+  static ::absl::string_view FullMessageName() { return "pdf_proto.ContentStream"; }
 
-  explicit Page(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  Page(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Page& from);
-  Page(
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, Page&& from) noexcept
-      : Page(arena) {
+  explicit ContentStream(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  ContentStream(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const ContentStream& from);
+  ContentStream(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, ContentStream&& from) noexcept
+      : ContentStream(arena) {
     *this = ::std::move(from);
   }
   const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
@@ -423,52 +465,65 @@ class Page final : public ::google::protobuf::Message
 
   ::google::protobuf::Metadata GetMetadata() const;
   // nested types ----------------------------------------------------
+  using FilterType = ContentStream_FilterType;
+  static constexpr FilterType NONE = ContentStream_FilterType_NONE;
+  static constexpr FilterType FLATE = ContentStream_FilterType_FLATE;
+  static inline bool FilterType_IsValid(int value) {
+    return ContentStream_FilterType_IsValid(value);
+  }
+  static constexpr FilterType FilterType_MIN = ContentStream_FilterType_FilterType_MIN;
+  static constexpr FilterType FilterType_MAX = ContentStream_FilterType_FilterType_MAX;
+  static constexpr int FilterType_ARRAYSIZE = ContentStream_FilterType_FilterType_ARRAYSIZE;
+  static inline const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL FilterType_descriptor() {
+    return ContentStream_FilterType_descriptor();
+  }
+  template <typename T>
+  static inline const ::std::string& FilterType_Name(T value) {
+    return ContentStream_FilterType_Name(value);
+  }
+  static inline bool FilterType_Parse(
+      ::absl::string_view name, FilterType* PROTOBUF_NONNULL value) {
+    return ContentStream_FilterType_Parse(name, value);
+  }
 
   // accessors -------------------------------------------------------
   enum : int {
-    kParentRefFieldNumber = 3,
-    kWidthFieldNumber = 1,
-    kHeightFieldNumber = 2,
+    kRawContentFieldNumber = 2,
+    kFilterFieldNumber = 1,
   };
-  // optional uint32 parent_ref = 3;
-  bool has_parent_ref() const;
-  void clear_parent_ref() ;
-  ::uint32_t parent_ref() const;
-  void set_parent_ref(::uint32_t value);
+  // optional bytes raw_content = 2;
+  bool has_raw_content() const;
+  void clear_raw_content() ;
+  const ::std::string& raw_content() const;
+  template <typename Arg_ = const ::std::string&, typename... Args_>
+  void set_raw_content(Arg_&& arg, Args_... args);
+  ::std::string* PROTOBUF_NONNULL mutable_raw_content();
+  [[nodiscard]] ::std::string* PROTOBUF_NULLABLE release_raw_content();
+  void set_allocated_raw_content(::std::string* PROTOBUF_NULLABLE value);
 
   private:
-  ::uint32_t _internal_parent_ref() const;
-  void _internal_set_parent_ref(::uint32_t value);
+  const ::std::string& _internal_raw_content() const;
+  PROTOBUF_ALWAYS_INLINE void _internal_set_raw_content(const ::std::string& value);
+  ::std::string* PROTOBUF_NONNULL _internal_mutable_raw_content();
 
   public:
-  // optional float width = 1 [default = 612];
-  bool has_width() const;
-  void clear_width() ;
-  float width() const;
-  void set_width(float value);
+  // optional .pdf_proto.ContentStream.FilterType filter = 1 [default = NONE];
+  bool has_filter() const;
+  void clear_filter() ;
+  ::pdf_proto::ContentStream_FilterType filter() const;
+  void set_filter(::pdf_proto::ContentStream_FilterType value);
 
   private:
-  float _internal_width() const;
-  void _internal_set_width(float value);
+  ::pdf_proto::ContentStream_FilterType _internal_filter() const;
+  void _internal_set_filter(::pdf_proto::ContentStream_FilterType value);
 
   public:
-  // optional float height = 2 [default = 792];
-  bool has_height() const;
-  void clear_height() ;
-  float height() const;
-  void set_height(float value);
-
-  private:
-  float _internal_height() const;
-  void _internal_set_height(float value);
-
-  public:
-  // @@protoc_insertion_point(class_scope:pdf_proto.Page)
+  // @@protoc_insertion_point(class_scope:pdf_proto.ContentStream)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<2, 3,
-                                   0, 0,
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
+                                   1, 0,
                                    2>
       _table_;
 
@@ -486,19 +541,18 @@ class Page final : public ::google::protobuf::Message
     inline explicit Impl_(
         ::google::protobuf::internal::InternalVisibility visibility,
         ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-        const Page& from_msg);
+        const ContentStream& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
-    ::uint32_t parent_ref_;
-    float width_;
-    float height_;
+    ::google::protobuf::internal::ArenaStringPtr raw_content_;
+    int filter_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
   friend struct ::TableStruct_pdf_2eproto;
 };
 
-extern const ::google::protobuf::internal::ClassDataFull Page_class_data_;
+extern const ::google::protobuf::internal::ClassDataFull ContentStream_class_data_;
 // -------------------------------------------------------------------
 
 class Catalog final : public ::google::protobuf::Message
@@ -697,6 +751,240 @@ class Catalog final : public ::google::protobuf::Message
 extern const ::google::protobuf::internal::ClassDataFull Catalog_class_data_;
 // -------------------------------------------------------------------
 
+class Page final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:pdf_proto.Page) */ {
+ public:
+  inline Page() : Page(nullptr) {}
+  ~Page() PROTOBUF_FINAL;
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+  void operator delete(Page* PROTOBUF_NONNULL msg, ::std::destroying_delete_t) {
+    SharedDtor(*msg);
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(Page));
+  }
+#endif
+
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR Page(::google::protobuf::internal::ConstantInitialized);
+
+  inline Page(const Page& from) : Page(nullptr, from) {}
+  inline Page(Page&& from) noexcept
+      : Page(nullptr, ::std::move(from)) {}
+  inline Page& operator=(const Page& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Page& operator=(Page&& from) noexcept {
+    if (this == &from) return *this;
+    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const Page& default_instance() {
+    return *reinterpret_cast<const Page*>(
+        &_Page_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 3;
+  friend void swap(Page& a, Page& b) { a.Swap(&b); }
+  inline void Swap(Page* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(Page* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  Page* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<Page>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const Page& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const Page& from) { Page::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
+
+  public:
+  bool IsInitialized() const {
+    return true;
+  }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(Page* PROTOBUF_NONNULL other);
+ private:
+  template <typename T>
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
+  static ::absl::string_view FullMessageName() { return "pdf_proto.Page"; }
+
+  explicit Page(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  Page(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Page& from);
+  Page(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, Page&& from) noexcept
+      : Page(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static constexpr auto InternalNewImpl_();
+
+ public:
+  static constexpr auto InternalGenerateClassData_();
+
+  ::google::protobuf::Metadata GetMetadata() const;
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+  enum : int {
+    kContentStreamFieldNumber = 4,
+    kParentRefFieldNumber = 3,
+    kWidthFieldNumber = 1,
+    kHeightFieldNumber = 2,
+  };
+  // optional .pdf_proto.ContentStream content_stream = 4;
+  bool has_content_stream() const;
+  void clear_content_stream() ;
+  const ::pdf_proto::ContentStream& content_stream() const;
+  [[nodiscard]] ::pdf_proto::ContentStream* PROTOBUF_NULLABLE release_content_stream();
+  ::pdf_proto::ContentStream* PROTOBUF_NONNULL mutable_content_stream();
+  void set_allocated_content_stream(::pdf_proto::ContentStream* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_content_stream(::pdf_proto::ContentStream* PROTOBUF_NULLABLE value);
+  ::pdf_proto::ContentStream* PROTOBUF_NULLABLE unsafe_arena_release_content_stream();
+
+  private:
+  const ::pdf_proto::ContentStream& _internal_content_stream() const;
+  ::pdf_proto::ContentStream* PROTOBUF_NONNULL _internal_mutable_content_stream();
+
+  public:
+  // optional uint32 parent_ref = 3;
+  bool has_parent_ref() const;
+  void clear_parent_ref() ;
+  ::uint32_t parent_ref() const;
+  void set_parent_ref(::uint32_t value);
+
+  private:
+  ::uint32_t _internal_parent_ref() const;
+  void _internal_set_parent_ref(::uint32_t value);
+
+  public:
+  // optional float width = 1 [default = 612];
+  bool has_width() const;
+  void clear_width() ;
+  float width() const;
+  void set_width(float value);
+
+  private:
+  float _internal_width() const;
+  void _internal_set_width(float value);
+
+  public:
+  // optional float height = 2 [default = 792];
+  bool has_height() const;
+  void clear_height() ;
+  float height() const;
+  void set_height(float value);
+
+  private:
+  float _internal_height() const;
+  void _internal_set_height(float value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:pdf_proto.Page)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<2, 4,
+                                   1, 0,
+                                   2>
+      _table_;
+
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const Page& from_msg);
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    ::pdf_proto::ContentStream* PROTOBUF_NULLABLE content_stream_;
+    ::uint32_t parent_ref_;
+    float width_;
+    float height_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_pdf_2eproto;
+};
+
+extern const ::google::protobuf::internal::ClassDataFull Page_class_data_;
+// -------------------------------------------------------------------
+
 class PdfDocument final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:pdf_proto.PdfDocument) */ {
  public:
@@ -752,7 +1040,7 @@ class PdfDocument final : public ::google::protobuf::Message
     return *reinterpret_cast<const PdfDocument*>(
         &_PdfDocument_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 4;
+  static constexpr int kIndexInFileMessages = 5;
   friend void swap(PdfDocument& a, PdfDocument& b) { a.Swap(&b); }
   inline void Swap(PdfDocument* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -955,7 +1243,7 @@ class IndirectObject final : public ::google::protobuf::Message
     kPage = 4,
     BODY_NOT_SET = 0,
   };
-  static constexpr int kIndexInFileMessages = 3;
+  static constexpr int kIndexInFileMessages = 4;
   friend void swap(IndirectObject& a, IndirectObject& b) { a.Swap(&b); }
   inline void Swap(IndirectObject* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -1271,18 +1559,123 @@ PageTree::_internal_mutable_kids() {
 
 // -------------------------------------------------------------------
 
+// ContentStream
+
+// optional .pdf_proto.ContentStream.FilterType filter = 1 [default = NONE];
+inline bool ContentStream::has_filter() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000002U);
+  return value;
+}
+inline void ContentStream::clear_filter() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.filter_ = 0;
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000002U);
+}
+inline ::pdf_proto::ContentStream_FilterType ContentStream::filter() const {
+  // @@protoc_insertion_point(field_get:pdf_proto.ContentStream.filter)
+  return _internal_filter();
+}
+inline void ContentStream::set_filter(::pdf_proto::ContentStream_FilterType value) {
+  _internal_set_filter(value);
+  SetHasBit(_impl_._has_bits_[0], 0x00000002U);
+  // @@protoc_insertion_point(field_set:pdf_proto.ContentStream.filter)
+}
+inline ::pdf_proto::ContentStream_FilterType ContentStream::_internal_filter() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return static_cast<::pdf_proto::ContentStream_FilterType>(_impl_.filter_);
+}
+inline void ContentStream::_internal_set_filter(::pdf_proto::ContentStream_FilterType value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+
+                                          assert(::google::protobuf::internal::ValidateEnum(
+                                              value, ::pdf_proto::ContentStream_FilterType_internal_data_));
+                                          _impl_.filter_ = value;
+}
+
+// optional bytes raw_content = 2;
+inline bool ContentStream::has_raw_content() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000001U);
+  return value;
+}
+inline void ContentStream::clear_raw_content() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.raw_content_.ClearToEmpty();
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000001U);
+}
+inline const ::std::string& ContentStream::raw_content() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:pdf_proto.ContentStream.raw_content)
+  return _internal_raw_content();
+}
+template <typename Arg_, typename... Args_>
+PROTOBUF_ALWAYS_INLINE void ContentStream::set_raw_content(Arg_&& arg, Args_... args) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  SetHasBit(_impl_._has_bits_[0], 0x00000001U);
+  _impl_.raw_content_.SetBytes(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:pdf_proto.ContentStream.raw_content)
+}
+inline ::std::string* PROTOBUF_NONNULL ContentStream::mutable_raw_content()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  SetHasBit(_impl_._has_bits_[0], 0x00000001U);
+  ::std::string* _s = _internal_mutable_raw_content();
+  // @@protoc_insertion_point(field_mutable:pdf_proto.ContentStream.raw_content)
+  return _s;
+}
+inline const ::std::string& ContentStream::_internal_raw_content() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.raw_content_.Get();
+}
+inline void ContentStream::_internal_set_raw_content(const ::std::string& value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.raw_content_.Set(value, GetArena());
+}
+inline ::std::string* PROTOBUF_NONNULL ContentStream::_internal_mutable_raw_content() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _impl_.raw_content_.Mutable( GetArena());
+}
+inline ::std::string* PROTOBUF_NULLABLE ContentStream::release_raw_content() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:pdf_proto.ContentStream.raw_content)
+  if (!CheckHasBit(_impl_._has_bits_[0], 0x00000001U)) {
+    return nullptr;
+  }
+  ClearHasBit(_impl_._has_bits_[0], 0x00000001U);
+  auto* released = _impl_.raw_content_.Release();
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString()) {
+    _impl_.raw_content_.Set("", GetArena());
+  }
+  return released;
+}
+inline void ContentStream::set_allocated_raw_content(::std::string* PROTOBUF_NULLABLE value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (value != nullptr) {
+    SetHasBit(_impl_._has_bits_[0], 0x00000001U);
+  } else {
+    ClearHasBit(_impl_._has_bits_[0], 0x00000001U);
+  }
+  _impl_.raw_content_.SetAllocated(value, GetArena());
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.raw_content_.IsDefault()) {
+    _impl_.raw_content_.Set("", GetArena());
+  }
+  // @@protoc_insertion_point(field_set_allocated:pdf_proto.ContentStream.raw_content)
+}
+
+// -------------------------------------------------------------------
+
 // Page
 
 // optional float width = 1 [default = 612];
 inline bool Page::has_width() const {
-  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000002U);
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000004U);
   return value;
 }
 inline void Page::clear_width() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.width_ = 612;
   ClearHasBit(_impl_._has_bits_[0],
-                  0x00000002U);
+                  0x00000004U);
 }
 inline float Page::width() const {
   // @@protoc_insertion_point(field_get:pdf_proto.Page.width)
@@ -1290,7 +1683,7 @@ inline float Page::width() const {
 }
 inline void Page::set_width(float value) {
   _internal_set_width(value);
-  SetHasBit(_impl_._has_bits_[0], 0x00000002U);
+  SetHasBit(_impl_._has_bits_[0], 0x00000004U);
   // @@protoc_insertion_point(field_set:pdf_proto.Page.width)
 }
 inline float Page::_internal_width() const {
@@ -1304,14 +1697,14 @@ inline void Page::_internal_set_width(float value) {
 
 // optional float height = 2 [default = 792];
 inline bool Page::has_height() const {
-  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000004U);
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000008U);
   return value;
 }
 inline void Page::clear_height() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.height_ = 792;
   ClearHasBit(_impl_._has_bits_[0],
-                  0x00000004U);
+                  0x00000008U);
 }
 inline float Page::height() const {
   // @@protoc_insertion_point(field_get:pdf_proto.Page.height)
@@ -1319,7 +1712,7 @@ inline float Page::height() const {
 }
 inline void Page::set_height(float value) {
   _internal_set_height(value);
-  SetHasBit(_impl_._has_bits_[0], 0x00000004U);
+  SetHasBit(_impl_._has_bits_[0], 0x00000008U);
   // @@protoc_insertion_point(field_set:pdf_proto.Page.height)
 }
 inline float Page::_internal_height() const {
@@ -1333,14 +1726,14 @@ inline void Page::_internal_set_height(float value) {
 
 // optional uint32 parent_ref = 3;
 inline bool Page::has_parent_ref() const {
-  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000001U);
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000002U);
   return value;
 }
 inline void Page::clear_parent_ref() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.parent_ref_ = 0u;
   ClearHasBit(_impl_._has_bits_[0],
-                  0x00000001U);
+                  0x00000002U);
 }
 inline ::uint32_t Page::parent_ref() const {
   // @@protoc_insertion_point(field_get:pdf_proto.Page.parent_ref)
@@ -1348,7 +1741,7 @@ inline ::uint32_t Page::parent_ref() const {
 }
 inline void Page::set_parent_ref(::uint32_t value) {
   _internal_set_parent_ref(value);
-  SetHasBit(_impl_._has_bits_[0], 0x00000001U);
+  SetHasBit(_impl_._has_bits_[0], 0x00000002U);
   // @@protoc_insertion_point(field_set:pdf_proto.Page.parent_ref)
 }
 inline ::uint32_t Page::_internal_parent_ref() const {
@@ -1358,6 +1751,105 @@ inline ::uint32_t Page::_internal_parent_ref() const {
 inline void Page::_internal_set_parent_ref(::uint32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.parent_ref_ = value;
+}
+
+// optional .pdf_proto.ContentStream content_stream = 4;
+inline bool Page::has_content_stream() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000001U);
+  PROTOBUF_ASSUME(!value || _impl_.content_stream_ != nullptr);
+  return value;
+}
+inline void Page::clear_content_stream() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (_impl_.content_stream_ != nullptr) _impl_.content_stream_->Clear();
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000001U);
+}
+inline const ::pdf_proto::ContentStream& Page::_internal_content_stream() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  const ::pdf_proto::ContentStream* p = _impl_.content_stream_;
+  return p != nullptr ? *p : reinterpret_cast<const ::pdf_proto::ContentStream&>(::pdf_proto::_ContentStream_default_instance_);
+}
+inline const ::pdf_proto::ContentStream& Page::content_stream() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:pdf_proto.Page.content_stream)
+  return _internal_content_stream();
+}
+inline void Page::unsafe_arena_set_allocated_content_stream(
+    ::pdf_proto::ContentStream* PROTOBUF_NULLABLE value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (GetArena() == nullptr) {
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.content_stream_);
+  }
+  _impl_.content_stream_ = reinterpret_cast<::pdf_proto::ContentStream*>(value);
+  if (value != nullptr) {
+    SetHasBit(_impl_._has_bits_[0], 0x00000001U);
+  } else {
+    ClearHasBit(_impl_._has_bits_[0], 0x00000001U);
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:pdf_proto.Page.content_stream)
+}
+inline ::pdf_proto::ContentStream* PROTOBUF_NULLABLE Page::release_content_stream() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+
+  ClearHasBit(_impl_._has_bits_[0], 0x00000001U);
+  ::pdf_proto::ContentStream* released = _impl_.content_stream_;
+  _impl_.content_stream_ = nullptr;
+  if (::google::protobuf::internal::DebugHardenForceCopyInRelease()) {
+    auto* old = reinterpret_cast<::google::protobuf::MessageLite*>(released);
+    released = ::google::protobuf::internal::DuplicateIfNonNull(released);
+    if (GetArena() == nullptr) {
+      delete old;
+    }
+  } else {
+    if (GetArena() != nullptr) {
+      released = ::google::protobuf::internal::DuplicateIfNonNull(released);
+    }
+  }
+  return released;
+}
+inline ::pdf_proto::ContentStream* PROTOBUF_NULLABLE Page::unsafe_arena_release_content_stream() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:pdf_proto.Page.content_stream)
+
+  ClearHasBit(_impl_._has_bits_[0], 0x00000001U);
+  ::pdf_proto::ContentStream* temp = _impl_.content_stream_;
+  _impl_.content_stream_ = nullptr;
+  return temp;
+}
+inline ::pdf_proto::ContentStream* PROTOBUF_NONNULL Page::_internal_mutable_content_stream() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (_impl_.content_stream_ == nullptr) {
+    auto* p = ::google::protobuf::Message::DefaultConstruct<::pdf_proto::ContentStream>(GetArena());
+    _impl_.content_stream_ = reinterpret_cast<::pdf_proto::ContentStream*>(p);
+  }
+  return _impl_.content_stream_;
+}
+inline ::pdf_proto::ContentStream* PROTOBUF_NONNULL Page::mutable_content_stream()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  SetHasBit(_impl_._has_bits_[0], 0x00000001U);
+  ::pdf_proto::ContentStream* _msg = _internal_mutable_content_stream();
+  // @@protoc_insertion_point(field_mutable:pdf_proto.Page.content_stream)
+  return _msg;
+}
+inline void Page::set_allocated_content_stream(::pdf_proto::ContentStream* PROTOBUF_NULLABLE value) {
+  ::google::protobuf::Arena* message_arena = GetArena();
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (message_arena == nullptr) {
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.content_stream_);
+  }
+
+  if (value != nullptr) {
+    ::google::protobuf::Arena* submessage_arena = value->GetArena();
+    if (message_arena != submessage_arena) {
+      value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
+    }
+    SetHasBit(_impl_._has_bits_[0], 0x00000001U);
+  } else {
+    ClearHasBit(_impl_._has_bits_[0], 0x00000001U);
+  }
+
+  _impl_.content_stream_ = reinterpret_cast<::pdf_proto::ContentStream*>(value);
+  // @@protoc_insertion_point(field_set_allocated:pdf_proto.Page.content_stream)
 }
 
 // -------------------------------------------------------------------
@@ -1715,6 +2207,19 @@ PdfDocument::_internal_mutable_pages() {
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace pdf_proto
 
+
+namespace google {
+namespace protobuf {
+
+template <>
+struct is_proto_enum<::pdf_proto::ContentStream_FilterType> : std::true_type {};
+template <>
+inline const EnumDescriptor* PROTOBUF_NONNULL GetEnumDescriptor<::pdf_proto::ContentStream_FilterType>() {
+  return ::pdf_proto::ContentStream_FilterType_descriptor();
+}
+
+}  // namespace protobuf
+}  // namespace google
 
 // @@protoc_insertion_point(global_scope)
 

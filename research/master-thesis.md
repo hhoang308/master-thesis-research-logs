@@ -57,24 +57,28 @@ pdf.proto  ->  libprotobuf-mutator mutates PdfDocument  ->  SerializePdf()  ->  
 
 ---
 
-### 2. Proto schema [DONE giai đoạn 1 / TODO giai đoạn 2]
+### 2. Proto schema [DONE giai đoạn 1+2 / TODO giai đoạn 3]
 
 **[DONE] Giai đoạn 1 -- Document skeleton tối giản**
 - `PdfDocument` chứa danh sách `Page`, mỗi `Page` có `width` / `height` (MediaBox).
 - Thêm `package pdf_proto` để tránh name collision với xpdf's `Catalog` class.
 - File: `research/pdf-proto-schema/pdf.proto`
 
-**[TODO] Giai đoạn 2 -- Stream object model** ← việc tiếp theo quan trọng nhất
-- Thêm `StreamObject` với `filter` (NONE / FLATE / JPX) và `payload` (bytes).
+**[DONE] Giai đoạn 2 -- Stream object model**
+- Thêm `ContentStream` với `FilterType` enum (NONE / FLATE) và `raw_content` (bytes).
 - Thêm `content_stream` vào `Page`.
-- Mục tiêu: cho phép fuzzer chạm đến các stream decoder trong xpdf (FlateDecode, JPXDecode, JBIG2,...).
+- Kết quả smoke test 100 runs:
+  - Giai đoạn 1 (skeleton): 664 edges
+  - Sau Task 2a (raw stream, NONE filter): 705 edges (+41, +6.2%)
+  - Sau Task 2b (FlateDecode): **716 edges (+52 tổng, +7.8%)**
+- xpdf's FlateDecode/zlib code path đã được chạm đến.
 
 **[TODO -- nếu còn thời gian] Giai đoạn 3**
 - Font objects, JavaScript actions, name trees, arrays.
 
 ---
 
-### 3. Serializer [DONE giai đoạn 1 / TODO giai đoạn 2]
+### 3. Serializer [DONE giai đoạn 1+2]
 
 **[DONE] Giai đoạn 1 -- PDF hợp lệ từ protobuf message**
 - Tự tính xref offset và ghi đúng trailer.
@@ -83,10 +87,12 @@ pdf.proto  ->  libprotobuf-mutator mutates PdfDocument  ->  SerializePdf()  ->  
   - `pdftotext`: không có lỗi parse.
 - File: `research/pdf-proto-schema/serializer.cpp`
 
-**[TODO] Giai đoạn 2 -- Stream object**
-- Nén payload bằng zlib khi `filter = FLATE`.
+**[DONE] Giai đoạn 2 -- Stream object**
+- Nén payload bằng zlib khi `filter = FLATE` (dùng `compress2()` từ zlib).
 - Ghi đúng `/Length` dựa trên kích thước thực của dữ liệu đã nén.
-- Thêm `/Contents` reference vào Page dictionary.
+- Thêm `/Contents N 0 R` reference vào Page dictionary.
+- Fallback về NONE nếu zlib compress thất bại (đảm bảo output luôn là PDF hợp lệ).
+- 4/4 test cases trong `verify_serializer` pass.
 
 ---
 
