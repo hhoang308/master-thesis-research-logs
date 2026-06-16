@@ -1,105 +1,150 @@
-## Danh sách các API
-- Bắt buộc phải implement. (refer to https://aflplus.plus/docs/custom_mutators/)
-	- afl_custom_init: được gọi khi AFL++ khởi động, dùng để khởi tạo RNG seed và allocate bộ nhớ tái sử dụng
-	- afl_custom_fuzz (quan trọng): thực hiện mutation trên input; `add_buf` là nội dung của một seed khác trong queue, có thể dùng để splicing. Phần này sẽ cần implement toàn bộ logic parser, bao gồm: bytes -> IR -> mutate -> serialize.
-	- afl_custom_deinit: 
-- Nên implement sau:
-	- Implement sau khi Layer 1 chạy tốt: 
-		- afl_custom_havoc_mutation: thực hiện mutation đơn lẻ được stack với các mutation khác trong havoc stage
-		- afl_custom_havoc_mutation_probability: trả về xác suất hàm afl_custom_havoc_mutation được gọi, mặc định là 6%
+## Mục tiêu luận văn
 
-## Tóm tắt
-Mục tiêu:
-1. Tăng tỉ lệ input hợp lệ lên khoảng 60% đến 80%.
-2. Tăng time-to-first-crash và unique crash
-Phương pháp:
-- Phương pháp 1 (dễ hơn, làm trước): Sử dụng AFL++ và lopdf 
-	1. Tái sử dụng lopdf parser (viết bằng Rust) để chuyển từ bytes sang IR.
-	2. (Đóng góp chính) Thực hiện mutate dựa trên IR bằng 3 Layer đã đề cập.
-		- custom mutator sẽ viết bằng Rust rồi build ra dưới dạng .so sao cho khớp với C API là được, sau đó include vào custom mutator thuộc AFL++.
-		- 3 phương pháp mutator L1, L2, L3.
-	3. Tái sử dụng lopdf parser (viết bằng Rust) để chuyển từ IR sang bytes, tự tính xref, startref và Length.
-- Phương pháp 2 (khó hơn, làm khi cách 1 gặp vấn đề không khắc phục được): Sử dụng LibAFL + lopdf để tự build 1 fuzzer chuyên dụng cho PDF.
-## Công việc
-1. Thu thập seed corpus + chạy afl++ thuần tuý cho các pdf reader/parser/library.
-Thu thập các seed corpus
-  https://github.com/mozilla/pdf.js/tree/master/test/pdfs
-  https://gitlab.freedesktop.org/poppler/test.git
-    Sử dụng --depth để chỉ lấy các commit ở gần thay vì lấy full lịch sử $\to$ nặng
-    Các file .link là những file chứa URL dẫn đến 1 file PDF mà ví lí do nào đó (nặng, bản quyền,...) nên không có, tạm bỏ qua các file này đã đủ đa dạng rồi.
-Sau khi tìm xong phải duyệt bằng afl-cmin để lọc bớt seed.
-  $\leftarrow$ Sử dụng afl-cmin với các seed tìm được ở bước trên
-Từ các CVE tìm được, tự tạo các seed đặc biệt. 
-  $\leftarrow$ Kiểm tra pipeline có thực sự hoạt động, nếu hoạt động thì phải tái hiện lại được CVE. 
-  $\leftarrow$ Tạo seed gần vùng code đáng khai thác, giúp fuzzer có khởi đầu tốt hơn.
-  $\leftarrow$ Tạo baseline để so sánh, cụ thể, so sánh khoảng thời gian tìm lại được CVE
-    1. Sử dụng AFL++ và seed thông thường
-    2. Sử dụng AFL++ và seed đã được ép theo tương tự CVE
-    3. Sử dụng AFL++ và IR mutator và seed đã được sửa đổi dựa trên CVE.
-2. Round-trip test lopdf:
-Mục tiêu: Sử dụng lopdf (hiện tại chưa liên quan gì đến mutate) load ~ 40 files pdf dạng bytes, sau đó parse thành IR, rồi từ IR parse lại thành bytes. Đảm bảo tất cả các file đều phải parse được, nếu không được phải xử lý.
-- Máy WSL đang sử dụng rust tải về từ apt nên version thấp -> chỉ sử dụng lopdf version thấp -> vẫn ổn trong quá trình test, nhưng để làm các bước khác trong luận văn cần cài đặt lại rust bằng rustup `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
-- Sử dụng lopdf để parse file pdf thành công, tuy nhiên không phải file nào cũng parse được, thử nghiệm thành công với 24/40 pdf files (60%), các file failed sẽ chia làm 2 loại: lopdf không parser được hoặc lopdf parse thành công nhưng khi serialize lại thì file kết quả khác file input ban đầu.
+Xây dựng một pipeline structure-aware fuzzing cho định dạng PDF sử dụng libFuzzer +
+libprotobuf-mutator, chứng minh rằng phương pháp này đạt coverage cao hơn và tìm được
+nhiều lỗi hơn so với AFL++ thuần tuý trên các PDF reader ít được fuzzing liên tục.
 
+**Hai tiêu chí đo lường:**
+1. Tỉ lệ input hợp lệ đạt 60-80% (so với AFL++ baseline).
+2. Coverage cao hơn AFL++ baseline sau cùng thời gian chạy.
 
-3. Phát triển mutator tối giản bằng Rush cdylib
-Mục tiêu: AFL++ có thể nhận và sử dụng được mutator này.
+**Đủ để bảo vệ luận văn thạc sĩ.** Nếu tìm được CVE mới trong xpdf/PoDoFo/qpdf thì
+có thể nâng lên thành workshop paper hoặc short paper.
 
-4. Phát triển L1 mutator và so sánh với afl++ baseline
+---
 
-5. Phát triển L2 mutator, đo đạc các thông số quan trọng: valid input,...
+## Phương pháp
 
-6. Phát triển L3 mutator, 
+```
+pdf.proto  ->  libprotobuf-mutator mutates PdfDocument  ->  SerializePdf()  ->  raw PDF bytes  ->  xpdf / PoDoFo / qpdf
+```
 
-7. Thực nghiệm 3 lần 24-48h, triage crash (nếu có)
+- Định nghĩa `.proto` schema mô tả cấu trúc PDF.
+- libprotobuf-mutator tự động sinh và đột biến protobuf message theo schema -- không cần tự viết mutation logic.
+- Serializer chuyển protobuf message sang raw PDF bytes, **tự tính xref offset và `/Length`** (điểm khác biệt so với AFLSmart và các chunk-level tool).
+- Harness feed bytes vào target qua `DEFINE_PROTO_FUZZER`.
+
+**Lý do bỏ phương án ban đầu (AFL++ + lopdf IR):**
+- lopdf round-trip chỉ đạt 60% -- không đủ tin cậy.
+- Tự viết L1/L2/L3 mutation logic đồng thời với parser là quá lớn về kỹ thuật.
+- Phương án protobuf tách bạch rõ ràng: schema + serializer + libprotobuf-mutator. Chỉ một bài toán khó cần giải là serializer.
+
+---
+
+## Target
+
+- **Ưu tiên** (ít được fuzzing liên tục): xpdf, PoDoFo, qpdf
+- **Tránh** (đã có đội ngũ chạy fuzzer liên tục): pdfium, poppler, mupdf, pdf.js
+
+---
+
+## Tiến độ công việc
+
+### 1. Baseline AFL++ [DONE]
+
+- Seed corpus thu thập từ pdf.js và poppler test, lọc bằng `afl-cmin`.
+- AFL++ chạy trên xpdf 4.06 (`pdftotext`), đang chạy liên tục:
+
+| Thông số | Giá trị |
+|---|---|
+| Thời gian chạy | ~86 giờ |
+| Tổng executions | 101M |
+| Coverage | 47.69% (15,006 / 31,464 edges) |
+| Crashes | 0 |
+| Hangs | 297 |
+
+- Đây là số liệu baseline cho thực nghiệm so sánh.
+
+---
+
+### 2. Proto schema [DONE giai đoạn 1 / TODO giai đoạn 2]
+
+**[DONE] Giai đoạn 1 -- Document skeleton tối giản**
+- `PdfDocument` chứa danh sách `Page`, mỗi `Page` có `width` / `height` (MediaBox).
+- Thêm `package pdf_proto` để tránh name collision với xpdf's `Catalog` class.
+- File: `research/pdf-proto-schema/pdf.proto`
+
+**[TODO] Giai đoạn 2 -- Stream object model** ← việc tiếp theo quan trọng nhất
+- Thêm `StreamObject` với `filter` (NONE / FLATE / JPX) và `payload` (bytes).
+- Thêm `content_stream` vào `Page`.
+- Mục tiêu: cho phép fuzzer chạm đến các stream decoder trong xpdf (FlateDecode, JPXDecode, JBIG2,...).
+
+**[TODO -- nếu còn thời gian] Giai đoạn 3**
+- Font objects, JavaScript actions, name trees, arrays.
+
+---
+
+### 3. Serializer [DONE giai đoạn 1 / TODO giai đoạn 2]
+
+**[DONE] Giai đoạn 1 -- PDF hợp lệ từ protobuf message**
+- Tự tính xref offset và ghi đúng trailer.
+- Kết quả xác nhận:
+  - `pdfinfo`: Pages: 1, Page size: 612x792, PDF 1.4, 330 bytes -- không có lỗi.
+  - `pdftotext`: không có lỗi parse.
+- File: `research/pdf-proto-schema/serializer.cpp`
+
+**[TODO] Giai đoạn 2 -- Stream object**
+- Nén payload bằng zlib khi `filter = FLATE`.
+- Ghi đúng `/Length` dựa trên kích thước thực của dữ liệu đã nén.
+- Thêm `/Contents` reference vào Page dictionary.
+
+---
+
+### 4. Harness + libFuzzer [DONE giai đoạn 1 / TODO giai đoạn 2]
+
+**[DONE] Giai đoạn 1 -- xpdf 4.06**
+- `DEFINE_PROTO_FUZZER` nhận `pdf_proto::PdfDocument`, gọi `SerializePdf`, feed vào `PDFDoc` của xpdf.
+- Build thành công với clang-14 + ASan + libprotobuf-mutator.
+- Smoke test 100 runs: coverage tăng từ 15 lên 664 edges, `LLVMFuzzerCustomMutator` active.
+- File: `research/pdf-proto-schema/harness.cpp`
+
+**[TODO] Giai đoạn 2 -- Mở rộng target**
+- Thêm harness cho PoDoFo.
+- Thêm harness cho qpdf.
+
+---
+
+### 5. Thực nghiệm và so sánh [TODO]
+
+- [ ] Chạy `pdf_fuzzer` 24h sau khi có stream objects, lặp 3 lần.
+- [ ] Thu thập coverage curve theo thời gian (edges found vs time).
+- [ ] So sánh trực tiếp: AFL++ baseline vs libFuzzer+protobuf-mutator.
+- [ ] Nếu còn thời gian: so sánh thêm AFLSmart.
+- [ ] Triage crash nếu có: stacktrace, root cause, reproduce.
+
+---
 
 ## Điều kiện bảo vệ
-1. Hoàn chỉnh về mặt kỹ thuật
-- Hoàn thành custom mutator bằng Rust cho AFL++, build được và chạy được.
-- Tích hợp được custom mutator vào AFL++ và chạy trên 2 target (xpdf, popler,...)
-2. Kết quả thực nghiệm
-- Chạy đủ 24h, lặp 3 lần, có giá trị trung bình và độ lệch chuẩn
-- Tỷ lệ valid input cao hơn AFL++
-- Số liệu của L1, L2, L3 riêng biệt và tổ hợp của 2 trong 3
-3. Phát hiện được crash
-- Reproduce được crash, có stacktrace, mô tả được nguyên nhân.
-4. Phân tích và thảo lua
-- Giải thích vì sao kết quả tốt hơn, nhận biết giới hạn và đề xuất hướng mở rộng cụ thể
+
+1. **Kỹ thuật:** Schema + serializer + harness chạy được trên ít nhất một target.
+2. **Thực nghiệm:** Chạy đủ 24h x 3 lần, có trung bình và độ lệch chuẩn.
+3. **Kết quả:** Coverage hoặc valid input rate cao hơn AFL++ baseline.
+4. **Crash:** Reproduce được nếu có. Nếu không: phân tích coverage chứng minh pipeline chạm đến code path sâu hơn AFL++.
+5. **Phân tích:** Giải thích vì sao kết quả tốt hơn (hoặc không), nhận biết giới hạn, đề xuất hướng mở rộng.
+
+---
 
 ## Cấu trúc luận văn
-Chương 1 — Giới thiệu (5-8 trang)
-  - Bài toán: tại sao AFL++ vanilla không đủ với PDF
-  - Đóng góp cụ thể (liệt kê 3-4 bullet, không mơ hồ)
-  - Cấu trúc luận văn
 
-Chương 2 — Kiến thức nền tảng (15-20 trang)
-  - Coverage-guided fuzzing và AFL++
-  - Định dạng PDF: chỉ phần cần thiết (object model, xref, stream)
-  - Custom mutator API
+| Chương | Nội dung | Số trang |
+|---|---|---|
+| 1 -- Giới thiệu | Bài toán, đóng góp cụ thể, cấu trúc luận văn | 5-8 |
+| 2 -- Kiến thức nền tảng | Coverage-guided fuzzing, libFuzzer, định dạng PDF (object model / xref / stream / filter), libprotobuf-mutator, structure-aware fuzzing | 15-20 |
+| 3 -- Related work | AFLSmart, Superion, FormatFuzzer, pFuzzer -- bảng so sánh theo semantic awareness / serializer validity / xref handling -- khoảng trống đề tài lấp | 8-12 |
+| 4 -- Thiết kế và triển khai | Schema design, serializer (tại sao xref+/Length quan trọng), harness, mở rộng schema với stream | 25-35 |
+| 5 -- Thực nghiệm | Setup, coverage curve AFL++ vs libFuzzer+protobuf, case study crash hoặc coverage, thảo luận | 20-25 |
+| 6 -- Kết luận | Tóm tắt đóng góp, hướng mở rộng | 3-5 |
 
-Chương 3 — Related work (8-12 trang)  ← QUAN TRỌNG
-  - AFLSmart, Superion, FormatFuzzer, pFuzzer
-  - Bảng so sánh theo các chiều: semantic awareness, serializer validity...
-  - Khoảng trống mà đề tài lấp
-
-Chương 4 — Thiết kế và triển khai (25-35 trang)  ← DÀY NHẤT
-  - PDF-IR design: các invariant, lý do chọn lopdf
-  - L1/L2/L3 mutator: mô tả thuật toán, pseudocode
-  - Serializer: tại sao tự tính lại xref quan trọng
-  - Tích hợp AFL++: API nào dùng, tại sao
-
-Chương 5 — Thực nghiệm (20-25 trang)
-  - Setup: target, seed corpus, môi trường
-  - Kết quả baseline vs custom mutator (biểu đồ coverage theo thời gian)
-  - Ablation study: đóng góp từng layer
-  - Case study: 1-2 crash tiêu biểu
-  - Thảo luận: kết quả có ý nghĩa gì, giới hạn là gì
-
-Chương 6 — Kết luận (3-5 trang)
-  - Tóm tắt đóng góp
-  - Hướng mở rộng
-
+---
 
 ## Khái niệm liên quan
-1. RNG (Random Number Generator) là bộ sinh số ngẫu nhiên. Trong bối cảnh fuzzing thì RNG được dùng để quyết định xem chọn mutator nào (L1, L2 hay L3) và chọn object nào để mutate và thay nó bằng giá trị gì. Nếu cần reproduce lại một mutation cụ thể, có thể chạy lại với cùng seed và ra đúng kết quả đó. "Seed" ở đây là một số nguyen truyền vào trước khi fuzzing, nếu sử dụng cùng số seed thì mọi quyết định ngẫu nhiên của fuzzing đều reproduce được, từ đó quá trình fuzzing có thể được tái hiện lại.
-2. IR (Intermediate Representation) của cấu trúc PDF trông như thế nào?
+
+1. **Structure-aware fuzzing:** thay vì đột biến raw bytes, fuzzer hiểu cấu trúc input qua schema và chỉ sinh ra input hợp lệ về mặt cấu trúc. Giúp vượt qua các bước kiểm tra format ở đầu parser và chạm đến logic sâu hơn.
+
+2. **libprotobuf-mutator (LPM):** thư viện của Google nhận một protobuf message và thực hiện mutation trên cây object theo schema, đảm bảo output vẫn là protobuf message hợp lệ. Tích hợp trực tiếp với libFuzzer qua `DEFINE_PROTO_FUZZER`.
+
+3. **Serializer:** bộ chuyển đổi từ protobuf message sang raw bytes của định dạng đích. Phần phức tạp nhất vì phải tự tính xref offset và `/Length` -- các giá trị phụ thuộc vào vị trí byte thực tế của từng object trong file.
+
+4. **xref table:** bảng tra cứu trong file PDF, ánh xạ object number sang byte offset trong file. Phải tính lại từ đầu sau mỗi lần mutation vì offset thay đổi.
+
+5. **RNG seed:** trong context libFuzzer, seed điều khiển toàn bộ quá trình mutation. Cùng seed cho cùng kết quả, giúp reproduce lỗi.

@@ -1,0 +1,3 @@
+# corpus queue is too large for git (331MB, 31k files)
+# stored locally at research/afl-out/default/queue/
+queue/
