@@ -11,6 +11,105 @@
 | Sanitizers | none (coverage-only build) |
 | Command | `afl-fuzz -i pdf-seeds-cmin -o afl-out -x pdf.dict -- pdftotext @@ /dev/null` |
 
+## How to run in the background
+
+AFL++ prints an interactive TUI to the terminal. To run it in the background on a
+shared server without keeping a terminal open, use one of these two methods:
+
+**Option A -- nohup (simplest)**
+
+```bash
+cd research
+
+nohup /home/hoangnh8/master-thesis-research-logs/research/AFLplusplus/afl-fuzz \
+    -i pdf-seeds-cmin \
+    -o afl-out \
+    -x pdf.dict \
+    -- xpdf-4.06/build-instrumented/xpdf/pdftotext @@ /dev/null \
+    > afl-fuzz.log 2>&1 &
+
+echo "PID: $!"
+```
+
+- `nohup` keeps the process alive after the terminal closes.
+- `> afl-fuzz.log 2>&1` redirects all output (stdout + stderr) to a log file instead
+  of creating `nohup.out` in the home directory.
+- `&` sends it to the background immediately.
+- Save the printed PID so you can check or kill it later.
+
+**Option B -- tmux (recommended for shared servers)**
+
+```bash
+tmux new-session -d -s fuzzing
+
+tmux send-keys -t fuzzing "
+cd /home/hoangnh8/master-thesis-research-logs/research && \
+AFL_SKIP_CPUFREQ=1 \
+/home/hoangnh8/master-thesis-research-logs/research/AFLplusplus/afl-fuzz \
+    -i pdf-seeds-cmin \
+    -o afl-out \
+    -x pdf.dict \
+    -- xpdf-4.06/build-instrumented/xpdf/pdftotext @@ /dev/null
+" ENTER
+```
+
+- `tmux new-session -d -s fuzzing` creates a detached session named `fuzzing`.
+- You can reattach anytime with `tmux attach -t fuzzing` to see the live TUI.
+- Detach again with `Ctrl+B` then `D`.
+
+## How to monitor without the TUI
+
+AFL++ writes a stats snapshot to `afl-out/default/fuzzer_stats` every few seconds.
+Read it directly to check status from any terminal:
+
+```bash
+# one-shot status check
+cat research/afl-out/default/fuzzer_stats
+
+# key fields to watch
+grep -E 'run_time|execs_done|execs_per_sec|corpus_count|bitmap_cvg|edges_found|saved_crashes|saved_hangs|peak_rss_mb' \
+    research/afl-out/default/fuzzer_stats
+```
+
+**What each field means:**
+
+| Field | What to watch for |
+|---|---|
+| `run_time` | seconds elapsed |
+| `execs_done` | total executions |
+| `execs_per_sec` | throughput -- big drop means a hang input is being processed |
+| `corpus_count` | number of inputs in the queue |
+| `bitmap_cvg` | % of coverage bitmap hit -- plateauing means diminishing returns |
+| `edges_found` | unique edges discovered |
+| `saved_crashes` | non-zero means a crash was found -- check `afl-out/default/crashes/` |
+| `saved_hangs` | inputs that timed out -- worth triaging later |
+| `peak_rss_mb` | memory usage -- watch this on shared servers, high value caused this run to OOM |
+| `cycles_done` | how many full corpus passes completed |
+
+**Live watch (refresh every 10 seconds):**
+
+```bash
+watch -n 10 "grep -E 'run_time|execs_per_sec|corpus_count|bitmap_cvg|edges_found|saved_crashes|saved_hangs|peak_rss_mb' \
+    research/afl-out/default/fuzzer_stats"
+```
+
+**Check if process is still alive:**
+
+```bash
+ps aux | grep afl-fuzz | grep -v grep
+# if empty -- the fuzzer has stopped
+```
+
+**Check why it stopped (OOM):**
+
+```bash
+# peak_rss_mb in fuzzer_stats shows max memory before death
+grep peak_rss_mb research/afl-out/default/fuzzer_stats
+
+# system journal may show OOM kill event
+journalctl -k | grep -i "oom\|killed process" | tail -5
+```
+
 ## Final results
 
 | Metric | Value |
