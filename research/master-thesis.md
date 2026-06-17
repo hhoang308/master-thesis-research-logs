@@ -96,7 +96,7 @@ pdf.proto  ->  libprotobuf-mutator mutates PdfDocument  ->  SerializePdf()  ->  
 
 ---
 
-### 4. Harness + libFuzzer [DONE giai đoạn 1 / TODO giai đoạn 2]
+### 4. Harness + libFuzzer [DONE giai đoạn 1+2 / TODO giai đoạn 3]
 
 **[DONE] Giai đoạn 1 -- xpdf 4.06**
 - `DEFINE_PROTO_FUZZER` nhận `pdf_proto::PdfDocument`, gọi `SerializePdf`, feed vào `PDFDoc` của xpdf.
@@ -104,17 +104,37 @@ pdf.proto  ->  libprotobuf-mutator mutates PdfDocument  ->  SerializePdf()  ->  
 - Smoke test 100 runs: coverage tăng từ 15 lên 664 edges, `LLVMFuzzerCustomMutator` active.
 - File: `research/pdf-proto-schema/harness.cpp`
 
-**[TODO] Giai đoạn 2 -- Mở rộng target**
-- Thêm harness cho PoDoFo.
+**[DONE] Giai đoạn 2 -- PoDoFo 0.9.7**
+- Install: `sudo apt install libpodofo-dev libpodofo0.9.7`
+- Harness dùng `PdfMemDocument::LoadFromBuffer()` -- feed bytes trực tiếp vào bộ nhớ, không cần temp file.
+- Kết quả smoke test:
+  - Coverage: 161 edges (PoDoFo và xpdf instrumented độc lập, không so sánh trực tiếp)
+  - Exec/s: ~6,300 (so với ~1,800 của xpdf -- nhanh hơn 2.6x vì không I/O)
+- File: `research/pdf-proto-schema/harness_podofo.cpp`
+
+**[TODO] Giai đoạn 3 -- qpdf**
 - Thêm harness cho qpdf.
 
 ---
 
-### 5. Thực nghiệm và so sánh [TODO]
+### 5. Thực nghiệm và so sánh [ĐANG CHẠY]
 
-- [ ] Chạy `pdf_fuzzer` 24h sau khi có stream objects, lặp 3 lần.
-- [ ] Thu thập coverage curve theo thời gian (edges found vs time).
-- [ ] So sánh trực tiếp: AFL++ baseline vs libFuzzer+protobuf-mutator.
+**[ĐANG CHẠY] Run 1 -- xpdf 4.06**
+- Start: 2026-06-17 15:12 +07, finish: 2026-06-18 ~15:12
+- Log: `research/experiments/libfuzzer-xpdf-run1/`
+- Coverage mỗi 60s ghi vào `coverage.log` (CSV).
+- Exec/s: ~1,800, coverage hiện tại: 728 edges.
+
+**[ĐANG CHẠY] Run 1 -- PoDoFo 0.9.7**
+- Start: 2026-06-17 16:39 +07, finish: 2026-06-18 ~16:39
+- Log: `research/experiments/libfuzzer-podofo-run1/`
+- Coverage mỗi 60s ghi vào `coverage.log` (CSV).
+- Exec/s: ~6,300, coverage hiện tại: 161 edges.
+
+**[TODO] Sau khi run 1 kết thúc**
+- [ ] Vẽ coverage curve: edges vs time cho cả 2 target.
+- [ ] Chạy lần 2 và lần 3 (3 lần tổng, lấy trung bình và độ lệch chuẩn).
+- [ ] So sánh trực tiếp: AFL++ baseline vs libFuzzer+protobuf-mutator trên xpdf.
 - [ ] Nếu còn thời gian: so sánh thêm AFLSmart.
 - [ ] Triage crash nếu có: stacktrace, root cause, reproduce.
 

@@ -41,7 +41,11 @@ include_directories(
   ${Protobuf_INCLUDE_DIRS}
 )
 
-# ── Fuzzer target ─────────────────────────────────────────────────────────────
+# ── PoDoFo ────────────────────────────────────────────────────────────────────
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(PODOFO libpodofo)
+
+# ── xpdf fuzzer target ────────────────────────────────────────────────────────
 add_executable(pdf_fuzzer
   harness.cpp
   serializer.cpp
@@ -58,3 +62,24 @@ target_link_libraries(pdf_fuzzer
   z
   pthread
 )
+
+# ── PoDoFo fuzzer target ──────────────────────────────────────────────────────
+if(PODOFO_FOUND)
+  add_executable(pdf_fuzzer_podofo
+    harness_podofo.cpp
+    serializer.cpp
+    pdf.pb.cc
+  )
+  target_include_directories(pdf_fuzzer_podofo PRIVATE ${PODOFO_INCLUDE_DIRS})
+  target_link_libraries(pdf_fuzzer_podofo
+    protobuf-mutator-libfuzzer
+    protobuf-mutator
+    protobuf::libprotobuf
+    ${PODOFO_LIBRARIES}
+    z
+    pthread
+  )
+  message(STATUS "PoDoFo found (${PODOFO_VERSION}) -- pdf_fuzzer_podofo will be built")
+else()
+  message(STATUS "PoDoFo not found -- skipping pdf_fuzzer_podofo")
+endif()
