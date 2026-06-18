@@ -27,7 +27,7 @@ message Page {
   optional float width  = 1 [default = 612];
   optional float height = 2 [default = 792];
   optional uint32 parent_ref = 3;
-  optional ContentStream content_stream = 4;
+  repeated ContentStream content_streams = 4;  // 0=no stream, 1=/Contents N 0 R, N+=/Contents [...]
 }
 
 message IndirectObject {

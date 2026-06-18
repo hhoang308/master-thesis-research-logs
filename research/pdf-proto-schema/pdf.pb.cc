@@ -109,7 +109,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr Page::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
-        content_stream_{nullptr},
+        content_streams_{},
         parent_ref_{0u},
         width_{612},
         height_{792} {}
@@ -220,7 +220,7 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::pdf_proto::Page, _impl_.width_),
         PROTOBUF_FIELD_OFFSET(::pdf_proto::Page, _impl_.height_),
         PROTOBUF_FIELD_OFFSET(::pdf_proto::Page, _impl_.parent_ref_),
-        PROTOBUF_FIELD_OFFSET(::pdf_proto::Page, _impl_.content_stream_),
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::Page, _impl_.content_streams_),
         2,
         3,
         1,
@@ -270,21 +270,21 @@ const char descriptor_table_protodef_pdf_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIAB
     "roto.ContentStream.FilterType:\004NONE\022\023\n\013r"
     "aw_content\030\002 \001(\014\022\027\n\014length_delta\030\003 \001(\021:\001"
     "0\022\037\n\020skip_compression\030\004 \001(\010:\005false\"!\n\nFi"
-    "lterType\022\010\n\004NONE\020\000\022\t\n\005FLATE\020\001\"u\n\004Page\022\022\n"
+    "lterType\022\010\n\004NONE\020\000\022\t\n\005FLATE\020\001\"v\n\004Page\022\022\n"
     "\005width\030\001 \001(\002:\003612\022\023\n\006height\030\002 \001(\002:\003792\022\022"
-    "\n\nparent_ref\030\003 \001(\r\0220\n\016content_stream\030\004 \001"
-    "(\0132\030.pdf_proto.ContentStream\"\232\001\n\016Indirec"
-    "tObject\022\016\n\006number\030\001 \002(\r\022%\n\007catalog\030\002 \001(\013"
-    "2\022.pdf_proto.CatalogH\000\022(\n\tpage_tree\030\003 \001("
-    "\0132\023.pdf_proto.PageTreeH\000\022\037\n\004page\030\004 \001(\0132\017"
-    ".pdf_proto.PageH\000B\006\n\004body\"-\n\013PdfDocument"
-    "\022\036\n\005pages\030\001 \003(\0132\017.pdf_proto.Page"
+    "\n\nparent_ref\030\003 \001(\r\0221\n\017content_streams\030\004 "
+    "\003(\0132\030.pdf_proto.ContentStream\"\232\001\n\016Indire"
+    "ctObject\022\016\n\006number\030\001 \002(\r\022%\n\007catalog\030\002 \001("
+    "\0132\022.pdf_proto.CatalogH\000\022(\n\tpage_tree\030\003 \001"
+    "(\0132\023.pdf_proto.PageTreeH\000\022\037\n\004page\030\004 \001(\0132"
+    "\017.pdf_proto.PageH\000B\006\n\004body\"-\n\013PdfDocumen"
+    "t\022\036\n\005pages\030\001 \003(\0132\017.pdf_proto.Page"
 };
 static ::absl::once_flag descriptor_table_pdf_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_pdf_2eproto = {
     false,
     false,
-    592,
+    593,
     descriptor_table_protodef_pdf_2eproto,
     "pdf.proto",
     &descriptor_table_pdf_2eproto_once,
@@ -1205,7 +1205,8 @@ PROTOBUF_NDEBUG_INLINE Page::Impl_::Impl_(
     [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
     [[maybe_unused]] const ::pdf_proto::Page& from_msg)
       : _has_bits_{from._has_bits_},
-        _cached_size_{0} {}
+        _cached_size_{0},
+        content_streams_{visibility, arena, from.content_streams_} {}
 
 Page::Page(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
@@ -1220,10 +1221,6 @@ Page::Page(
   _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
-  ::uint32_t cached_has_bits = _impl_._has_bits_[0];
-  _impl_.content_stream_ = (CheckHasBit(cached_has_bits, 0x00000001U))
-                ? ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.content_stream_)
-                : nullptr;
   ::memcpy(reinterpret_cast<char*>(&_impl_) +
                offsetof(Impl_, parent_ref_),
            reinterpret_cast<const char*>(&from._impl_) +
@@ -1238,17 +1235,13 @@ PROTOBUF_NDEBUG_INLINE Page::Impl_::Impl_(
     [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
     [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
       : _cached_size_{0},
+        content_streams_{visibility, arena},
         width_{612},
         height_{792} {}
 
 inline void Page::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  ::memset(reinterpret_cast<char*>(&_impl_) +
-               offsetof(Impl_, content_stream_),
-           0,
-           offsetof(Impl_, parent_ref_) -
-               offsetof(Impl_, content_stream_) +
-               sizeof(Impl_::parent_ref_));
+  _impl_.parent_ref_ = {};
 }
 Page::~Page() {
   // @@protoc_insertion_point(destructor:pdf_proto.Page)
@@ -1261,7 +1254,6 @@ inline void Page::SharedDtor(MessageLite& self) {
   }
   this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   ABSL_DCHECK(this_.GetArena() == nullptr);
-  delete this_._impl_.content_stream_;
   this_._impl_.~Impl_();
 }
 
@@ -1271,8 +1263,20 @@ inline void* PROTOBUF_NONNULL Page::PlacementNew_(
   return ::new (mem) Page(arena);
 }
 constexpr auto Page::InternalNewImpl_() {
-  return ::google::protobuf::internal::MessageCreator::CopyInit(sizeof(Page),
-                                            alignof(Page));
+  constexpr auto arena_bits = ::google::protobuf::internal::EncodePlacementArenaOffsets({
+      PROTOBUF_FIELD_OFFSET(Page, _impl_.content_streams_) +
+          decltype(Page::_impl_.content_streams_)::
+              InternalGetArenaOffset(
+                  ::google::protobuf::Message::internal_visibility()),
+  });
+  if (arena_bits.has_value()) {
+    return ::google::protobuf::internal::MessageCreator::CopyInit(
+        sizeof(Page), alignof(Page), *arena_bits);
+  } else {
+    return ::google::protobuf::internal::MessageCreator(&Page::PlacementNew_,
+                                 sizeof(Page),
+                                 alignof(Page));
+  }
 }
 constexpr auto Page::InternalGenerateClassData_() {
   return ::google::protobuf::internal::ClassDataFull{
@@ -1327,10 +1331,10 @@ Page::_table_ = {
     ::_pbi::TcParser::GetTable<::pdf_proto::Page>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // optional .pdf_proto.ContentStream content_stream = 4;
-    {::_pbi::TcParser::FastMtS1,
+    // repeated .pdf_proto.ContentStream content_streams = 4;
+    {::_pbi::TcParser::FastMtR1,
      {34, 0, 0,
-      PROTOBUF_FIELD_OFFSET(Page, _impl_.content_stream_)}},
+      PROTOBUF_FIELD_OFFSET(Page, _impl_.content_streams_)}},
     // optional float width = 1 [default = 612];
     {::_pbi::TcParser::FastF32S1,
      {13, 2, 0,
@@ -1352,8 +1356,8 @@ Page::_table_ = {
     {PROTOBUF_FIELD_OFFSET(Page, _impl_.height_), _Internal::kHasBitsOffset + 3, 0, (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
     // optional uint32 parent_ref = 3;
     {PROTOBUF_FIELD_OFFSET(Page, _impl_.parent_ref_), _Internal::kHasBitsOffset + 1, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
-    // optional .pdf_proto.ContentStream content_stream = 4;
-    {PROTOBUF_FIELD_OFFSET(Page, _impl_.content_stream_), _Internal::kHasBitsOffset + 0, 0, (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
+    // repeated .pdf_proto.ContentStream content_streams = 4;
+    {PROTOBUF_FIELD_OFFSET(Page, _impl_.content_streams_), _Internal::kHasBitsOffset + 0, 0, (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
   }},
   {{
       {::_pbi::TcParser::GetTable<::pdf_proto::ContentStream>()},
@@ -1369,9 +1373,8 @@ PROTOBUF_NOINLINE void Page::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if (CheckHasBit(cached_has_bits, 0x00000001U)) {
-    ABSL_DCHECK(_impl_.content_stream_ != nullptr);
-    _impl_.content_stream_->Clear();
+  if (CheckHasBitForRepeated(cached_has_bits, 0x00000001U)) {
+    _impl_.content_streams_.Clear();
   }
   if (BatchCheckHasBit(cached_has_bits, 0x0000000eU)) {
     _impl_.parent_ref_ = 0u;
@@ -1422,11 +1425,17 @@ PROTOBUF_NOINLINE void Page::Clear() {
         3, this_._internal_parent_ref(), target);
   }
 
-  // optional .pdf_proto.ContentStream content_stream = 4;
-  if (CheckHasBit(cached_has_bits, 0x00000001U)) {
-    target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
-        4, *this_._impl_.content_stream_, this_._impl_.content_stream_->GetCachedSize(), target,
-        stream);
+  // repeated .pdf_proto.ContentStream content_streams = 4;
+  if (CheckHasBitForRepeated(cached_has_bits, 0x00000001U)) {
+    for (unsigned i = 0, n = static_cast<unsigned>(
+                             this_._internal_content_streams_size());
+         i < n; i++) {
+      const auto& repfield = this_._internal_content_streams().Get(i);
+      target =
+          ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+              4, repfield, repfield.GetCachedSize(),
+              target, stream);
+    }
   }
 
   if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
@@ -1456,10 +1465,12 @@ PROTOBUF_NOINLINE void Page::Clear() {
   cached_has_bits = this_._impl_._has_bits_[0];
   total_size += ::absl::popcount(0x0000000cU & cached_has_bits) * 5;
   if (BatchCheckHasBit(cached_has_bits, 0x00000003U)) {
-    // optional .pdf_proto.ContentStream content_stream = 4;
-    if (CheckHasBit(cached_has_bits, 0x00000001U)) {
-      total_size += 1 +
-                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.content_stream_);
+    // repeated .pdf_proto.ContentStream content_streams = 4;
+    if (CheckHasBitForRepeated(cached_has_bits, 0x00000001U)) {
+      total_size += 1UL * this_._internal_content_streams_size();
+      for (const auto& msg : this_._internal_content_streams()) {
+        total_size += ::google::protobuf::internal::WireFormatLite::MessageSize(msg);
+      }
     }
     // optional uint32 parent_ref = 3;
     if (CheckHasBit(cached_has_bits, 0x00000002U)) {
@@ -1487,13 +1498,10 @@ void Page::MergeImpl(::google::protobuf::MessageLite& to_msg,
 
   cached_has_bits = from._impl_._has_bits_[0];
   if (BatchCheckHasBit(cached_has_bits, 0x0000000fU)) {
-    if (CheckHasBit(cached_has_bits, 0x00000001U)) {
-      ABSL_DCHECK(from._impl_.content_stream_ != nullptr);
-      if (_this->_impl_.content_stream_ == nullptr) {
-        _this->_impl_.content_stream_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.content_stream_);
-      } else {
-        _this->_impl_.content_stream_->MergeFrom(*from._impl_.content_stream_);
-      }
+    if (CheckHasBitForRepeated(cached_has_bits, 0x00000001U)) {
+      _this->_internal_mutable_content_streams()->InternalMergeFromWithArena(
+          ::google::protobuf::MessageLite::internal_visibility(), arena,
+          from._internal_content_streams());
     }
     if (CheckHasBit(cached_has_bits, 0x00000002U)) {
       _this->_impl_.parent_ref_ = from._impl_.parent_ref_;
@@ -1522,12 +1530,13 @@ void Page::InternalSwap(Page* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
   using ::std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  _impl_.content_streams_.InternalSwap(&other->_impl_.content_streams_);
   ::google::protobuf::internal::memswap<
       PROTOBUF_FIELD_OFFSET(Page, _impl_.height_)
       + sizeof(Page::_impl_.height_)
-      - PROTOBUF_FIELD_OFFSET(Page, _impl_.content_stream_)>(
-          reinterpret_cast<char*>(&_impl_.content_stream_),
-          reinterpret_cast<char*>(&other->_impl_.content_stream_));
+      - PROTOBUF_FIELD_OFFSET(Page, _impl_.parent_ref_)>(
+          reinterpret_cast<char*>(&_impl_.parent_ref_),
+          reinterpret_cast<char*>(&other->_impl_.parent_ref_));
 }
 
 ::google::protobuf::Metadata Page::GetMetadata() const {

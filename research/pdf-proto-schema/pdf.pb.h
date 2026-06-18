@@ -919,26 +919,28 @@ class Page final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kContentStreamFieldNumber = 4,
+    kContentStreamsFieldNumber = 4,
     kParentRefFieldNumber = 3,
     kWidthFieldNumber = 1,
     kHeightFieldNumber = 2,
   };
-  // optional .pdf_proto.ContentStream content_stream = 4;
-  bool has_content_stream() const;
-  void clear_content_stream() ;
-  const ::pdf_proto::ContentStream& content_stream() const;
-  [[nodiscard]] ::pdf_proto::ContentStream* PROTOBUF_NULLABLE release_content_stream();
-  ::pdf_proto::ContentStream* PROTOBUF_NONNULL mutable_content_stream();
-  void set_allocated_content_stream(::pdf_proto::ContentStream* PROTOBUF_NULLABLE value);
-  void unsafe_arena_set_allocated_content_stream(::pdf_proto::ContentStream* PROTOBUF_NULLABLE value);
-  ::pdf_proto::ContentStream* PROTOBUF_NULLABLE unsafe_arena_release_content_stream();
-
+  // repeated .pdf_proto.ContentStream content_streams = 4;
+  int content_streams_size() const;
   private:
-  const ::pdf_proto::ContentStream& _internal_content_stream() const;
-  ::pdf_proto::ContentStream* PROTOBUF_NONNULL _internal_mutable_content_stream();
+  int _internal_content_streams_size() const;
 
   public:
+  void clear_content_streams() ;
+  ::pdf_proto::ContentStream* PROTOBUF_NONNULL mutable_content_streams(int index);
+  ::google::protobuf::RepeatedPtrField<::pdf_proto::ContentStream>* PROTOBUF_NONNULL mutable_content_streams();
+
+  private:
+  const ::google::protobuf::RepeatedPtrField<::pdf_proto::ContentStream>& _internal_content_streams() const;
+  ::google::protobuf::RepeatedPtrField<::pdf_proto::ContentStream>* PROTOBUF_NONNULL _internal_mutable_content_streams();
+  public:
+  const ::pdf_proto::ContentStream& content_streams(int index) const;
+  ::pdf_proto::ContentStream* PROTOBUF_NONNULL add_content_streams();
+  const ::google::protobuf::RepeatedPtrField<::pdf_proto::ContentStream>& content_streams() const;
   // optional uint32 parent_ref = 3;
   bool has_parent_ref() const;
   void clear_parent_ref() ;
@@ -998,7 +1000,7 @@ class Page final : public ::google::protobuf::Message
         const Page& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
-    ::pdf_proto::ContentStream* PROTOBUF_NULLABLE content_stream_;
+    ::google::protobuf::RepeatedPtrField< ::pdf_proto::ContentStream > content_streams_;
     ::uint32_t parent_ref_;
     float width_;
     float height_;
@@ -1837,103 +1839,60 @@ inline void Page::_internal_set_parent_ref(::uint32_t value) {
   _impl_.parent_ref_ = value;
 }
 
-// optional .pdf_proto.ContentStream content_stream = 4;
-inline bool Page::has_content_stream() const {
-  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000001U);
-  PROTOBUF_ASSUME(!value || _impl_.content_stream_ != nullptr);
-  return value;
+// repeated .pdf_proto.ContentStream content_streams = 4;
+inline int Page::_internal_content_streams_size() const {
+  return _internal_content_streams().size();
 }
-inline void Page::clear_content_stream() {
+inline int Page::content_streams_size() const {
+  return _internal_content_streams_size();
+}
+inline void Page::clear_content_streams() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (_impl_.content_stream_ != nullptr) _impl_.content_stream_->Clear();
-  ClearHasBit(_impl_._has_bits_[0],
+  _impl_.content_streams_.Clear();
+  ClearHasBitForRepeated(_impl_._has_bits_[0],
                   0x00000001U);
 }
-inline const ::pdf_proto::ContentStream& Page::_internal_content_stream() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  const ::pdf_proto::ContentStream* p = _impl_.content_stream_;
-  return p != nullptr ? *p : reinterpret_cast<const ::pdf_proto::ContentStream&>(::pdf_proto::_ContentStream_default_instance_);
-}
-inline const ::pdf_proto::ContentStream& Page::content_stream() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:pdf_proto.Page.content_stream)
-  return _internal_content_stream();
-}
-inline void Page::unsafe_arena_set_allocated_content_stream(
-    ::pdf_proto::ContentStream* PROTOBUF_NULLABLE value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (GetArena() == nullptr) {
-    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.content_stream_);
-  }
-  _impl_.content_stream_ = reinterpret_cast<::pdf_proto::ContentStream*>(value);
-  if (value != nullptr) {
-    SetHasBit(_impl_._has_bits_[0], 0x00000001U);
-  } else {
-    ClearHasBit(_impl_._has_bits_[0], 0x00000001U);
-  }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:pdf_proto.Page.content_stream)
-}
-inline ::pdf_proto::ContentStream* PROTOBUF_NULLABLE Page::release_content_stream() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-
-  ClearHasBit(_impl_._has_bits_[0], 0x00000001U);
-  ::pdf_proto::ContentStream* released = _impl_.content_stream_;
-  _impl_.content_stream_ = nullptr;
-  if (::google::protobuf::internal::DebugHardenForceCopyInRelease()) {
-    auto* old = reinterpret_cast<::google::protobuf::MessageLite*>(released);
-    released = ::google::protobuf::internal::DuplicateIfNonNull(released);
-    if (GetArena() == nullptr) {
-      delete old;
-    }
-  } else {
-    if (GetArena() != nullptr) {
-      released = ::google::protobuf::internal::DuplicateIfNonNull(released);
-    }
-  }
-  return released;
-}
-inline ::pdf_proto::ContentStream* PROTOBUF_NULLABLE Page::unsafe_arena_release_content_stream() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:pdf_proto.Page.content_stream)
-
-  ClearHasBit(_impl_._has_bits_[0], 0x00000001U);
-  ::pdf_proto::ContentStream* temp = _impl_.content_stream_;
-  _impl_.content_stream_ = nullptr;
-  return temp;
-}
-inline ::pdf_proto::ContentStream* PROTOBUF_NONNULL Page::_internal_mutable_content_stream() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (_impl_.content_stream_ == nullptr) {
-    auto* p = ::google::protobuf::Message::DefaultConstruct<::pdf_proto::ContentStream>(GetArena());
-    _impl_.content_stream_ = reinterpret_cast<::pdf_proto::ContentStream*>(p);
-  }
-  return _impl_.content_stream_;
-}
-inline ::pdf_proto::ContentStream* PROTOBUF_NONNULL Page::mutable_content_stream()
+inline ::pdf_proto::ContentStream* PROTOBUF_NONNULL Page::mutable_content_streams(int index)
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  SetHasBit(_impl_._has_bits_[0], 0x00000001U);
-  ::pdf_proto::ContentStream* _msg = _internal_mutable_content_stream();
-  // @@protoc_insertion_point(field_mutable:pdf_proto.Page.content_stream)
-  return _msg;
+  // @@protoc_insertion_point(field_mutable:pdf_proto.Page.content_streams)
+  return _internal_mutable_content_streams()->Mutable(index);
 }
-inline void Page::set_allocated_content_stream(::pdf_proto::ContentStream* PROTOBUF_NULLABLE value) {
-  ::google::protobuf::Arena* message_arena = GetArena();
+inline ::google::protobuf::RepeatedPtrField<::pdf_proto::ContentStream>* PROTOBUF_NONNULL Page::mutable_content_streams()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  SetHasBitForRepeated(_impl_._has_bits_[0], 0x00000001U);
+  // @@protoc_insertion_point(field_mutable_list:pdf_proto.Page.content_streams)
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (message_arena == nullptr) {
-    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.content_stream_);
-  }
-
-  if (value != nullptr) {
-    ::google::protobuf::Arena* submessage_arena = value->GetArena();
-    if (message_arena != submessage_arena) {
-      value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
-    }
-    SetHasBit(_impl_._has_bits_[0], 0x00000001U);
-  } else {
-    ClearHasBit(_impl_._has_bits_[0], 0x00000001U);
-  }
-
-  _impl_.content_stream_ = reinterpret_cast<::pdf_proto::ContentStream*>(value);
-  // @@protoc_insertion_point(field_set_allocated:pdf_proto.Page.content_stream)
+  return _internal_mutable_content_streams();
+}
+inline const ::pdf_proto::ContentStream& Page::content_streams(int index) const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:pdf_proto.Page.content_streams)
+  return _internal_content_streams().Get(index);
+}
+inline ::pdf_proto::ContentStream* PROTOBUF_NONNULL Page::add_content_streams()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::pdf_proto::ContentStream* _add =
+      _internal_mutable_content_streams()->InternalAddWithArena(
+          ::google::protobuf::MessageLite::internal_visibility(), GetArena());
+  SetHasBitForRepeated(_impl_._has_bits_[0], 0x00000001U);
+  // @@protoc_insertion_point(field_add:pdf_proto.Page.content_streams)
+  return _add;
+}
+inline const ::google::protobuf::RepeatedPtrField<::pdf_proto::ContentStream>& Page::content_streams() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:pdf_proto.Page.content_streams)
+  return _internal_content_streams();
+}
+inline const ::google::protobuf::RepeatedPtrField<::pdf_proto::ContentStream>&
+Page::_internal_content_streams() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.content_streams_;
+}
+inline ::google::protobuf::RepeatedPtrField<::pdf_proto::ContentStream>* PROTOBUF_NONNULL
+Page::_internal_mutable_content_streams() {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return &_impl_.content_streams_;
 }
 
 // -------------------------------------------------------------------

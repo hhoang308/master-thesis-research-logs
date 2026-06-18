@@ -40,15 +40,15 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
   out << "%PDF-1.4\n";
 
   // Pre-assign content-stream object numbers.
-  // Layout: obj1=Catalog, obj2=Pages, obj3..2+N=Page objects, then content streams.
+  // Layout: obj1=Catalog, obj2=Pages, obj3..2+N=Page objects, then all content streams.
+  // cs_objs[i] is the list of object numbers for page i's streams (may be empty).
   int page_count = doc.pages_size();
-  int cs_base = 3 + page_count;
-  std::vector<int> cs_obj(page_count, 0);
+  std::vector<std::vector<int>> cs_objs(page_count);
   {
-    int next = cs_base;
+    int next = 3 + page_count;
     for (int i = 0; i < page_count; i++) {
-      if (doc.pages(i).has_content_stream())
-        cs_obj[i] = next++;
+      for (int j = 0; j < doc.pages(i).content_streams_size(); j++)
+        cs_objs[i].push_back(next++);
     }
   }
 
@@ -72,16 +72,21 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
     out << (3 + i) << " 0 obj\n"
         << "<< /Type /Page /Parent 2 0 R"
         << " /MediaBox [0 0 " << w << " " << h << "]";
-    if (cs_obj[i] != 0)
-      out << " /Contents " << cs_obj[i] << " 0 R";
+    if (cs_objs[i].size() == 1) {
+      out << " /Contents " << cs_objs[i][0] << " 0 R";
+    } else if (cs_objs[i].size() > 1) {
+      out << " /Contents [";
+      for (int n : cs_objs[i]) out << n << " 0 R ";
+      out << "]";
+    }
     out << " >>\nendobj\n";
   }
 
   // Content-stream objects
   for (int i = 0; i < page_count; i++) {
-    if (cs_obj[i] == 0) continue;
+    for (int j = 0; j < (int)cs_objs[i].size(); j++) {
     record_offset();
-    const pdf_proto::ContentStream& cs = doc.pages(i).content_stream();
+    const pdf_proto::ContentStream& cs = doc.pages(i).content_streams(j);
     const std::string& raw = cs.raw_content();
 
     bool want_flate = (cs.filter() == pdf_proto::ContentStream::FLATE);
@@ -101,7 +106,7 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
     // length_delta shifts the written value to produce over-read (positive) or
     // under-read (negative) -- exercises stream boundary error handling in parsers.
     long written_len = (long)payload.size() + cs.length_delta();
-    out << cs_obj[i] << " 0 obj\n<< /Length " << written_len;
+    out << cs_objs[i][j] << " 0 obj\n<< /Length " << written_len;
     // Declare /Filter /FlateDecode even when skip_compression=true so xpdf feeds
     // the raw (non-zlib) bytes into its FlateStream decoder -- hitting corrupt-data paths.
     if (want_flate)
@@ -109,6 +114,7 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
     out << " >>\nstream\n"
         << payload
         << "\nendstream\nendobj\n";
+    } // end inner stream loop
   }
 
   // Xref table
