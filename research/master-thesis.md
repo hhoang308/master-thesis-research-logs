@@ -73,8 +73,76 @@ pdf.proto  ->  libprotobuf-mutator mutates PdfDocument  ->  SerializePdf()  ->  
   - Sau Task 2b (FlateDecode): **716 edges (+52 tổng, +7.8%)**
 - xpdf's FlateDecode/zlib code path đã được chạm đến.
 
-**[TODO -- nếu còn thời gian] Giai đoạn 3**
-- Font objects, JavaScript actions, name trees, arrays.
+**[TODO] Giai đoạn 3 -- Mở rộng schema để tăng coverage**
+
+Lý do phải làm: schema hiện tại chỉ sinh ra PDF với MediaBox + ContentStream. libFuzzer đang
+cover 729/27,712 edges (~2.6%) trong khi AFL++ với real-world seeds đạt 47.74%. Phần lớn code
+của xpdf/PoDoFo nằm ở font parser, image decoder, color space, annotation -- không có object
+nào trong số này được model trong schema hiện tại. Để tiêu chí 2 (coverage cao hơn AFL++
+baseline sau cùng thời gian chạy) có thể đạt được, phải mở rộng schema để libFuzzer sinh ra
+input chạm đến những code path đó.
+
+Ngoài ra cần test các edge case quan trọng:
+- **Multi-page document**: test page tree traversal, cross-page reference -- đã có `repeated Page`
+  trong proto nhưng cần verify serializer và smoke test.
+- **Multiple objects per page**: một Page có nhiều Font, nhiều Image -- test resource dictionary
+  lookup, reference counting.
+- **Dangling reference**: `/Contents` hoặc `/Font` trỏ đến object number không tồn tại trong
+  xref -- test error handling path của parser.
+- **Free object reference**: xref entry đánh dấu `f` (free/deleted) nhưng vẫn bị reference --
+  test behavior khi PDF library đọc "deleted" object.
+- **Recursive reference**: Type3 font chứa content stream gọi lại chính nó, hoặc Page -> Parent
+  -> Kids -> Page tạo vòng lặp -- test stack overflow / infinite loop protection.
+
+Danh sách object cần implement theo thứ tự ưu tiên (cao -> thấp):
+
+**[P1] Font object (Type1 dummy)**
+- Lý do: font parser là phần lớn nhất của xpdf/PoDoFo. Type1 dummy (chỉ cần `/Type /Font
+  /Subtype /Type1 /BaseFont /Helvetica`) đủ để kích hoạt font lookup code mà không cần
+  nhúng font program thật.
+- Proto: `message Font { enum Subtype { TYPE1=0; TRUETYPE=1; TYPE3=2; } ... }`
+- Serializer: thêm font object, reference từ `/Resources << /Font << /F1 N 0 R >> >>` trong Page.
+- Coverage gain dự kiến: cao nhất trong tất cả các object.
+
+**[P2] Dangling và free object references**
+- Lý do: implementation cost thấp (chỉ thêm field vào proto), nhưng test được error handling
+  path quan trọng -- đây là nơi có nhiều CVE (null deref, UAF khi parser không check object
+  validity trước khi dereference).
+- Proto: thêm `optional uint32 extra_contents_ref` trong Page (reference đến object number
+  tùy ý, kể cả số không tồn tại).
+- Serializer: ghi `/Contents [N 0 R M 0 R]` với M có thể là object không có trong xref.
+
+**[P3] ImageXObject (với DCTDecode / JPXDecode)**
+- Lý do: image decoder (JPEG, JPEG2000) có nhiều CVE lịch sử, và là code path AFL++ với
+  real seeds dễ hit nhưng libFuzzer với schema đơn giản không thể chạm tới.
+- Proto: `message ImageXObject { uint32 width=1; uint32 height=2; FilterType filter=3;
+  bytes data=4; }` -- thêm vào Page resources.
+- Serializer: ghi image stream object với `/Type /XObject /Subtype /Image /Width /Height
+  /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length N`.
+
+**[P4] ColorSpace (ICCBased, Indexed)**
+- Lý do: color processing code trong xpdf/PoDoFo xử lý nhiều loại color space khác nhau.
+  ICCBased references một stream (ICC profile) -- tạo thêm một layer object reference.
+- Proto: `message ColorSpace { enum Type { DEVICE_RGB=0; DEVICE_CMYK=1; INDEXED=2;
+  ICC_BASED=3; } ... }`
+
+**[P5] Recursive reference (Type3 font)**
+- Lý do: Type3 font có content stream riêng (CharProcs), và content stream đó có thể
+  reference lại font khác -- tạo dependency graph phức tạp. Test stack overflow protection
+  và infinite loop guard trong parser.
+- Proto: `message Type3Font { map<string, ContentStream> char_procs = 1; }`
+- Serializer: viết CharProcs stream, reference từ /Resources của font.
+
+**[P6] Annotation (Link, FreeText)**
+- Lý do: annotation parser trong xpdf có nhiều nhánh (GoTo, URI, JavaScript action). Link
+  annotation với /Dest reference đến page khác test cross-object reference.
+- Proto: `message Annotation { enum Subtype { LINK=0; FREE_TEXT=1; } ... }`
+
+**[P7] JavaScript action (OpenAction, AA)**
+- Lý do: xpdf có JavaScript engine (xpdf-js). JS actions trong /OpenAction hoặc /AA
+  dictionary được thực thi khi mở file -- high-value target cho bug finding.
+- Proto: `message Action { enum Type { JAVASCRIPT=0; GOTO=1; } optional string js_code=2; }`
+- Chú ý: chỉ implement nếu còn thời gian -- JS engine trong xpdf ít được test nhất.
 
 ---
 
@@ -93,6 +161,36 @@ pdf.proto  ->  libprotobuf-mutator mutates PdfDocument  ->  SerializePdf()  ->  
 - Thêm `/Contents N 0 R` reference vào Page dictionary.
 - Fallback về NONE nếu zlib compress thất bại (đảm bảo output luôn là PDF hợp lệ).
 - 4/4 test cases trong `verify_serializer` pass.
+
+**[TODO] Giai đoạn 2b -- Vá các gap trong stream object (cần làm trước run 2 và 3)**
+
+Serializer hiện tại over-sanitize một số trường hợp, khiến libFuzzer không thể chạm đến
+các code path lỗi quan trọng trong xpdf/PoDoFo. Cần fix 4 gap sau:
+
+- [ ] **[HIGH] `/Length` sai (length_delta)**: serializer luôn ghi `/Length` chính xác.
+  Thêm `sint32 length_delta = 3` vào `ContentStream` proto. Serializer cộng delta vào
+  `/Length` trước khi ghi ra -- cho phép LPM sinh `/Length` nhỏ hơn (under-read) hoặc
+  lớn hơn (over-read) thực tế. Đây là nguồn gốc của nhiều CVE trong PDF parser
+  (parser đọc sai số byte, bỏ qua `endstream`, hoặc đọc tràn sang object kế tiếp).
+
+- [ ] **[HIGH] FlateDecode data không hợp lệ (skip_compression)**: khi `filter = FLATE`,
+  serializer nén `raw_content` bằng zlib nên LPM không bao giờ sinh được byte stream
+  corrupt vào FlateStream decoder. Thêm `bool skip_compression = 4` vào `ContentStream`.
+  Khi true: ghi `raw_content` trực tiếp vào stream payload nhưng vẫn giữ header
+  `/Filter /FlateDecode` -- xpdf/PoDoFo sẽ thấy dữ liệu không phải zlib và chạy qua
+  toàn bộ error-handling path của FlateStream (invalid CMF byte, corrupt Huffman table,
+  truncated stream, wrong Adler-32 checksum).
+
+- [ ] **[MEDIUM] Bỏ clamp width/height**: serializer đang clamp `width/height` về [1, 14400]
+  (serializer.cpp line 73-74). Xóa clamp này để xpdf nhận NaN, 0, giá trị âm, giá trị
+  rất lớn. Các giá trị này có thể gây integer overflow trong tính toán page geometry
+  (width × height × bpp), đây là dạng lỗi phổ biến trong PDF renderer.
+
+- [ ] **[MEDIUM] Multiple streams per page (`repeated ContentStream`)**: PDF cho phép
+  `/Contents` là array nhiều stream: `/Contents [3 0 R 4 0 R]`, xpdf ghép chúng trước
+  khi parse. Đổi `optional ContentStream content_stream = 4` thành
+  `repeated ContentStream content_streams = 4`. Serializer ghi array reference khi có
+  nhiều hơn 1 stream. Test được stream concatenation logic.
 
 ---
 
@@ -117,25 +215,45 @@ pdf.proto  ->  libprotobuf-mutator mutates PdfDocument  ->  SerializePdf()  ->  
 
 ---
 
-### 5. Thực nghiệm và so sánh [ĐANG CHẠY]
+### 5. Thực nghiệm và so sánh [RUN 1 DONE / TODO run 2+3]
 
-**[ĐANG CHẠY] Run 1 -- xpdf 4.06**
-- Start: 2026-06-17 15:12 +07, finish: 2026-06-18 ~15:12
-- Log: `research/experiments/libfuzzer-xpdf-run1/`
-- Coverage mỗi 60s ghi vào `coverage.log` (CSV).
-- Exec/s: ~1,800, coverage hiện tại: 728 edges.
+**[DONE] Run 1 -- xpdf 4.06** (stopped early ~17h, schema exhausted)
 
-**[ĐANG CHẠY] Run 1 -- PoDoFo 0.9.7**
-- Start: 2026-06-17 16:39 +07, finish: 2026-06-18 ~16:39
-- Log: `research/experiments/libfuzzer-podofo-run1/`
-- Coverage mỗi 60s ghi vào `coverage.log` (CSV).
-- Exec/s: ~6,300, coverage hiện tại: 161 edges.
+| Metric | Value |
+|---|---|
+| Runtime | ~17h (dừng sớm) |
+| Executions | 36.8M |
+| Exec/s | 602 |
+| Final coverage | 729 edges (~2.6% of 27,712 counters) |
+| Crashes | 0 |
+| Log | `research/experiments/libfuzzer-xpdf-run1/` |
 
-**[TODO] Sau khi run 1 kết thúc**
-- [ ] Vẽ coverage curve: edges vs time cho cả 2 target.
-- [ ] Chạy lần 2 và lần 3 (3 lần tổng, lấy trung bình và độ lệch chuẩn).
+**[DONE] Run 1 -- PoDoFo 0.9.7** (stopped early ~15h, schema exhausted)
+
+| Metric | Value |
+|---|---|
+| Runtime | ~15h (dừng sớm) |
+| Executions | 256.9M |
+| Exec/s | 4,595 |
+| Final coverage | 161 edges |
+| Crashes | 0 |
+| Log | `research/experiments/libfuzzer-podofo-run1/` |
+
+**Kết luận Run 1:** Coverage plateau ngay trong 30 giây đầu tiên và không tăng thêm
+suốt 17h chạy. Schema Stage 1+2 chỉ sinh PDF với MediaBox + ContentStream, không có
+Font/Image/ColorSpace/Annotation nên libFuzzer không thể chạm đến phần lớn code của
+xpdf/PoDoFo. Cần fix schema trước khi chạy run 2.
+
+**[TODO] Trước khi chạy Run 2**
+- [ ] Fix Giai đoạn 2b: length_delta + skip_compression + bỏ clamp width/height.
+- [ ] Implement P1 Font object (Type1 dummy) vào schema + serializer.
+- [ ] Rebuild binary, smoke test coverage tăng so với 729 edges.
+
+**[TODO] Run 2 và Run 3**
+- [ ] Chạy run 2 với schema mới (24h), so sánh coverage vs run 1.
+- [ ] Chạy run 3 (24h), tính trung bình và độ lệch chuẩn qua 3 lần.
+- [ ] Vẽ coverage curve: edges vs time cho cả 2 target, so với AFL++ baseline.
 - [ ] So sánh trực tiếp: AFL++ baseline vs libFuzzer+protobuf-mutator trên xpdf.
-- [ ] Nếu còn thời gian: so sánh thêm AFLSmart.
 - [ ] Triage crash nếu có: stacktrace, root cause, reproduce.
 
 ---

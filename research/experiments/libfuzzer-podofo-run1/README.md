@@ -9,8 +9,48 @@
 | Schema | `pdf-proto-schema/pdf.proto` Stage 1+2 (document skeleton + FlateDecode stream) |
 | Binary | `pdf-proto-schema/build/pdf_fuzzer_podofo` |
 | Sanitizer | ASan |
-| Max time | 86400s (24h) |
+| Max time | 86400s (24h) configured; stopped early at ~15h |
 | Start | 2026-06-17 16:39 +07 |
+| Stopped | 2026-06-18 ~08:12 +07 (manual stop -- coverage plateaued, schema too limited) |
+
+## Results -- Run 1
+
+| Metric | Value |
+|---|---|
+| Actual runtime | ~15 hours |
+| Total executions | 256,904,823 |
+| Avg exec/s | 4,595 |
+| Peak RSS | 625 MB |
+| Final coverage | 161 edges (PoDoFo instrumented independently from xpdf -- not comparable) |
+| Final feature count (ft) | 613 |
+| Final corpus size | 52 files / 11 KB |
+| Crashes | 0 |
+| Hangs | 0 |
+| coverage.log rows | 881 snapshots |
+
+### Observation
+
+Coverage reached 161 edges within the first 30 seconds and **never grew further** for the
+entire 15-hour run. At 256M executions total, the fuzzer exhausted the state space of the
+current schema completely. The `pulse` lines every 2^N executions confirmed zero new edges
+throughout the run.
+
+PoDoFo ran 7x more executions than xpdf (256M vs 36M) in the same time window due to
+`LoadFromBuffer` eliminating temp-file I/O overhead (~4,600 exec/s vs ~600 exec/s).
+Despite the higher throughput, coverage did not improve -- confirming the bottleneck is
+schema expressiveness, not execution speed.
+
+### Observation on corpus size
+
+PoDoFo corpus (52 files / 11 KB) is much smaller than xpdf corpus (274 files / 97 KB).
+This reflects that PoDoFo's parser is more strict -- fewer structural variations in the
+generated PDFs produce distinct coverage, so fewer corpus entries are retained.
+
+### What to fix before Run 2
+
+Same schema fixes as xpdf run (length_delta, skip_compression, remove clamp, add Font).
+Additionally, consider exploring PoDoFo-specific APIs beyond GetPageCount -- e.g.,
+iterating annotations, reading stream content -- to expose more code paths per execution.
 
 ## Install PoDoFo
 
