@@ -490,6 +490,7 @@ class ContentStream final : public ::google::protobuf::Message
   enum : int {
     kRawContentFieldNumber = 2,
     kFilterFieldNumber = 1,
+    kLengthDeltaFieldNumber = 3,
   };
   // optional bytes raw_content = 2;
   bool has_raw_content() const;
@@ -518,11 +519,22 @@ class ContentStream final : public ::google::protobuf::Message
   void _internal_set_filter(::pdf_proto::ContentStream_FilterType value);
 
   public:
+  // optional sint32 length_delta = 3 [default = 0];
+  bool has_length_delta() const;
+  void clear_length_delta() ;
+  ::int32_t length_delta() const;
+  void set_length_delta(::int32_t value);
+
+  private:
+  ::int32_t _internal_length_delta() const;
+  void _internal_set_length_delta(::int32_t value);
+
+  public:
   // @@protoc_insertion_point(class_scope:pdf_proto.ContentStream)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<1, 2,
+  static const ::google::protobuf::internal::TcParseTable<2, 3,
                                    1, 0,
                                    2>
       _table_;
@@ -546,6 +558,7 @@ class ContentStream final : public ::google::protobuf::Message
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::google::protobuf::internal::ArenaStringPtr raw_content_;
     int filter_;
+    ::int32_t length_delta_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -1660,6 +1673,35 @@ inline void ContentStream::set_allocated_raw_content(::std::string* PROTOBUF_NUL
     _impl_.raw_content_.Set("", GetArena());
   }
   // @@protoc_insertion_point(field_set_allocated:pdf_proto.ContentStream.raw_content)
+}
+
+// optional sint32 length_delta = 3 [default = 0];
+inline bool ContentStream::has_length_delta() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000004U);
+  return value;
+}
+inline void ContentStream::clear_length_delta() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.length_delta_ = 0;
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000004U);
+}
+inline ::int32_t ContentStream::length_delta() const {
+  // @@protoc_insertion_point(field_get:pdf_proto.ContentStream.length_delta)
+  return _internal_length_delta();
+}
+inline void ContentStream::set_length_delta(::int32_t value) {
+  _internal_set_length_delta(value);
+  SetHasBit(_impl_._has_bits_[0], 0x00000004U);
+  // @@protoc_insertion_point(field_set:pdf_proto.ContentStream.length_delta)
+}
+inline ::int32_t ContentStream::_internal_length_delta() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.length_delta_;
+}
+inline void ContentStream::_internal_set_length_delta(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.length_delta_ = value;
 }
 
 // -------------------------------------------------------------------

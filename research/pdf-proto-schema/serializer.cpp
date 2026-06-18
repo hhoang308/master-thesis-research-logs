@@ -99,7 +99,10 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
 
     // PDF spec 7.3.8.1: /Length is the byte count between the line ending
     // after "stream" and the keyword "endstream" (not counting the final \n).
-    out << cs_obj[i] << " 0 obj\n<< /Length " << payload.size();
+    // length_delta shifts the written value to produce over-read (positive) or
+    // under-read (negative) -- exercises stream boundary error handling in parsers.
+    long written_len = (long)payload.size() + cs.length_delta();
+    out << cs_obj[i] << " 0 obj\n<< /Length " << written_len;
     if (use_flate)
       out << " /Filter /FlateDecode";
     out << " >>\nstream\n"

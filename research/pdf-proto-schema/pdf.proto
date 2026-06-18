@@ -14,8 +14,10 @@ message ContentStream {
     NONE  = 0;  // raw bytes, no compression
     FLATE = 1;  // FlateDecode -- zlib/deflate (ISO 32000-1 s7.4.4)
   }
-  optional FilterType filter    = 1 [default = NONE];
-  optional bytes      raw_content = 2;  // uncompressed payload; serializer compresses when FLATE
+  optional FilterType filter       = 1 [default = NONE];
+  optional bytes      raw_content  = 2;  // uncompressed payload; serializer compresses when FLATE
+  // Delta added to the written /Length value. Positive = over-read, negative = under-read.
+  optional sint32     length_delta = 3 [default = 0];
 }
 
 message Page {
