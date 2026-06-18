@@ -491,6 +491,7 @@ class ContentStream final : public ::google::protobuf::Message
     kRawContentFieldNumber = 2,
     kFilterFieldNumber = 1,
     kLengthDeltaFieldNumber = 3,
+    kSkipCompressionFieldNumber = 4,
   };
   // optional bytes raw_content = 2;
   bool has_raw_content() const;
@@ -530,11 +531,22 @@ class ContentStream final : public ::google::protobuf::Message
   void _internal_set_length_delta(::int32_t value);
 
   public:
+  // optional bool skip_compression = 4 [default = false];
+  bool has_skip_compression() const;
+  void clear_skip_compression() ;
+  bool skip_compression() const;
+  void set_skip_compression(bool value);
+
+  private:
+  bool _internal_skip_compression() const;
+  void _internal_set_skip_compression(bool value);
+
+  public:
   // @@protoc_insertion_point(class_scope:pdf_proto.ContentStream)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<2, 3,
+  static const ::google::protobuf::internal::TcParseTable<2, 4,
                                    1, 0,
                                    2>
       _table_;
@@ -559,6 +571,7 @@ class ContentStream final : public ::google::protobuf::Message
     ::google::protobuf::internal::ArenaStringPtr raw_content_;
     int filter_;
     ::int32_t length_delta_;
+    bool skip_compression_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -1702,6 +1715,35 @@ inline ::int32_t ContentStream::_internal_length_delta() const {
 inline void ContentStream::_internal_set_length_delta(::int32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.length_delta_ = value;
+}
+
+// optional bool skip_compression = 4 [default = false];
+inline bool ContentStream::has_skip_compression() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000008U);
+  return value;
+}
+inline void ContentStream::clear_skip_compression() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.skip_compression_ = false;
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000008U);
+}
+inline bool ContentStream::skip_compression() const {
+  // @@protoc_insertion_point(field_get:pdf_proto.ContentStream.skip_compression)
+  return _internal_skip_compression();
+}
+inline void ContentStream::set_skip_compression(bool value) {
+  _internal_set_skip_compression(value);
+  SetHasBit(_impl_._has_bits_[0], 0x00000008U);
+  // @@protoc_insertion_point(field_set:pdf_proto.ContentStream.skip_compression)
+}
+inline bool ContentStream::_internal_skip_compression() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.skip_compression_;
+}
+inline void ContentStream::_internal_set_skip_compression(bool value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.skip_compression_ = value;
 }
 
 // -------------------------------------------------------------------

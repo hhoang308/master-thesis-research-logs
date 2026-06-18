@@ -87,15 +87,17 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
     const pdf_proto::ContentStream& cs = doc.pages(i).content_stream();
     const std::string& raw = cs.raw_content();
 
-    bool use_flate = (cs.filter() == pdf_proto::ContentStream::FLATE);
+    bool want_flate = (cs.filter() == pdf_proto::ContentStream::FLATE);
+    bool do_compress = want_flate && !cs.skip_compression();
+
     std::string compressed;
-    if (use_flate) {
+    if (do_compress) {
       compressed = zlib_compress(raw);
       if (compressed.empty())
-        use_flate = false;  // fall back to raw on compress failure
+        do_compress = false;  // fall back to raw on compress failure
     }
 
-    const std::string& payload = use_flate ? compressed : raw;
+    const std::string& payload = do_compress ? compressed : raw;
 
     // PDF spec 7.3.8.1: /Length is the byte count between the line ending
     // after "stream" and the keyword "endstream" (not counting the final \n).
@@ -103,7 +105,9 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
     // under-read (negative) -- exercises stream boundary error handling in parsers.
     long written_len = (long)payload.size() + cs.length_delta();
     out << cs_obj[i] << " 0 obj\n<< /Length " << written_len;
-    if (use_flate)
+    // Declare /Filter /FlateDecode even when skip_compression=true so xpdf feeds
+    // the raw (non-zlib) bytes into its FlateStream decoder -- hitting corrupt-data paths.
+    if (want_flate)
       out << " /Filter /FlateDecode";
     out << " >>\nstream\n"
         << payload
