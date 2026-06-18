@@ -69,9 +69,6 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
     const pdf_proto::Page& p = doc.pages(i);
     float w = p.has_width()  ? p.width()  : 612.0f;
     float h = p.has_height() ? p.height() : 792.0f;
-    // clamp to sane range -- libprotobuf-mutator will try NaN, negative, huge values
-    w = std::max(1.0f, std::min(w, 14400.0f));
-    h = std::max(1.0f, std::min(h, 14400.0f));
     out << (3 + i) << " 0 obj\n"
         << "<< /Type /Page /Parent 2 0 R"
         << " /MediaBox [0 0 " << w << " " << h << "]";
