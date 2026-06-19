@@ -93,6 +93,30 @@ message Font {
   optional uint32 first_char          = 8;  // /FirstChar (when widths present)
   repeated int32  widths              = 9;  // /Widths [ ... ]; /LastChar = first_char + len - 1
   optional bytes  to_unicode          = 10; // /ToUnicode CMap program -> separate indirect stream -> readToUnicodeCMap
+
+  // Step B: CID/composite (Type0) font. Used only when subtype = TYPE0. The serializer
+  // emits the Type0 root dict (/Encoding + /DescendantFonts) plus a separate descendant
+  // CIDFont object carrying /CIDSystemInfo, /CIDToGIDMap, /W, /DW, and (for CID) the
+  // /FontDescriptor. Reaches GfxCIDFont: CIDToGIDMap stream reader + the /W width parser.
+  message CidFont {
+    enum CidSubtype {
+      CIDFONTTYPE0 = 0;  // /CIDFontType0 (CFF-based)
+      CIDFONTTYPE2 = 1;  // /CIDFontType2 (TrueType-based)
+    }
+    optional CidSubtype cid_subtype = 1 [default = CIDFONTTYPE2];
+    optional string registry   = 2 [default = "Adobe"];      // /CIDSystemInfo /Registry
+    optional string ordering   = 3 [default = "Identity"];   // /CIDSystemInfo /Ordering
+    optional uint32 supplement = 4 [default = 0];            // /CIDSystemInfo /Supplement
+    optional string encoding   = 5 [default = "Identity-H"]; // Type0 /Encoding (CMap name)
+    // /CIDToGIDMap: when cid_to_gid_map_stream is set -> a stream of big-endian 2-byte GIDs
+    // (GfxFont.cc:97 reader); otherwise the name /Identity.
+    optional bytes  cid_to_gid_map_stream = 6;
+    repeated int32  w  = 7;  // /W array (flat ints -> c_first c_last w form; GfxFont.cc:177 parser)
+    optional int32  dw = 8 [default = 1000];                 // /DW default width
+    // Descendant /FontDescriptor (reuses FontDescriptor incl. embedded program -> FoFi).
+    optional FontDescriptor descendant_descriptor = 9;
+  }
+  optional CidFont cid = 11;
 }
 
 message Page {

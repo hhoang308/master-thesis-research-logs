@@ -189,6 +189,45 @@ int main() {
         failures += run_test("font-encoding-differences-widths-tounicode", doc);
     }
 
+    // Test 11 (Step B): Type0/CID font, /CIDToGIDMap = /Identity name, /W array.
+    {
+        pdf_proto::PdfDocument doc;
+        pdf_proto::Page* p = doc.add_pages();
+        p->set_width(612); p->set_height(792);
+        pdf_proto::Font* f = p->add_fonts();
+        f->set_subtype(pdf_proto::Font::TYPE0);
+        f->set_base_font("CIDFontIdentity");
+        pdf_proto::Font::CidFont* cid = f->mutable_cid();
+        cid->set_cid_subtype(pdf_proto::Font::CidFont::CIDFONTTYPE2);
+        cid->set_encoding("Identity-H");
+        cid->add_w(0); cid->add_w(2); cid->add_w(1000);  // CIDs 0..2 width 1000
+        cid->set_dw(1000);
+        pdf_proto::FontDescriptor* fd = cid->mutable_descendant_descriptor();
+        fd->set_flags(4);
+        failures += run_test("cidfont-identity-cidtogid-with-W", doc);
+    }
+
+    // Test 12 (Step B): Type0/CID font with /CIDToGIDMap as a stream + ToUnicode;
+    // two pages to stress xref ordering across the new descendant/cidgid classes.
+    {
+        pdf_proto::PdfDocument doc;
+        for (int pg = 0; pg < 2; pg++) {
+            pdf_proto::Page* p = doc.add_pages();
+            p->set_width(612); p->set_height(792);
+            pdf_proto::ContentStream* cs = p->add_content_streams();
+            cs->set_raw_content("q Q");
+            pdf_proto::Font* f = p->add_fonts();
+            f->set_subtype(pdf_proto::Font::TYPE0);
+            f->set_base_font("CIDFontStream");
+            f->set_to_unicode("/CIDInit /ProcSet findresource begin end\n");
+            pdf_proto::Font::CidFont* cid = f->mutable_cid();
+            cid->set_encoding("Identity-H");
+            cid->set_cid_to_gid_map_stream(std::string("\x00\x00\x00\x01\x00\x02", 6));
+            cid->add_w(0); cid->add_w(1); cid->add_w(500);
+        }
+        failures += run_test("cidfont-stream-cidtogid-multipage", doc);
+    }
+
     google::protobuf::ShutdownProtobufLibrary();
     return failures;
 }

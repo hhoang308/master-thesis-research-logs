@@ -67,6 +67,17 @@ static std::string pdf_name_escape(const std::string& s) {
   return out;
 }
 
+// Escape bytes into a PDF literal string body (spec 7.3.4.2): '(' ')' '\' get a
+// backslash. Caller wraps the result in parentheses.
+static std::string pdf_string_escape(const std::string& s) {
+  std::string out;
+  for (char c : s) {
+    if (c == '(' || c == ')' || c == '\\') out += '\\';
+    out += c;
+  }
+  return out;
+}
+
 // Compress src with zlib (deflate). Returns empty string on failure.
 static std::string zlib_compress(const std::string& src) {
   uLongf bound = compressBound((uLong)src.size());
@@ -114,7 +125,16 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
   std::vector<std::vector<int>> fontfile_objs(page_count);
   // tounicode_objs[i][k] = object number of font k's /ToUnicode CMap stream, or -1.
   std::vector<std::vector<int>> tounicode_objs(page_count);
+  // Step B: descendant_objs[i][k] = descendant CIDFont object (TYPE0 fonts), or -1.
+  std::vector<std::vector<int>> descendant_objs(page_count);
+  // Step B: cidgid_objs[i][k] = /CIDToGIDMap stream object (stream form), or -1.
+  std::vector<std::vector<int>> cidgid_objs(page_count);
   std::vector<int> driver_objs(page_count, -1);  // -1 = no driver (no fonts)
+  // A font is a composite (Type0) font iff subtype==TYPE0 AND it carries a CidFont.
+  auto is_cid = [&](int i, int k) {
+    const pdf_proto::Font& f = doc.pages(i).fonts(k);
+    return f.subtype() == pdf_proto::Font::TYPE0 && f.has_cid();
+  };
   {
     int next = 3 + page_count;
     for (int i = 0; i < page_count; i++)
@@ -123,6 +143,20 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
     for (int i = 0; i < page_count; i++)
       for (int k = 0; k < doc.pages(i).fonts_size(); k++)
         font_objs[i].push_back(next++);
+    // Canonical object-class order (assignment == write order, to keep xref consistent):
+    // content, fonts, descendants, cidgid, fontfile, tounicode, drivers.
+    for (int i = 0; i < page_count; i++) {
+      descendant_objs[i].assign(doc.pages(i).fonts_size(), -1);
+      for (int k = 0; k < doc.pages(i).fonts_size(); k++)
+        if (is_cid(i, k))
+          descendant_objs[i][k] = next++;
+    }
+    for (int i = 0; i < page_count; i++) {
+      cidgid_objs[i].assign(doc.pages(i).fonts_size(), -1);
+      for (int k = 0; k < doc.pages(i).fonts_size(); k++)
+        if (is_cid(i, k) && doc.pages(i).fonts(k).cid().has_cid_to_gid_map_stream())
+          cidgid_objs[i][k] = next++;
+    }
     for (int i = 0; i < page_count; i++) {
       fontfile_objs[i].assign(doc.pages(i).fonts_size(), -1);
       for (int k = 0; k < doc.pages(i).fonts_size(); k++)
@@ -217,66 +251,130 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
     } // end inner stream loop
   }
 
-  // Font objects. Dummy dict -- enough to reach makeFont/getFontType/Gfx8BitFont.
+  // Helper: emit an inline "/FontDescriptor << ... >>". fontfile_obj >= 0 adds the
+  // /FontFile{,2,3} indirect reference (P1.5); -1 emits metrics only. Used by both the
+  // 8-bit font (root dict) and the CID descendant font.
+  auto emit_descriptor = [&out](const std::string& fontname,
+                                const pdf_proto::FontDescriptor& fd, int fontfile_obj) {
+    out << " /FontDescriptor << /Type /FontDescriptor"
+        << " /FontName /" << pdf_name_escape(fontname)
+        << " /Flags " << fd.flags()
+        << " /ItalicAngle " << fd.italic_angle()
+        << " /Ascent " << fd.ascent()
+        << " /Descent " << fd.descent()
+        << " /CapHeight " << fd.cap_height()
+        << " /StemV " << fd.stem_v()
+        << " /MissingWidth " << fd.missing_width();
+    if (fd.font_bbox_size() == 4) {
+      out << " /FontBBox [";
+      for (int b = 0; b < 4; b++) out << fd.font_bbox(b) << (b < 3 ? " " : "");
+      out << "]";
+    }
+    if (fontfile_obj >= 0)
+      out << " /" << fontfile_key_name(fd.font_file().key()) << " " << fontfile_obj << " 0 R";
+    out << " >>";
+  };
+
+  // Font objects (the root dict; for Type0 this is the composite-font wrapper).
   // omit_type / omit_subtype drop required keys to hit malformed-dict handling.
   for (int i = 0; i < page_count; i++) {
     for (int k = 0; k < (int)font_objs[i].size(); k++) {
       record_offset();
       const pdf_proto::Font& f = doc.pages(i).fonts(k);
       out << font_objs[i][k] << " 0 obj\n<<";
-      if (!f.omit_type())    out << " /Type /Font";
-      if (!f.omit_subtype()) out << " /Subtype /" << subtype_name(f.subtype());
-      out << " /BaseFont /" << pdf_name_escape(f.base_font());
-      // P1.5: inline /FontDescriptor. The embedded program lives in a separate
-      // indirect stream object (pre-assigned in fontfile_objs) and is referenced
-      // here via /FontFile{,2,3} -- xpdf requires that key to be an indirect ref.
-      if (f.has_font_descriptor()) {
-        const pdf_proto::FontDescriptor& fd = f.font_descriptor();
-        out << " /FontDescriptor << /Type /FontDescriptor"
-            << " /FontName /" << pdf_name_escape(f.base_font())
-            << " /Flags " << fd.flags()
-            << " /ItalicAngle " << fd.italic_angle()
-            << " /Ascent " << fd.ascent()
-            << " /Descent " << fd.descent()
-            << " /CapHeight " << fd.cap_height()
-            << " /StemV " << fd.stem_v()
-            << " /MissingWidth " << fd.missing_width();
-        if (fd.font_bbox_size() == 4) {
-          out << " /FontBBox [";
-          for (int b = 0; b < 4; b++) out << fd.font_bbox(b) << (b < 3 ? " " : "");
+      if (!f.omit_type()) out << " /Type /Font";
+
+      if (is_cid(i, k)) {
+        // Step B: Type0 root -- /Encoding (CMap name) + /DescendantFonts [D 0 R].
+        // The CIDSystemInfo, CIDToGIDMap, W, DW, and FontDescriptor live on the
+        // descendant CIDFont object written below.
+        const pdf_proto::Font::CidFont& cid = f.cid();
+        if (!f.omit_subtype()) out << " /Subtype /Type0";
+        out << " /BaseFont /" << pdf_name_escape(f.base_font());
+        out << " /Encoding /" << pdf_name_escape(cid.encoding());
+        out << " /DescendantFonts [" << descendant_objs[i][k] << " 0 R]";
+        if (f.has_to_unicode() && tounicode_objs[i][k] >= 0)
+          out << " /ToUnicode " << tounicode_objs[i][k] << " 0 R";
+      } else {
+        // 8-bit font (Type1/TrueType/Type3).
+        if (!f.omit_subtype()) out << " /Subtype /" << subtype_name(f.subtype());
+        out << " /BaseFont /" << pdf_name_escape(f.base_font());
+        // P1.5: inline /FontDescriptor (+ embedded program ref).
+        if (f.has_font_descriptor())
+          emit_descriptor(f.base_font(), f.font_descriptor(),
+                          (f.font_descriptor().has_font_file() && fontfile_objs[i][k] >= 0)
+                              ? fontfile_objs[i][k] : -1);
+        // Step A: /Encoding (name, or dict with /BaseEncoding + /Differences).
+        const char* be = base_encoding_name(f.base_encoding());
+        if (f.differences_size() > 0) {
+          out << " /Encoding <<";
+          if (be) out << " /BaseEncoding /" << be;
+          out << " /Differences [";
+          for (const auto& d : f.differences())
+            out << d.code() << " /" << pdf_name_escape(d.name()) << " ";
+          out << "] >>";
+        } else if (be) {
+          out << " /Encoding /" << be;
+        }
+        // Step A: /FirstChar /LastChar /Widths.
+        if (f.widths_size() > 0) {
+          int fc = (int)f.first_char();
+          out << " /FirstChar " << fc
+              << " /LastChar " << (fc + f.widths_size() - 1)
+              << " /Widths [";
+          for (int w : f.widths()) out << w << " ";
           out << "]";
         }
-        if (fd.has_font_file() && fontfile_objs[i][k] >= 0)
-          out << " /" << fontfile_key_name(fd.font_file().key())
-              << " " << fontfile_objs[i][k] << " 0 R";
-        out << " >>";
+        // Step A: /ToUnicode CMap stream.
+        if (f.has_to_unicode() && tounicode_objs[i][k] >= 0)
+          out << " /ToUnicode " << tounicode_objs[i][k] << " 0 R";
       }
-      // Step A: /Encoding. With differences -> a dict (/BaseEncoding + /Differences);
-      // without -> a bare base-encoding name. Hits Gfx8BitFont's Encoding parse branches.
-      const char* be = base_encoding_name(f.base_encoding());
-      if (f.differences_size() > 0) {
-        out << " /Encoding <<";
-        if (be) out << " /BaseEncoding /" << be;
-        out << " /Differences [";
-        for (const auto& d : f.differences())
-          out << d.code() << " /" << pdf_name_escape(d.name()) << " ";
-        out << "] >>";
-      } else if (be) {
-        out << " /Encoding /" << be;
-      }
-      // Step A: /FirstChar /LastChar /Widths (LastChar derived from the array length).
-      if (f.widths_size() > 0) {
-        int fc = (int)f.first_char();
-        out << " /FirstChar " << fc
-            << " /LastChar " << (fc + f.widths_size() - 1)
-            << " /Widths [";
-        for (int w : f.widths()) out << w << " ";
+      out << " >>\nendobj\n";
+    }
+  }
+
+  // Step B: descendant CIDFont objects (for Type0 fonts). Carries CIDSystemInfo,
+  // FontDescriptor (metrics), CIDToGIDMap (/Identity or a 2-byte-GID stream ref),
+  // /W (width array -> GfxCIDFont's width parser) and /DW.
+  for (int i = 0; i < page_count; i++) {
+    for (int k = 0; k < (int)descendant_objs[i].size(); k++) {
+      if (descendant_objs[i][k] < 0) continue;
+      record_offset();
+      const pdf_proto::Font& f = doc.pages(i).fonts(k);
+      const pdf_proto::Font::CidFont& cid = f.cid();
+      const char* cidsub = (cid.cid_subtype() == pdf_proto::Font::CidFont::CIDFONTTYPE0)
+                               ? "CIDFontType0" : "CIDFontType2";
+      out << descendant_objs[i][k] << " 0 obj\n"
+          << "<< /Type /Font /Subtype /" << cidsub
+          << " /BaseFont /" << pdf_name_escape(f.base_font())
+          << " /CIDSystemInfo << /Registry (" << pdf_string_escape(cid.registry())
+          << ") /Ordering (" << pdf_string_escape(cid.ordering())
+          << ") /Supplement " << cid.supplement() << " >>";
+      if (cid.has_descendant_descriptor())
+        emit_descriptor(f.base_font(), cid.descendant_descriptor(), -1);
+      if (cidgid_objs[i][k] >= 0)
+        out << " /CIDToGIDMap " << cidgid_objs[i][k] << " 0 R";
+      else
+        out << " /CIDToGIDMap /Identity";
+      if (cid.w_size() > 0) {
+        out << " /W [";
+        for (int w : cid.w()) out << w << " ";
         out << "]";
       }
-      // Step A: /ToUnicode -> separate indirect CMap stream (readToUnicodeCMap).
-      if (f.has_to_unicode() && tounicode_objs[i][k] >= 0)
-        out << " /ToUnicode " << tounicode_objs[i][k] << " 0 R";
+      out << " /DW " << cid.dw();
       out << " >>\nendobj\n";
+    }
+  }
+
+  // Step B: /CIDToGIDMap streams (stream form). Raw bytes are read as big-endian
+  // 2-byte GIDs by GfxCIDFont (GfxFont.cc:97) -- arbitrary bytes exercise that reader.
+  for (int i = 0; i < page_count; i++) {
+    for (int k = 0; k < (int)cidgid_objs[i].size(); k++) {
+      if (cidgid_objs[i][k] < 0) continue;
+      record_offset();
+      const std::string& m = doc.pages(i).fonts(k).cid().cid_to_gid_map_stream();
+      out << cidgid_objs[i][k] << " 0 obj\n<< /Length " << m.size()
+          << " >>\nstream\n" << m << "\nendstream\nendobj\n";
     }
   }
 
