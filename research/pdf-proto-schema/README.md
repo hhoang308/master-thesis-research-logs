@@ -241,3 +241,20 @@ Key things to verify in the output:
 - `INITED` appears -- the fuzzer initialized successfully and fed at least one input to xpdf
 - `cov` grows over runs -- xpdf is being exercised and new code paths are discovered
 - No `CRASH` or `AddressSanitizer` lines -- the baseline PDF structure is valid
+
+## Crash-triage caveat: single-input replay is unreliable
+
+Running the binary in single-input replay mode (`./build/pdf_fuzzer <one_input>`) exits
+**non-deterministically** with SIGSEGV (139) on the *same* input -- it returns 0, 139, 0, 0
+across repeated runs. This is **not** a target crash: under gdb the input reports
+`Executed ... in N ms` cleanly, and the failure is `LeakSanitizer has encountered a fatal
+error` during sanitizer **shutdown** (a known LSan teardown race), independent of input
+content. Continuous fuzzing mode is unaffected -- 24h runs 1 and 2 both ended with a clean
+`Done ... runs` line, and a 20s empty-corpus smoke run exits 0.
+
+Consequences for triage:
+- Do **not** judge whether an input crashes xpdf by its single-replay exit code.
+- To triage a real finding, re-run under gdb (`gdb -ex run --args ./build/pdf_fuzzer <input>`)
+  and look for an actual ASan report / stack -- ignore the LSan-at-exit fatal error.
+- `ASAN_OPTIONS=detect_leaks=0` reduces but does not fully remove the at-exit flakiness, so
+  gdb is the reliable path.

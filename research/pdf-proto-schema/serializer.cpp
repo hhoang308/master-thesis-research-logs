@@ -11,6 +11,38 @@ struct XrefEntry {
   bool in_use;
 };
 
+// Map proto Font.Subtype -> PDF /Subtype name. xpdf's getFontType keys on this.
+static const char* subtype_name(pdf_proto::Font::Subtype s) {
+  switch (s) {
+    case pdf_proto::Font::TRUETYPE: return "TrueType";
+    case pdf_proto::Font::TYPE3:    return "Type3";
+    case pdf_proto::Font::TYPE0:    return "Type0";
+    case pdf_proto::Font::TYPE1:
+    default:                        return "Type1";
+  }
+}
+
+// Escape arbitrary bytes into a single valid PDF name token (spec 7.3.5):
+// delimiters, whitespace, '#' and non-printables become #XX. xpdf un-escapes
+// transparently in getName(), so the raw fuzzed bytes still reach the name string.
+static std::string pdf_name_escape(const std::string& s) {
+  std::string out;
+  for (unsigned char c : s) {
+    bool special = (c < 0x21 || c > 0x7e ||
+                    c=='(' || c==')' || c=='<' || c=='>' ||
+                    c=='[' || c==']' || c=='{' || c=='}' ||
+                    c=='/' || c=='%' || c=='#');
+    if (special) {
+      char buf[4];
+      snprintf(buf, sizeof(buf), "#%02X", c);
+      out += buf;
+    } else {
+      out += (char)c;
+    }
+  }
+  return out;
+}
+
 // Compress src with zlib (deflate). Returns empty string on failure.
 static std::string zlib_compress(const std::string& src) {
   uLongf bound = compressBound((uLong)src.size());
@@ -42,13 +74,24 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
   // Pre-assign content-stream object numbers.
   // Layout: obj1=Catalog, obj2=Pages, obj3..2+N=Page objects, then all content streams.
   // cs_objs[i] is the list of object numbers for page i's streams (may be empty).
+  // After content streams: per-page font objects, then a per-page "driver"
+  // content stream (only for pages with >=1 font). The driver runs `/Fk 12 Tf`
+  // for each font so xpdf's lazy GfxFont::makeFont fires on every declared font.
   int page_count = doc.pages_size();
   std::vector<std::vector<int>> cs_objs(page_count);
+  std::vector<std::vector<int>> font_objs(page_count);
+  std::vector<int> driver_objs(page_count, -1);  // -1 = no driver (no fonts)
   {
     int next = 3 + page_count;
     for (int i = 0; i < page_count; i++) {
       for (int j = 0; j < doc.pages(i).content_streams_size(); j++)
         cs_objs[i].push_back(next++);
+    }
+    for (int i = 0; i < page_count; i++) {
+      for (int k = 0; k < doc.pages(i).fonts_size(); k++)
+        font_objs[i].push_back(next++);
+      if (doc.pages(i).fonts_size() > 0)
+        driver_objs[i] = next++;
     }
   }
 
@@ -72,11 +115,22 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
     out << (3 + i) << " 0 obj\n"
         << "<< /Type /Page /Parent 2 0 R"
         << " /MediaBox [0 0 " << w << " " << h << "]";
-    if (cs_objs[i].size() == 1) {
-      out << " /Contents " << cs_objs[i][0] << " 0 R";
-    } else if (cs_objs[i].size() > 1) {
+    // Font resources: /F0 /F1 ... map to the pre-assigned font objects.
+    if (!font_objs[i].empty()) {
+      out << " /Resources << /Font <<";
+      for (size_t k = 0; k < font_objs[i].size(); k++)
+        out << " /F" << k << " " << font_objs[i][k] << " 0 R";
+      out << " >> >>";
+    }
+    // /Contents = driver stream (if any, first so Tf precedes fuzzer ops) + fuzzer streams.
+    std::vector<int> contents;
+    if (driver_objs[i] >= 0) contents.push_back(driver_objs[i]);
+    for (int n : cs_objs[i]) contents.push_back(n);
+    if (contents.size() == 1) {
+      out << " /Contents " << contents[0] << " 0 R";
+    } else if (contents.size() > 1) {
       out << " /Contents [";
-      for (int n : cs_objs[i]) out << n << " 0 R ";
+      for (int n : contents) out << n << " 0 R ";
       out << "]";
     }
     out << " >>\nendobj\n";
@@ -115,6 +169,34 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
         << payload
         << "\nendstream\nendobj\n";
     } // end inner stream loop
+  }
+
+  // Font objects. Dummy dict -- enough to reach makeFont/getFontType/Gfx8BitFont.
+  // omit_type / omit_subtype drop required keys to hit malformed-dict handling.
+  for (int i = 0; i < page_count; i++) {
+    for (int k = 0; k < (int)font_objs[i].size(); k++) {
+      record_offset();
+      const pdf_proto::Font& f = doc.pages(i).fonts(k);
+      out << font_objs[i][k] << " 0 obj\n<<";
+      if (!f.omit_type())    out << " /Type /Font";
+      if (!f.omit_subtype()) out << " /Subtype /" << subtype_name(f.subtype());
+      out << " /BaseFont /" << pdf_name_escape(f.base_font());
+      out << " >>\nendobj\n";
+    }
+  }
+
+  // Driver content streams: force lazy font loading via Tf for every page font.
+  for (int i = 0; i < page_count; i++) {
+    if (driver_objs[i] < 0) continue;
+    std::ostringstream payload;
+    payload << "BT\n";
+    for (int k = 0; k < (int)font_objs[i].size(); k++)
+      payload << "/F" << k << " 12 Tf (Ag) Tj\n";
+    payload << "ET\n";
+    std::string body = payload.str();
+    record_offset();
+    out << driver_objs[i] << " 0 obj\n<< /Length " << body.size()
+        << " >>\nstream\n" << body << "\nendstream\nendobj\n";
   }
 
   // Xref table

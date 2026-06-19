@@ -23,11 +23,28 @@ message ContentStream {
   optional bool       skip_compression = 4 [default = false];
 }
 
+// P1: dummy font. Parsed lazily by xpdf only when a content stream runs `Tf`,
+// so the serializer emits a deterministic driver stream that references every
+// font via `/Fk 12 Tf` -- forcing GfxFont::makeFont to run on each one.
+message Font {
+  enum Subtype {
+    TYPE1    = 0;  // -> fontType1, Gfx8BitFont
+    TRUETYPE = 1;  // -> fontTrueType, Gfx8BitFont
+    TYPE3    = 2;  // -> fontType3, Gfx8BitFont
+    TYPE0    = 3;  // -> fontCIDType*, GfxCIDFont
+  }
+  optional Subtype subtype     = 1 [default = TYPE1];
+  optional string  base_font   = 2 [default = "Helvetica"];  // std-14 vs garbage -> builtin lookup vs substitution
+  optional bool    omit_type    = 3 [default = false];       // drop /Type /Font    -> malformed-dict path
+  optional bool    omit_subtype = 4 [default = false];       // drop /Subtype       -> fontUnknownType path
+}
+
 message Page {
   optional float width  = 1 [default = 612];
   optional float height = 2 [default = 792];
   optional uint32 parent_ref = 3;
   repeated ContentStream content_streams = 4;  // 0=no stream, 1=/Contents N 0 R, N+=/Contents [...]
+  repeated Font fonts = 5;  // referenced as /F0, /F1, ... in /Resources; driver stream forces makeFont
 }
 
 message IndirectObject {
