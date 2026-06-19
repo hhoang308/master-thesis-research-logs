@@ -1,0 +1,32 @@
+pages {
+  content_streams {
+    filter: FLATE
+  }
+  content_streams {
+  }
+  content_streams {
+    filter: FLATE
+  }
+}
+pages {
+  content_streams {
+    filter: FLATE
+  }
+  content_streams {
+    filter: FLATE
+  }
+  content_streams {
+    filter: FLATE
+  }
+}
+pages {
+  content_streams {
+    filter: FLATE
+  }
+  content_streams {
+    filter: FLATE
+  }
+  content_streams {
+    filter: FLATE
+  }
+}

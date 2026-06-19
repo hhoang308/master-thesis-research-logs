@@ -1,0 +1,10 @@
+pages {
+  content_stream {
+    filter: FLATE
+  }
+}
+pages {
+  content_stream {
+    filter: FLATE
+  }
+}

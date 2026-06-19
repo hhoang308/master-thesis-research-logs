@@ -1,0 +1,13 @@
+pages {
+  content_streams {
+    filter: FLATE
+  }
+  content_streams {
+    filter: FLATE
+    raw_content: "Tpe"
+  }
+  content_streams {
+    filter: FLATE
+    raw_content: "Tpe"
+  }
+}
