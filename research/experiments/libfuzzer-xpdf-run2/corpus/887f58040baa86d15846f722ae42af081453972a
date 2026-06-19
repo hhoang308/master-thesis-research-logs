@@ -1,0 +1,6 @@
+pages {
+  content_streams {
+    filter: FLATE
+    raw_content: "es "
+  }
+}
