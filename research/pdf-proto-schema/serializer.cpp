@@ -34,6 +34,18 @@ static const char* fontfile_key_name(pdf_proto::EmbeddedFontFile::Key k) {
   }
 }
 
+// Map proto Font.BaseEncoding -> PDF encoding name, or nullptr for BASE_NONE.
+static const char* base_encoding_name(pdf_proto::Font::BaseEncoding e) {
+  switch (e) {
+    case pdf_proto::Font::STANDARD:  return "StandardEncoding";
+    case pdf_proto::Font::WINANSI:   return "WinAnsiEncoding";
+    case pdf_proto::Font::MACROMAN:  return "MacRomanEncoding";
+    case pdf_proto::Font::MACEXPERT: return "MacExpertEncoding";
+    case pdf_proto::Font::BASE_NONE:
+    default:                         return nullptr;
+  }
+}
+
 // Escape arbitrary bytes into a single valid PDF name token (spec 7.3.5):
 // delimiters, whitespace, '#' and non-printables become #XX. xpdf un-escapes
 // transparently in getName(), so the raw fuzzed bytes still reach the name string.
@@ -100,6 +112,8 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
   std::vector<std::vector<int>> font_objs(page_count);
   // fontfile_objs[i][k] = object number of font k's embedded program stream, or -1.
   std::vector<std::vector<int>> fontfile_objs(page_count);
+  // tounicode_objs[i][k] = object number of font k's /ToUnicode CMap stream, or -1.
+  std::vector<std::vector<int>> tounicode_objs(page_count);
   std::vector<int> driver_objs(page_count, -1);  // -1 = no driver (no fonts)
   {
     int next = 3 + page_count;
@@ -115,6 +129,12 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
         if (doc.pages(i).fonts(k).has_font_descriptor() &&
             doc.pages(i).fonts(k).font_descriptor().has_font_file())
           fontfile_objs[i][k] = next++;
+    }
+    for (int i = 0; i < page_count; i++) {
+      tounicode_objs[i].assign(doc.pages(i).fonts_size(), -1);
+      for (int k = 0; k < doc.pages(i).fonts_size(); k++)
+        if (doc.pages(i).fonts(k).has_to_unicode())
+          tounicode_objs[i][k] = next++;
     }
     for (int i = 0; i < page_count; i++)
       if (doc.pages(i).fonts_size() > 0)
@@ -231,6 +251,31 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
               << " " << fontfile_objs[i][k] << " 0 R";
         out << " >>";
       }
+      // Step A: /Encoding. With differences -> a dict (/BaseEncoding + /Differences);
+      // without -> a bare base-encoding name. Hits Gfx8BitFont's Encoding parse branches.
+      const char* be = base_encoding_name(f.base_encoding());
+      if (f.differences_size() > 0) {
+        out << " /Encoding <<";
+        if (be) out << " /BaseEncoding /" << be;
+        out << " /Differences [";
+        for (const auto& d : f.differences())
+          out << d.code() << " /" << pdf_name_escape(d.name()) << " ";
+        out << "] >>";
+      } else if (be) {
+        out << " /Encoding /" << be;
+      }
+      // Step A: /FirstChar /LastChar /Widths (LastChar derived from the array length).
+      if (f.widths_size() > 0) {
+        int fc = (int)f.first_char();
+        out << " /FirstChar " << fc
+            << " /LastChar " << (fc + f.widths_size() - 1)
+            << " /Widths [";
+        for (int w : f.widths()) out << w << " ";
+        out << "]";
+      }
+      // Step A: /ToUnicode -> separate indirect CMap stream (readToUnicodeCMap).
+      if (f.has_to_unicode() && tounicode_objs[i][k] >= 0)
+        out << " /ToUnicode " << tounicode_objs[i][k] << " 0 R";
       out << " >>\nendobj\n";
     }
   }
@@ -250,6 +295,18 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
       if (ff.key() == pdf_proto::EmbeddedFontFile::FONTFILE3 && !ff.subtype().empty())
         out << " /Subtype /" << pdf_name_escape(ff.subtype());
       out << " >>\nstream\n" << prog << "\nendstream\nendobj\n";
+    }
+  }
+
+  // Step A: /ToUnicode CMap streams. Raw `to_unicode` bytes are the CMap program;
+  // xpdf's readToUnicodeCMap parses them (CMap tokenizer -> another fuzz surface).
+  for (int i = 0; i < page_count; i++) {
+    for (int k = 0; k < (int)tounicode_objs[i].size(); k++) {
+      if (tounicode_objs[i][k] < 0) continue;
+      record_offset();
+      const std::string& cmap = doc.pages(i).fonts(k).to_unicode();
+      out << tounicode_objs[i][k] << " 0 obj\n<< /Length " << cmap.size()
+          << " >>\nstream\n" << cmap << "\nendstream\nendobj\n";
     }
   }
 

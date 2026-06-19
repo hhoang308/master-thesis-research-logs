@@ -167,6 +167,28 @@ int main() {
         failures += run_test("multipage-embedded-fonts-xref", doc);
     }
 
+    // Test 10 (Step A): 8-bit font with /Encoding+/Differences, /Widths, /ToUnicode.
+    // Must stay a structurally valid PDF (extra ToUnicode stream object in xref).
+    {
+        pdf_proto::PdfDocument doc;
+        pdf_proto::Page* p = doc.add_pages();
+        p->set_width(612); p->set_height(792);
+        pdf_proto::Font* f = p->add_fonts();
+        f->set_subtype(pdf_proto::Font::TYPE1);
+        f->set_base_font("EncFont");
+        f->set_base_encoding(pdf_proto::Font::WINANSI);
+        pdf_proto::Font::EncodingDiff* d0 = f->add_differences();
+        d0->set_code(65); d0->set_name("A");
+        pdf_proto::Font::EncodingDiff* d1 = f->add_differences();
+        d1->set_code(97); d1->set_name("a");
+        f->set_first_char(65);
+        f->add_widths(500); f->add_widths(600); f->add_widths(700);
+        f->set_to_unicode("/CIDInit /ProcSet findresource begin\n"
+                          "1 begincodespacerange <00> <ff> endcodespacerange\n"
+                          "1 beginbfchar <41> <0041> endbfchar\nend\n");
+        failures += run_test("font-encoding-differences-widths-tounicode", doc);
+    }
+
     google::protobuf::ShutdownProtobufLibrary();
     return failures;
 }

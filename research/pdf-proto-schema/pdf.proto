@@ -67,11 +67,32 @@ message Font {
     TYPE3    = 2;  // -> fontType3, Gfx8BitFont
     TYPE0    = 3;  // -> fontCIDType*, GfxCIDFont
   }
+  // Step A: 8-bit-font /Encoding /Differences entry. Models one [code /name] pair;
+  // xpdf's Differences parser (GfxFont.cc:266) reads an int (sets current code) then
+  // names (assign + increment). Emitting "code /name" per entry hits both branches.
+  message EncodingDiff {
+    optional uint32 code = 1;
+    optional string name = 2 [default = "space"];
+  }
+  enum BaseEncoding {
+    BASE_NONE  = 0;  // no /Encoding emitted
+    STANDARD   = 1;  // /StandardEncoding
+    WINANSI    = 2;  // /WinAnsiEncoding
+    MACROMAN   = 3;  // /MacRomanEncoding
+    MACEXPERT  = 4;  // /MacExpertEncoding
+  }
+
   optional Subtype subtype     = 1 [default = TYPE1];
   optional string  base_font   = 2 [default = "Helvetica"];  // std-14 vs garbage -> builtin lookup vs substitution
   optional bool    omit_type    = 3 [default = false];       // drop /Type /Font    -> malformed-dict path
   optional bool    omit_subtype = 4 [default = false];       // drop /Subtype       -> fontUnknownType path
   optional FontDescriptor font_descriptor = 5;               // P1.5: embedded font program -> FoFi parsers ('descriptor' is a protobuf-reserved name)
+  // Step A: 8-bit-font completion -- reaches Gfx8BitFont Encoding/Widths/ToUnicode parsing.
+  optional BaseEncoding base_encoding = 6 [default = BASE_NONE];  // bare name, or /BaseEncoding inside /Encoding dict when differences present
+  repeated EncodingDiff differences   = 7;  // /Encoding << /Differences [ code /name ... ] >>
+  optional uint32 first_char          = 8;  // /FirstChar (when widths present)
+  repeated int32  widths              = 9;  // /Widths [ ... ]; /LastChar = first_char + len - 1
+  optional bytes  to_unicode          = 10; // /ToUnicode CMap program -> separate indirect stream -> readToUnicodeCMap
 }
 
 message Page {

@@ -58,6 +58,8 @@ enum ContentStream_FilterType : int;
 extern const uint32_t ContentStream_FilterType_internal_data_[];
 enum EmbeddedFontFile_Key : int;
 extern const uint32_t EmbeddedFontFile_Key_internal_data_[];
+enum Font_BaseEncoding : int;
+extern const uint32_t Font_BaseEncoding_internal_data_[];
 enum Font_Subtype : int;
 extern const uint32_t Font_Subtype_internal_data_[];
 class Catalog;
@@ -80,6 +82,10 @@ class FontDescriptor;
 struct FontDescriptorDefaultTypeInternal;
 extern FontDescriptorDefaultTypeInternal _FontDescriptor_default_instance_;
 extern const ::google::protobuf::internal::ClassDataFull FontDescriptor_class_data_;
+class Font_EncodingDiff;
+struct Font_EncodingDiffDefaultTypeInternal;
+extern Font_EncodingDiffDefaultTypeInternal _Font_EncodingDiff_default_instance_;
+extern const ::google::protobuf::internal::ClassDataFull Font_EncodingDiff_class_data_;
 class IndirectObject;
 struct IndirectObjectDefaultTypeInternal;
 extern IndirectObjectDefaultTypeInternal _IndirectObject_default_instance_;
@@ -105,6 +111,9 @@ internal::EnumTraitsT<::pdf_proto::ContentStream_FilterType_internal_data_>
 template <>
 internal::EnumTraitsT<::pdf_proto::EmbeddedFontFile_Key_internal_data_>
     internal::EnumTraitsImpl::value<::pdf_proto::EmbeddedFontFile_Key>;
+template <>
+internal::EnumTraitsT<::pdf_proto::Font_BaseEncoding_internal_data_>
+    internal::EnumTraitsImpl::value<::pdf_proto::Font_BaseEncoding>;
 template <>
 internal::EnumTraitsT<::pdf_proto::Font_Subtype_internal_data_>
     internal::EnumTraitsImpl::value<::pdf_proto::Font_Subtype>;
@@ -209,6 +218,41 @@ inline const ::std::string& Font_Subtype_Name(Font_Subtype value) {
 inline bool Font_Subtype_Parse(
     ::absl::string_view name, Font_Subtype* PROTOBUF_NONNULL value) {
   return ::google::protobuf::internal::ParseNamedEnum<Font_Subtype>(Font_Subtype_descriptor(), name,
+                                           value);
+}
+enum Font_BaseEncoding : int {
+  Font_BaseEncoding_BASE_NONE = 0,
+  Font_BaseEncoding_STANDARD = 1,
+  Font_BaseEncoding_WINANSI = 2,
+  Font_BaseEncoding_MACROMAN = 3,
+  Font_BaseEncoding_MACEXPERT = 4,
+};
+
+extern const uint32_t Font_BaseEncoding_internal_data_[];
+inline constexpr Font_BaseEncoding Font_BaseEncoding_BaseEncoding_MIN =
+    static_cast<Font_BaseEncoding>(0);
+inline constexpr Font_BaseEncoding Font_BaseEncoding_BaseEncoding_MAX =
+    static_cast<Font_BaseEncoding>(4);
+inline bool Font_BaseEncoding_IsValid(int value) {
+  return 0 <= value && value <= 4;
+}
+inline constexpr int Font_BaseEncoding_BaseEncoding_ARRAYSIZE = 4 + 1;
+const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL Font_BaseEncoding_descriptor();
+template <typename T>
+const ::std::string& Font_BaseEncoding_Name(T value) {
+  static_assert(::std::is_same<T, Font_BaseEncoding>::value ||
+                    ::std::is_integral<T>::value,
+                "Incorrect type passed to BaseEncoding_Name().");
+  return Font_BaseEncoding_Name(static_cast<Font_BaseEncoding>(value));
+}
+template <>
+inline const ::std::string& Font_BaseEncoding_Name(Font_BaseEncoding value) {
+  return ::google::protobuf::internal::NameOfDenseEnum<Font_BaseEncoding_descriptor, 0, 4>(
+      static_cast<int>(value));
+}
+inline bool Font_BaseEncoding_Parse(
+    ::absl::string_view name, Font_BaseEncoding* PROTOBUF_NONNULL value) {
+  return ::google::protobuf::internal::ParseNamedEnum<Font_BaseEncoding>(Font_BaseEncoding_descriptor(), name,
                                            value);
 }
 
@@ -413,6 +457,216 @@ class PageTree final : public ::google::protobuf::Message
 };
 
 extern const ::google::protobuf::internal::ClassDataFull PageTree_class_data_;
+// -------------------------------------------------------------------
+
+class Font_EncodingDiff final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:pdf_proto.Font.EncodingDiff) */ {
+ public:
+  inline Font_EncodingDiff() : Font_EncodingDiff(nullptr) {}
+  ~Font_EncodingDiff() PROTOBUF_FINAL;
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+  void operator delete(Font_EncodingDiff* PROTOBUF_NONNULL msg, ::std::destroying_delete_t) {
+    SharedDtor(*msg);
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(Font_EncodingDiff));
+  }
+#endif
+
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR Font_EncodingDiff(::google::protobuf::internal::ConstantInitialized);
+
+  inline Font_EncodingDiff(const Font_EncodingDiff& from) : Font_EncodingDiff(nullptr, from) {}
+  inline Font_EncodingDiff(Font_EncodingDiff&& from) noexcept
+      : Font_EncodingDiff(nullptr, ::std::move(from)) {}
+  inline Font_EncodingDiff& operator=(const Font_EncodingDiff& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Font_EncodingDiff& operator=(Font_EncodingDiff&& from) noexcept {
+    if (this == &from) return *this;
+    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const Font_EncodingDiff& default_instance() {
+    return *reinterpret_cast<const Font_EncodingDiff*>(
+        &_Font_EncodingDiff_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 5;
+  friend void swap(Font_EncodingDiff& a, Font_EncodingDiff& b) { a.Swap(&b); }
+  inline void Swap(Font_EncodingDiff* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(Font_EncodingDiff* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  Font_EncodingDiff* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<Font_EncodingDiff>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const Font_EncodingDiff& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const Font_EncodingDiff& from) { Font_EncodingDiff::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
+
+  public:
+  bool IsInitialized() const {
+    return true;
+  }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(Font_EncodingDiff* PROTOBUF_NONNULL other);
+ private:
+  template <typename T>
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
+  static ::absl::string_view FullMessageName() { return "pdf_proto.Font.EncodingDiff"; }
+
+  explicit Font_EncodingDiff(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  Font_EncodingDiff(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Font_EncodingDiff& from);
+  Font_EncodingDiff(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, Font_EncodingDiff&& from) noexcept
+      : Font_EncodingDiff(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static constexpr auto InternalNewImpl_();
+
+ public:
+  static constexpr auto InternalGenerateClassData_();
+
+  ::google::protobuf::Metadata GetMetadata() const;
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+  enum : int {
+    kNameFieldNumber = 2,
+    kCodeFieldNumber = 1,
+  };
+  // optional string name = 2 [default = "space"];
+  bool has_name() const;
+  void clear_name() ;
+  const ::std::string& name() const;
+  template <typename Arg_ = const ::std::string&, typename... Args_>
+  void set_name(Arg_&& arg, Args_... args);
+  ::std::string* PROTOBUF_NONNULL mutable_name();
+  [[nodiscard]] ::std::string* PROTOBUF_NULLABLE release_name();
+  void set_allocated_name(::std::string* PROTOBUF_NULLABLE value);
+
+  private:
+  const ::std::string& _internal_name() const;
+  PROTOBUF_ALWAYS_INLINE void _internal_set_name(const ::std::string& value);
+  ::std::string* PROTOBUF_NONNULL _internal_mutable_name();
+
+  public:
+  // optional uint32 code = 1;
+  bool has_code() const;
+  void clear_code() ;
+  ::uint32_t code() const;
+  void set_code(::uint32_t value);
+
+  private:
+  ::uint32_t _internal_code() const;
+  void _internal_set_code(::uint32_t value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:pdf_proto.Font.EncodingDiff)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
+                                   0, 0,
+                                   2>
+      _table_;
+
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const Font_EncodingDiff& from_msg);
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    static const ::google::protobuf::internal::LazyString _i_give_permission_to_break_this_code_default_name_;
+    ::google::protobuf::internal::ArenaStringPtr name_;
+    ::uint32_t code_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_pdf_2eproto;
+};
+
+extern const ::google::protobuf::internal::ClassDataFull Font_EncodingDiff_class_data_;
 // -------------------------------------------------------------------
 
 class EmbeddedFontFile final : public ::google::protobuf::Message
@@ -1488,7 +1742,7 @@ class Font final : public ::google::protobuf::Message
     return *reinterpret_cast<const Font*>(
         &_Font_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 5;
+  static constexpr int kIndexInFileMessages = 6;
   friend void swap(Font& a, Font& b) { a.Swap(&b); }
   inline void Swap(Font* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -1572,6 +1826,7 @@ class Font final : public ::google::protobuf::Message
 
   ::google::protobuf::Metadata GetMetadata() const;
   // nested types ----------------------------------------------------
+  using EncodingDiff = Font_EncodingDiff;
   using Subtype = Font_Subtype;
   static constexpr Subtype TYPE1 = Font_Subtype_TYPE1;
   static constexpr Subtype TRUETYPE = Font_Subtype_TRUETYPE;
@@ -1594,15 +1849,78 @@ class Font final : public ::google::protobuf::Message
       ::absl::string_view name, Subtype* PROTOBUF_NONNULL value) {
     return Font_Subtype_Parse(name, value);
   }
+  using BaseEncoding = Font_BaseEncoding;
+  static constexpr BaseEncoding BASE_NONE = Font_BaseEncoding_BASE_NONE;
+  static constexpr BaseEncoding STANDARD = Font_BaseEncoding_STANDARD;
+  static constexpr BaseEncoding WINANSI = Font_BaseEncoding_WINANSI;
+  static constexpr BaseEncoding MACROMAN = Font_BaseEncoding_MACROMAN;
+  static constexpr BaseEncoding MACEXPERT = Font_BaseEncoding_MACEXPERT;
+  static inline bool BaseEncoding_IsValid(int value) {
+    return Font_BaseEncoding_IsValid(value);
+  }
+  static constexpr BaseEncoding BaseEncoding_MIN = Font_BaseEncoding_BaseEncoding_MIN;
+  static constexpr BaseEncoding BaseEncoding_MAX = Font_BaseEncoding_BaseEncoding_MAX;
+  static constexpr int BaseEncoding_ARRAYSIZE = Font_BaseEncoding_BaseEncoding_ARRAYSIZE;
+  static inline const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL BaseEncoding_descriptor() {
+    return Font_BaseEncoding_descriptor();
+  }
+  template <typename T>
+  static inline const ::std::string& BaseEncoding_Name(T value) {
+    return Font_BaseEncoding_Name(value);
+  }
+  static inline bool BaseEncoding_Parse(
+      ::absl::string_view name, BaseEncoding* PROTOBUF_NONNULL value) {
+    return Font_BaseEncoding_Parse(name, value);
+  }
 
   // accessors -------------------------------------------------------
   enum : int {
+    kDifferencesFieldNumber = 7,
+    kWidthsFieldNumber = 9,
     kBaseFontFieldNumber = 2,
+    kToUnicodeFieldNumber = 10,
     kFontDescriptorFieldNumber = 5,
     kSubtypeFieldNumber = 1,
     kOmitTypeFieldNumber = 3,
     kOmitSubtypeFieldNumber = 4,
+    kBaseEncodingFieldNumber = 6,
+    kFirstCharFieldNumber = 8,
   };
+  // repeated .pdf_proto.Font.EncodingDiff differences = 7;
+  int differences_size() const;
+  private:
+  int _internal_differences_size() const;
+
+  public:
+  void clear_differences() ;
+  ::pdf_proto::Font_EncodingDiff* PROTOBUF_NONNULL mutable_differences(int index);
+  ::google::protobuf::RepeatedPtrField<::pdf_proto::Font_EncodingDiff>* PROTOBUF_NONNULL mutable_differences();
+
+  private:
+  const ::google::protobuf::RepeatedPtrField<::pdf_proto::Font_EncodingDiff>& _internal_differences() const;
+  ::google::protobuf::RepeatedPtrField<::pdf_proto::Font_EncodingDiff>* PROTOBUF_NONNULL _internal_mutable_differences();
+  public:
+  const ::pdf_proto::Font_EncodingDiff& differences(int index) const;
+  ::pdf_proto::Font_EncodingDiff* PROTOBUF_NONNULL add_differences();
+  const ::google::protobuf::RepeatedPtrField<::pdf_proto::Font_EncodingDiff>& differences() const;
+  // repeated int32 widths = 9;
+  int widths_size() const;
+  private:
+  int _internal_widths_size() const;
+
+  public:
+  void clear_widths() ;
+  ::int32_t widths(int index) const;
+  void set_widths(int index, ::int32_t value);
+  void add_widths(::int32_t value);
+  const ::google::protobuf::RepeatedField<::int32_t>& widths() const;
+  ::google::protobuf::RepeatedField<::int32_t>* PROTOBUF_NONNULL mutable_widths();
+
+  private:
+  const ::google::protobuf::RepeatedField<::int32_t>& _internal_widths() const;
+  ::google::protobuf::RepeatedField<::int32_t>* PROTOBUF_NONNULL _internal_mutable_widths();
+
+  public:
   // optional string base_font = 2 [default = "Helvetica"];
   bool has_base_font() const;
   void clear_base_font() ;
@@ -1617,6 +1935,22 @@ class Font final : public ::google::protobuf::Message
   const ::std::string& _internal_base_font() const;
   PROTOBUF_ALWAYS_INLINE void _internal_set_base_font(const ::std::string& value);
   ::std::string* PROTOBUF_NONNULL _internal_mutable_base_font();
+
+  public:
+  // optional bytes to_unicode = 10;
+  bool has_to_unicode() const;
+  void clear_to_unicode() ;
+  const ::std::string& to_unicode() const;
+  template <typename Arg_ = const ::std::string&, typename... Args_>
+  void set_to_unicode(Arg_&& arg, Args_... args);
+  ::std::string* PROTOBUF_NONNULL mutable_to_unicode();
+  [[nodiscard]] ::std::string* PROTOBUF_NULLABLE release_to_unicode();
+  void set_allocated_to_unicode(::std::string* PROTOBUF_NULLABLE value);
+
+  private:
+  const ::std::string& _internal_to_unicode() const;
+  PROTOBUF_ALWAYS_INLINE void _internal_set_to_unicode(const ::std::string& value);
+  ::std::string* PROTOBUF_NONNULL _internal_mutable_to_unicode();
 
   public:
   // optional .pdf_proto.FontDescriptor font_descriptor = 5;
@@ -1667,12 +2001,34 @@ class Font final : public ::google::protobuf::Message
   void _internal_set_omit_subtype(bool value);
 
   public:
+  // optional .pdf_proto.Font.BaseEncoding base_encoding = 6 [default = BASE_NONE];
+  bool has_base_encoding() const;
+  void clear_base_encoding() ;
+  ::pdf_proto::Font_BaseEncoding base_encoding() const;
+  void set_base_encoding(::pdf_proto::Font_BaseEncoding value);
+
+  private:
+  ::pdf_proto::Font_BaseEncoding _internal_base_encoding() const;
+  void _internal_set_base_encoding(::pdf_proto::Font_BaseEncoding value);
+
+  public:
+  // optional uint32 first_char = 8;
+  bool has_first_char() const;
+  void clear_first_char() ;
+  ::uint32_t first_char() const;
+  void set_first_char(::uint32_t value);
+
+  private:
+  ::uint32_t _internal_first_char() const;
+  void _internal_set_first_char(::uint32_t value);
+
+  public:
   // @@protoc_insertion_point(class_scope:pdf_proto.Font)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<3, 5,
-                                   2, 0,
+  static const ::google::protobuf::internal::TcParseTable<4, 10,
+                                   4, 0,
                                    2>
       _table_;
 
@@ -1693,12 +2049,17 @@ class Font final : public ::google::protobuf::Message
         const Font& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::google::protobuf::RepeatedPtrField< ::pdf_proto::Font_EncodingDiff > differences_;
+    ::google::protobuf::RepeatedField<::int32_t> widths_;
     static const ::google::protobuf::internal::LazyString _i_give_permission_to_break_this_code_default_base_font_;
     ::google::protobuf::internal::ArenaStringPtr base_font_;
+    ::google::protobuf::internal::ArenaStringPtr to_unicode_;
     ::pdf_proto::FontDescriptor* PROTOBUF_NULLABLE font_descriptor_;
     int subtype_;
     bool omit_type_;
     bool omit_subtype_;
+    int base_encoding_;
+    ::uint32_t first_char_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -1763,7 +2124,7 @@ class Page final : public ::google::protobuf::Message
     return *reinterpret_cast<const Page*>(
         &_Page_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 6;
+  static constexpr int kIndexInFileMessages = 7;
   friend void swap(Page& a, Page& b) { a.Swap(&b); }
   inline void Swap(Page* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -2018,7 +2379,7 @@ class PdfDocument final : public ::google::protobuf::Message
     return *reinterpret_cast<const PdfDocument*>(
         &_PdfDocument_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 8;
+  static constexpr int kIndexInFileMessages = 9;
   friend void swap(PdfDocument& a, PdfDocument& b) { a.Swap(&b); }
   inline void Swap(PdfDocument* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -2221,7 +2582,7 @@ class IndirectObject final : public ::google::protobuf::Message
     kPage = 4,
     BODY_NOT_SET = 0,
   };
-  static constexpr int kIndexInFileMessages = 7;
+  static constexpr int kIndexInFileMessages = 8;
   friend void swap(IndirectObject& a, IndirectObject& b) { a.Swap(&b); }
   inline void Swap(IndirectObject* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -3259,18 +3620,116 @@ inline void FontDescriptor::set_allocated_font_file(::pdf_proto::EmbeddedFontFil
 
 // -------------------------------------------------------------------
 
+// Font_EncodingDiff
+
+// optional uint32 code = 1;
+inline bool Font_EncodingDiff::has_code() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000002U);
+  return value;
+}
+inline void Font_EncodingDiff::clear_code() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.code_ = 0u;
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000002U);
+}
+inline ::uint32_t Font_EncodingDiff::code() const {
+  // @@protoc_insertion_point(field_get:pdf_proto.Font.EncodingDiff.code)
+  return _internal_code();
+}
+inline void Font_EncodingDiff::set_code(::uint32_t value) {
+  _internal_set_code(value);
+  SetHasBit(_impl_._has_bits_[0], 0x00000002U);
+  // @@protoc_insertion_point(field_set:pdf_proto.Font.EncodingDiff.code)
+}
+inline ::uint32_t Font_EncodingDiff::_internal_code() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.code_;
+}
+inline void Font_EncodingDiff::_internal_set_code(::uint32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.code_ = value;
+}
+
+// optional string name = 2 [default = "space"];
+inline bool Font_EncodingDiff::has_name() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000001U);
+  return value;
+}
+inline void Font_EncodingDiff::clear_name() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.name_.ClearToDefault(::pdf_proto::Font_EncodingDiff::Impl_::_i_give_permission_to_break_this_code_default_name_, GetArena());
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000001U);
+}
+inline const ::std::string& Font_EncodingDiff::name() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:pdf_proto.Font.EncodingDiff.name)
+  if (_impl_.name_.IsDefault()) {
+    return Impl_::_i_give_permission_to_break_this_code_default_name_.get();
+  }
+  return _internal_name();
+}
+template <typename Arg_, typename... Args_>
+PROTOBUF_ALWAYS_INLINE void Font_EncodingDiff::set_name(Arg_&& arg, Args_... args) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  SetHasBit(_impl_._has_bits_[0], 0x00000001U);
+  _impl_.name_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:pdf_proto.Font.EncodingDiff.name)
+}
+inline ::std::string* PROTOBUF_NONNULL Font_EncodingDiff::mutable_name()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  SetHasBit(_impl_._has_bits_[0], 0x00000001U);
+  ::std::string* _s = _internal_mutable_name();
+  // @@protoc_insertion_point(field_mutable:pdf_proto.Font.EncodingDiff.name)
+  return _s;
+}
+inline const ::std::string& Font_EncodingDiff::_internal_name() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.name_.Get();
+}
+inline void Font_EncodingDiff::_internal_set_name(const ::std::string& value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.name_.Set(value, GetArena());
+}
+inline ::std::string* PROTOBUF_NONNULL Font_EncodingDiff::_internal_mutable_name() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _impl_.name_.Mutable(::pdf_proto::Font_EncodingDiff::Impl_::_i_give_permission_to_break_this_code_default_name_, GetArena());
+}
+inline ::std::string* PROTOBUF_NULLABLE Font_EncodingDiff::release_name() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:pdf_proto.Font.EncodingDiff.name)
+  if (!CheckHasBit(_impl_._has_bits_[0], 0x00000001U)) {
+    return nullptr;
+  }
+  ClearHasBit(_impl_._has_bits_[0], 0x00000001U);
+  return _impl_.name_.Release();
+}
+inline void Font_EncodingDiff::set_allocated_name(::std::string* PROTOBUF_NULLABLE value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (value != nullptr) {
+    SetHasBit(_impl_._has_bits_[0], 0x00000001U);
+  } else {
+    ClearHasBit(_impl_._has_bits_[0], 0x00000001U);
+  }
+  _impl_.name_.SetAllocated(value, GetArena());
+  // @@protoc_insertion_point(field_set_allocated:pdf_proto.Font.EncodingDiff.name)
+}
+
+// -------------------------------------------------------------------
+
 // Font
 
 // optional .pdf_proto.Font.Subtype subtype = 1 [default = TYPE1];
 inline bool Font::has_subtype() const {
-  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000004U);
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000020U);
   return value;
 }
 inline void Font::clear_subtype() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.subtype_ = 0;
   ClearHasBit(_impl_._has_bits_[0],
-                  0x00000004U);
+                  0x00000020U);
 }
 inline ::pdf_proto::Font_Subtype Font::subtype() const {
   // @@protoc_insertion_point(field_get:pdf_proto.Font.subtype)
@@ -3278,7 +3737,7 @@ inline ::pdf_proto::Font_Subtype Font::subtype() const {
 }
 inline void Font::set_subtype(::pdf_proto::Font_Subtype value) {
   _internal_set_subtype(value);
-  SetHasBit(_impl_._has_bits_[0], 0x00000004U);
+  SetHasBit(_impl_._has_bits_[0], 0x00000020U);
   // @@protoc_insertion_point(field_set:pdf_proto.Font.subtype)
 }
 inline ::pdf_proto::Font_Subtype Font::_internal_subtype() const {
@@ -3295,14 +3754,14 @@ inline void Font::_internal_set_subtype(::pdf_proto::Font_Subtype value) {
 
 // optional string base_font = 2 [default = "Helvetica"];
 inline bool Font::has_base_font() const {
-  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000001U);
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000004U);
   return value;
 }
 inline void Font::clear_base_font() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.base_font_.ClearToDefault(::pdf_proto::Font::Impl_::_i_give_permission_to_break_this_code_default_base_font_, GetArena());
   ClearHasBit(_impl_._has_bits_[0],
-                  0x00000001U);
+                  0x00000004U);
 }
 inline const ::std::string& Font::base_font() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
@@ -3315,13 +3774,13 @@ inline const ::std::string& Font::base_font() const
 template <typename Arg_, typename... Args_>
 PROTOBUF_ALWAYS_INLINE void Font::set_base_font(Arg_&& arg, Args_... args) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  SetHasBit(_impl_._has_bits_[0], 0x00000001U);
+  SetHasBit(_impl_._has_bits_[0], 0x00000004U);
   _impl_.base_font_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
   // @@protoc_insertion_point(field_set:pdf_proto.Font.base_font)
 }
 inline ::std::string* PROTOBUF_NONNULL Font::mutable_base_font()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  SetHasBit(_impl_._has_bits_[0], 0x00000001U);
+  SetHasBit(_impl_._has_bits_[0], 0x00000004U);
   ::std::string* _s = _internal_mutable_base_font();
   // @@protoc_insertion_point(field_mutable:pdf_proto.Font.base_font)
   return _s;
@@ -3341,18 +3800,18 @@ inline ::std::string* PROTOBUF_NONNULL Font::_internal_mutable_base_font() {
 inline ::std::string* PROTOBUF_NULLABLE Font::release_base_font() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:pdf_proto.Font.base_font)
-  if (!CheckHasBit(_impl_._has_bits_[0], 0x00000001U)) {
+  if (!CheckHasBit(_impl_._has_bits_[0], 0x00000004U)) {
     return nullptr;
   }
-  ClearHasBit(_impl_._has_bits_[0], 0x00000001U);
+  ClearHasBit(_impl_._has_bits_[0], 0x00000004U);
   return _impl_.base_font_.Release();
 }
 inline void Font::set_allocated_base_font(::std::string* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (value != nullptr) {
-    SetHasBit(_impl_._has_bits_[0], 0x00000001U);
+    SetHasBit(_impl_._has_bits_[0], 0x00000004U);
   } else {
-    ClearHasBit(_impl_._has_bits_[0], 0x00000001U);
+    ClearHasBit(_impl_._has_bits_[0], 0x00000004U);
   }
   _impl_.base_font_.SetAllocated(value, GetArena());
   // @@protoc_insertion_point(field_set_allocated:pdf_proto.Font.base_font)
@@ -3360,14 +3819,14 @@ inline void Font::set_allocated_base_font(::std::string* PROTOBUF_NULLABLE value
 
 // optional bool omit_type = 3 [default = false];
 inline bool Font::has_omit_type() const {
-  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000008U);
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000040U);
   return value;
 }
 inline void Font::clear_omit_type() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.omit_type_ = false;
   ClearHasBit(_impl_._has_bits_[0],
-                  0x00000008U);
+                  0x00000040U);
 }
 inline bool Font::omit_type() const {
   // @@protoc_insertion_point(field_get:pdf_proto.Font.omit_type)
@@ -3375,7 +3834,7 @@ inline bool Font::omit_type() const {
 }
 inline void Font::set_omit_type(bool value) {
   _internal_set_omit_type(value);
-  SetHasBit(_impl_._has_bits_[0], 0x00000008U);
+  SetHasBit(_impl_._has_bits_[0], 0x00000040U);
   // @@protoc_insertion_point(field_set:pdf_proto.Font.omit_type)
 }
 inline bool Font::_internal_omit_type() const {
@@ -3389,14 +3848,14 @@ inline void Font::_internal_set_omit_type(bool value) {
 
 // optional bool omit_subtype = 4 [default = false];
 inline bool Font::has_omit_subtype() const {
-  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000010U);
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000080U);
   return value;
 }
 inline void Font::clear_omit_subtype() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.omit_subtype_ = false;
   ClearHasBit(_impl_._has_bits_[0],
-                  0x00000010U);
+                  0x00000080U);
 }
 inline bool Font::omit_subtype() const {
   // @@protoc_insertion_point(field_get:pdf_proto.Font.omit_subtype)
@@ -3404,7 +3863,7 @@ inline bool Font::omit_subtype() const {
 }
 inline void Font::set_omit_subtype(bool value) {
   _internal_set_omit_subtype(value);
-  SetHasBit(_impl_._has_bits_[0], 0x00000010U);
+  SetHasBit(_impl_._has_bits_[0], 0x00000080U);
   // @@protoc_insertion_point(field_set:pdf_proto.Font.omit_subtype)
 }
 inline bool Font::_internal_omit_subtype() const {
@@ -3418,7 +3877,7 @@ inline void Font::_internal_set_omit_subtype(bool value) {
 
 // optional .pdf_proto.FontDescriptor font_descriptor = 5;
 inline bool Font::has_font_descriptor() const {
-  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000002U);
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000010U);
   PROTOBUF_ASSUME(!value || _impl_.font_descriptor_ != nullptr);
   return value;
 }
@@ -3426,7 +3885,7 @@ inline void Font::clear_font_descriptor() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.font_descriptor_ != nullptr) _impl_.font_descriptor_->Clear();
   ClearHasBit(_impl_._has_bits_[0],
-                  0x00000002U);
+                  0x00000010U);
 }
 inline const ::pdf_proto::FontDescriptor& Font::_internal_font_descriptor() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -3445,16 +3904,16 @@ inline void Font::unsafe_arena_set_allocated_font_descriptor(
   }
   _impl_.font_descriptor_ = reinterpret_cast<::pdf_proto::FontDescriptor*>(value);
   if (value != nullptr) {
-    SetHasBit(_impl_._has_bits_[0], 0x00000002U);
+    SetHasBit(_impl_._has_bits_[0], 0x00000010U);
   } else {
-    ClearHasBit(_impl_._has_bits_[0], 0x00000002U);
+    ClearHasBit(_impl_._has_bits_[0], 0x00000010U);
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:pdf_proto.Font.font_descriptor)
 }
 inline ::pdf_proto::FontDescriptor* PROTOBUF_NULLABLE Font::release_font_descriptor() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
 
-  ClearHasBit(_impl_._has_bits_[0], 0x00000002U);
+  ClearHasBit(_impl_._has_bits_[0], 0x00000010U);
   ::pdf_proto::FontDescriptor* released = _impl_.font_descriptor_;
   _impl_.font_descriptor_ = nullptr;
   if (::google::protobuf::internal::DebugHardenForceCopyInRelease()) {
@@ -3474,7 +3933,7 @@ inline ::pdf_proto::FontDescriptor* PROTOBUF_NULLABLE Font::unsafe_arena_release
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:pdf_proto.Font.font_descriptor)
 
-  ClearHasBit(_impl_._has_bits_[0], 0x00000002U);
+  ClearHasBit(_impl_._has_bits_[0], 0x00000010U);
   ::pdf_proto::FontDescriptor* temp = _impl_.font_descriptor_;
   _impl_.font_descriptor_ = nullptr;
   return temp;
@@ -3489,7 +3948,7 @@ inline ::pdf_proto::FontDescriptor* PROTOBUF_NONNULL Font::_internal_mutable_fon
 }
 inline ::pdf_proto::FontDescriptor* PROTOBUF_NONNULL Font::mutable_font_descriptor()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  SetHasBit(_impl_._has_bits_[0], 0x00000002U);
+  SetHasBit(_impl_._has_bits_[0], 0x00000010U);
   ::pdf_proto::FontDescriptor* _msg = _internal_mutable_font_descriptor();
   // @@protoc_insertion_point(field_mutable:pdf_proto.Font.font_descriptor)
   return _msg;
@@ -3506,13 +3965,249 @@ inline void Font::set_allocated_font_descriptor(::pdf_proto::FontDescriptor* PRO
     if (message_arena != submessage_arena) {
       value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
     }
-    SetHasBit(_impl_._has_bits_[0], 0x00000002U);
+    SetHasBit(_impl_._has_bits_[0], 0x00000010U);
   } else {
-    ClearHasBit(_impl_._has_bits_[0], 0x00000002U);
+    ClearHasBit(_impl_._has_bits_[0], 0x00000010U);
   }
 
   _impl_.font_descriptor_ = reinterpret_cast<::pdf_proto::FontDescriptor*>(value);
   // @@protoc_insertion_point(field_set_allocated:pdf_proto.Font.font_descriptor)
+}
+
+// optional .pdf_proto.Font.BaseEncoding base_encoding = 6 [default = BASE_NONE];
+inline bool Font::has_base_encoding() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000100U);
+  return value;
+}
+inline void Font::clear_base_encoding() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.base_encoding_ = 0;
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000100U);
+}
+inline ::pdf_proto::Font_BaseEncoding Font::base_encoding() const {
+  // @@protoc_insertion_point(field_get:pdf_proto.Font.base_encoding)
+  return _internal_base_encoding();
+}
+inline void Font::set_base_encoding(::pdf_proto::Font_BaseEncoding value) {
+  _internal_set_base_encoding(value);
+  SetHasBit(_impl_._has_bits_[0], 0x00000100U);
+  // @@protoc_insertion_point(field_set:pdf_proto.Font.base_encoding)
+}
+inline ::pdf_proto::Font_BaseEncoding Font::_internal_base_encoding() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return static_cast<::pdf_proto::Font_BaseEncoding>(_impl_.base_encoding_);
+}
+inline void Font::_internal_set_base_encoding(::pdf_proto::Font_BaseEncoding value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+
+                                          assert(::google::protobuf::internal::ValidateEnum(
+                                              value, ::pdf_proto::Font_BaseEncoding_internal_data_));
+                                          _impl_.base_encoding_ = value;
+}
+
+// repeated .pdf_proto.Font.EncodingDiff differences = 7;
+inline int Font::_internal_differences_size() const {
+  return _internal_differences().size();
+}
+inline int Font::differences_size() const {
+  return _internal_differences_size();
+}
+inline void Font::clear_differences() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.differences_.Clear();
+  ClearHasBitForRepeated(_impl_._has_bits_[0],
+                  0x00000001U);
+}
+inline ::pdf_proto::Font_EncodingDiff* PROTOBUF_NONNULL Font::mutable_differences(int index)
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable:pdf_proto.Font.differences)
+  return _internal_mutable_differences()->Mutable(index);
+}
+inline ::google::protobuf::RepeatedPtrField<::pdf_proto::Font_EncodingDiff>* PROTOBUF_NONNULL Font::mutable_differences()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  SetHasBitForRepeated(_impl_._has_bits_[0], 0x00000001U);
+  // @@protoc_insertion_point(field_mutable_list:pdf_proto.Font.differences)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _internal_mutable_differences();
+}
+inline const ::pdf_proto::Font_EncodingDiff& Font::differences(int index) const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:pdf_proto.Font.differences)
+  return _internal_differences().Get(index);
+}
+inline ::pdf_proto::Font_EncodingDiff* PROTOBUF_NONNULL Font::add_differences()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::pdf_proto::Font_EncodingDiff* _add =
+      _internal_mutable_differences()->InternalAddWithArena(
+          ::google::protobuf::MessageLite::internal_visibility(), GetArena());
+  SetHasBitForRepeated(_impl_._has_bits_[0], 0x00000001U);
+  // @@protoc_insertion_point(field_add:pdf_proto.Font.differences)
+  return _add;
+}
+inline const ::google::protobuf::RepeatedPtrField<::pdf_proto::Font_EncodingDiff>& Font::differences() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:pdf_proto.Font.differences)
+  return _internal_differences();
+}
+inline const ::google::protobuf::RepeatedPtrField<::pdf_proto::Font_EncodingDiff>&
+Font::_internal_differences() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.differences_;
+}
+inline ::google::protobuf::RepeatedPtrField<::pdf_proto::Font_EncodingDiff>* PROTOBUF_NONNULL
+Font::_internal_mutable_differences() {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return &_impl_.differences_;
+}
+
+// optional uint32 first_char = 8;
+inline bool Font::has_first_char() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000200U);
+  return value;
+}
+inline void Font::clear_first_char() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.first_char_ = 0u;
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000200U);
+}
+inline ::uint32_t Font::first_char() const {
+  // @@protoc_insertion_point(field_get:pdf_proto.Font.first_char)
+  return _internal_first_char();
+}
+inline void Font::set_first_char(::uint32_t value) {
+  _internal_set_first_char(value);
+  SetHasBit(_impl_._has_bits_[0], 0x00000200U);
+  // @@protoc_insertion_point(field_set:pdf_proto.Font.first_char)
+}
+inline ::uint32_t Font::_internal_first_char() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.first_char_;
+}
+inline void Font::_internal_set_first_char(::uint32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.first_char_ = value;
+}
+
+// repeated int32 widths = 9;
+inline int Font::_internal_widths_size() const {
+  return _internal_widths().size();
+}
+inline int Font::widths_size() const {
+  return _internal_widths_size();
+}
+inline void Font::clear_widths() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.widths_.Clear();
+  ClearHasBitForRepeated(_impl_._has_bits_[0],
+                  0x00000002U);
+}
+inline ::int32_t Font::widths(int index) const {
+  // @@protoc_insertion_point(field_get:pdf_proto.Font.widths)
+  return _internal_widths().Get(index);
+}
+inline void Font::set_widths(int index, ::int32_t value) {
+  _internal_mutable_widths()->Set(index, value);
+  // @@protoc_insertion_point(field_set:pdf_proto.Font.widths)
+}
+inline void Font::add_widths(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _internal_mutable_widths()->Add(value);
+  SetHasBitForRepeated(_impl_._has_bits_[0], 0x00000002U);
+  // @@protoc_insertion_point(field_add:pdf_proto.Font.widths)
+}
+inline const ::google::protobuf::RepeatedField<::int32_t>& Font::widths() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:pdf_proto.Font.widths)
+  return _internal_widths();
+}
+inline ::google::protobuf::RepeatedField<::int32_t>* PROTOBUF_NONNULL Font::mutable_widths()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  SetHasBitForRepeated(_impl_._has_bits_[0], 0x00000002U);
+  // @@protoc_insertion_point(field_mutable_list:pdf_proto.Font.widths)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _internal_mutable_widths();
+}
+inline const ::google::protobuf::RepeatedField<::int32_t>&
+Font::_internal_widths() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.widths_;
+}
+inline ::google::protobuf::RepeatedField<::int32_t>* PROTOBUF_NONNULL
+Font::_internal_mutable_widths() {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return &_impl_.widths_;
+}
+
+// optional bytes to_unicode = 10;
+inline bool Font::has_to_unicode() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000008U);
+  return value;
+}
+inline void Font::clear_to_unicode() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.to_unicode_.ClearToEmpty();
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000008U);
+}
+inline const ::std::string& Font::to_unicode() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:pdf_proto.Font.to_unicode)
+  return _internal_to_unicode();
+}
+template <typename Arg_, typename... Args_>
+PROTOBUF_ALWAYS_INLINE void Font::set_to_unicode(Arg_&& arg, Args_... args) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  SetHasBit(_impl_._has_bits_[0], 0x00000008U);
+  _impl_.to_unicode_.SetBytes(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:pdf_proto.Font.to_unicode)
+}
+inline ::std::string* PROTOBUF_NONNULL Font::mutable_to_unicode()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  SetHasBit(_impl_._has_bits_[0], 0x00000008U);
+  ::std::string* _s = _internal_mutable_to_unicode();
+  // @@protoc_insertion_point(field_mutable:pdf_proto.Font.to_unicode)
+  return _s;
+}
+inline const ::std::string& Font::_internal_to_unicode() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.to_unicode_.Get();
+}
+inline void Font::_internal_set_to_unicode(const ::std::string& value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.to_unicode_.Set(value, GetArena());
+}
+inline ::std::string* PROTOBUF_NONNULL Font::_internal_mutable_to_unicode() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _impl_.to_unicode_.Mutable( GetArena());
+}
+inline ::std::string* PROTOBUF_NULLABLE Font::release_to_unicode() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:pdf_proto.Font.to_unicode)
+  if (!CheckHasBit(_impl_._has_bits_[0], 0x00000008U)) {
+    return nullptr;
+  }
+  ClearHasBit(_impl_._has_bits_[0], 0x00000008U);
+  auto* released = _impl_.to_unicode_.Release();
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString()) {
+    _impl_.to_unicode_.Set("", GetArena());
+  }
+  return released;
+}
+inline void Font::set_allocated_to_unicode(::std::string* PROTOBUF_NULLABLE value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (value != nullptr) {
+    SetHasBit(_impl_._has_bits_[0], 0x00000008U);
+  } else {
+    ClearHasBit(_impl_._has_bits_[0], 0x00000008U);
+  }
+  _impl_.to_unicode_.SetAllocated(value, GetArena());
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.to_unicode_.IsDefault()) {
+    _impl_.to_unicode_.Set("", GetArena());
+  }
+  // @@protoc_insertion_point(field_set_allocated:pdf_proto.Font.to_unicode)
 }
 
 // -------------------------------------------------------------------
@@ -4094,6 +4789,12 @@ struct is_proto_enum<::pdf_proto::Font_Subtype> : std::true_type {};
 template <>
 inline const EnumDescriptor* PROTOBUF_NONNULL GetEnumDescriptor<::pdf_proto::Font_Subtype>() {
   return ::pdf_proto::Font_Subtype_descriptor();
+}
+template <>
+struct is_proto_enum<::pdf_proto::Font_BaseEncoding> : std::true_type {};
+template <>
+inline const EnumDescriptor* PROTOBUF_NONNULL GetEnumDescriptor<::pdf_proto::Font_BaseEncoding>() {
+  return ::pdf_proto::Font_BaseEncoding_descriptor();
 }
 
 }  // namespace protobuf
