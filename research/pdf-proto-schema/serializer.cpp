@@ -22,6 +22,18 @@ static const char* subtype_name(pdf_proto::Font::Subtype s) {
   }
 }
 
+// Map proto EmbeddedFontFile.Key -> the /FontFile* dict key. getFontType keys on
+// which of these is present (precedence FontFile3 > FontFile2 > FontFile) and
+// dispatches to FoFiType1C / FoFiTrueType / FoFiType1 respectively.
+static const char* fontfile_key_name(pdf_proto::EmbeddedFontFile::Key k) {
+  switch (k) {
+    case pdf_proto::EmbeddedFontFile::FONTFILE2: return "FontFile2";
+    case pdf_proto::EmbeddedFontFile::FONTFILE3: return "FontFile3";
+    case pdf_proto::EmbeddedFontFile::FONTFILE:
+    default:                                     return "FontFile";
+  }
+}
+
 // Escape arbitrary bytes into a single valid PDF name token (spec 7.3.5):
 // delimiters, whitespace, '#' and non-printables become #XX. xpdf un-escapes
 // transparently in getName(), so the raw fuzzed bytes still reach the name string.
@@ -77,22 +89,36 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
   // After content streams: per-page font objects, then a per-page "driver"
   // content stream (only for pages with >=1 font). The driver runs `/Fk 12 Tf`
   // for each font so xpdf's lazy GfxFont::makeFont fires on every declared font.
+  // Object numbers are pre-assigned in the SAME order they are later written, so
+  // each xref entry (pushed by record_offset() in write order) lines up with its
+  // object number. Each object class gets its own loop here AND its own write loop
+  // below, in matching order: content streams, font objects, font-program streams,
+  // driver streams. (Interleaving assignment per-page while writing per-class would
+  // scramble the xref for multi-page docs.)
   int page_count = doc.pages_size();
   std::vector<std::vector<int>> cs_objs(page_count);
   std::vector<std::vector<int>> font_objs(page_count);
+  // fontfile_objs[i][k] = object number of font k's embedded program stream, or -1.
+  std::vector<std::vector<int>> fontfile_objs(page_count);
   std::vector<int> driver_objs(page_count, -1);  // -1 = no driver (no fonts)
   {
     int next = 3 + page_count;
-    for (int i = 0; i < page_count; i++) {
+    for (int i = 0; i < page_count; i++)
       for (int j = 0; j < doc.pages(i).content_streams_size(); j++)
         cs_objs[i].push_back(next++);
-    }
-    for (int i = 0; i < page_count; i++) {
+    for (int i = 0; i < page_count; i++)
       for (int k = 0; k < doc.pages(i).fonts_size(); k++)
         font_objs[i].push_back(next++);
+    for (int i = 0; i < page_count; i++) {
+      fontfile_objs[i].assign(doc.pages(i).fonts_size(), -1);
+      for (int k = 0; k < doc.pages(i).fonts_size(); k++)
+        if (doc.pages(i).fonts(k).has_font_descriptor() &&
+            doc.pages(i).fonts(k).font_descriptor().has_font_file())
+          fontfile_objs[i][k] = next++;
+    }
+    for (int i = 0; i < page_count; i++)
       if (doc.pages(i).fonts_size() > 0)
         driver_objs[i] = next++;
-    }
   }
 
   // Object 1: Catalog
@@ -181,7 +207,49 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
       if (!f.omit_type())    out << " /Type /Font";
       if (!f.omit_subtype()) out << " /Subtype /" << subtype_name(f.subtype());
       out << " /BaseFont /" << pdf_name_escape(f.base_font());
+      // P1.5: inline /FontDescriptor. The embedded program lives in a separate
+      // indirect stream object (pre-assigned in fontfile_objs) and is referenced
+      // here via /FontFile{,2,3} -- xpdf requires that key to be an indirect ref.
+      if (f.has_font_descriptor()) {
+        const pdf_proto::FontDescriptor& fd = f.font_descriptor();
+        out << " /FontDescriptor << /Type /FontDescriptor"
+            << " /FontName /" << pdf_name_escape(f.base_font())
+            << " /Flags " << fd.flags()
+            << " /ItalicAngle " << fd.italic_angle()
+            << " /Ascent " << fd.ascent()
+            << " /Descent " << fd.descent()
+            << " /CapHeight " << fd.cap_height()
+            << " /StemV " << fd.stem_v()
+            << " /MissingWidth " << fd.missing_width();
+        if (fd.font_bbox_size() == 4) {
+          out << " /FontBBox [";
+          for (int b = 0; b < 4; b++) out << fd.font_bbox(b) << (b < 3 ? " " : "");
+          out << "]";
+        }
+        if (fd.has_font_file() && fontfile_objs[i][k] >= 0)
+          out << " /" << fontfile_key_name(fd.font_file().key())
+              << " " << fontfile_objs[i][k] << " 0 R";
+        out << " >>";
+      }
       out << " >>\nendobj\n";
+    }
+  }
+
+  // P1.5: embedded font-program streams. Raw `program` bytes go in verbatim;
+  // FoFiIdentifier sniffs them and dispatches to FoFiType1 / FoFiTrueType /
+  // FoFiType1C. /Subtype is written only for FontFile3 (Type1C/CIDFontType0C/
+  // OpenType). length_delta shifts /Length for stream-boundary fuzzing.
+  for (int i = 0; i < page_count; i++) {
+    for (int k = 0; k < (int)fontfile_objs[i].size(); k++) {
+      if (fontfile_objs[i][k] < 0) continue;
+      record_offset();
+      const pdf_proto::EmbeddedFontFile& ff = doc.pages(i).fonts(k).font_descriptor().font_file();
+      const std::string& prog = ff.program();
+      long written_len = (long)prog.size() + ff.length_delta();
+      out << fontfile_objs[i][k] << " 0 obj\n<< /Length " << written_len;
+      if (ff.key() == pdf_proto::EmbeddedFontFile::FONTFILE3 && !ff.subtype().empty())
+        out << " /Subtype /" << pdf_name_escape(ff.subtype());
+      out << " >>\nstream\n" << prog << "\nendstream\nendobj\n";
     }
   }
 

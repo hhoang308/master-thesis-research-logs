@@ -258,3 +258,26 @@ Consequences for triage:
   and look for an actual ASan report / stack -- ignore the LSan-at-exit fatal error.
 - `ASAN_OPTIONS=detect_leaks=0` reduces but does not fully remove the at-exit flakiness, so
   gdb is the reliable path.
+
+## Required ASAN_OPTIONS for fuzzing runs (P1.5+)
+
+Run the fuzzer with:
+
+```bash
+ASAN_OPTIONS=detect_container_overflow=0:detect_leaks=0 ./build/pdf_fuzzer ... corpus/
+```
+
+- **`detect_container_overflow=0` (mandatory from P1.5 on).** The schema's first
+  `repeated int32` field (`FontDescriptor.font_bbox`, a protobuf `RepeatedField<int>`) trips a
+  **false-positive** ASan `container-overflow` inside `RepeatedField<int>::MergeFrom` during
+  libprotobuf-mutator's CrossOver. Cause: `pdf.pb.cc` is ASan-instrumented and annotates the
+  RepeatedField buffer, but miniconda's prebuilt `libprotobuf.so` is **not** instrumented, so
+  the annotation desyncs. It is in the fuzzer's *mutation* layer, not in xpdf or the
+  serializer (confirmed by stack trace + clean `pdffonts`/`pdfinfo` on generated PDFs).
+  Without this flag the run aborts on the first cross-over that copies `font_bbox`.
+  Trade-off: disables genuine container-overflow detection globally, but xpdf uses raw
+  arrays / GString / GList (almost no `std::vector`), so the lost coverage is negligible.
+- **`detect_leaks=0`** silences the unrelated LSan teardown crash described above.
+
+Real memory-safety bugs (heap-overflow, UAF, etc.) are still caught -- only the
+container-overflow check and the at-exit leak check are disabled.

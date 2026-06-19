@@ -23,9 +23,43 @@ message ContentStream {
   optional bool       skip_compression = 4 [default = false];
 }
 
+// P1.5: an embedded font program. To reach xpdf's FoFi parsers, the font's
+// /FontDescriptor must carry /FontFile, /FontFile2, or /FontFile3 as an *indirect
+// reference to a stream* (GfxFont.cc getFontType: dictLookupNF(...)->isRef()).
+// xpdf then sniffs the bytes via FoFiIdentifier and dispatches to FoFiType1 /
+// FoFiTrueType / FoFiType1C(CFF). The serializer emits the program as its own
+// indirect stream object; `program` bytes are fuzzer-controlled.
+message EmbeddedFontFile {
+  enum Key {
+    FONTFILE  = 0;  // /FontFile  -> Type1 (PFA/PFB)        -> FoFiType1
+    FONTFILE2 = 1;  // /FontFile2 -> TrueType               -> FoFiTrueType
+    FONTFILE3 = 2;  // /FontFile3 -> CFF / Type1C / OpenType -> FoFiType1C
+  }
+  optional Key    key          = 1 [default = FONTFILE];
+  optional string subtype      = 2;  // /Subtype for FontFile3 (Type1C / CIDFontType0C / OpenType)
+  optional bytes  program      = 3;  // raw font-program bytes -> FoFiIdentifier sniffs + dispatches
+  optional sint32 length_delta = 4 [default = 0];  // /Length over/under-read on the program stream
+}
+
+// P1.5: /FontDescriptor. Inline in the font dict (xpdf accepts inline or indirect).
+// Numeric fields are plain clean integers for now -- near-valid token injection is
+// deferred to a later step (build the full valid form first).
+message FontDescriptor {
+  optional int32 flags         = 1 [default = 4];     // /Flags (4 = Symbolic)
+  optional int32 italic_angle  = 2 [default = 0];
+  optional int32 ascent        = 3 [default = 700];
+  optional int32 descent       = 4 [default = -200];
+  optional int32 cap_height    = 5 [default = 700];
+  optional int32 stem_v        = 6 [default = 80];
+  optional int32 missing_width = 7 [default = 0];      // read in GfxFont::readFontDescriptor
+  repeated int32 font_bbox     = 8;  // /FontBBox [a b c d]; emitted only when exactly 4 values
+  optional EmbeddedFontFile font_file = 9;
+}
+
 // P1: dummy font. Parsed lazily by xpdf only when a content stream runs `Tf`,
 // so the serializer emits a deterministic driver stream that references every
 // font via `/Fk 12 Tf` -- forcing GfxFont::makeFont to run on each one.
+// P1.5: an optional FontDescriptor carries an embedded program to reach FoFi.
 message Font {
   enum Subtype {
     TYPE1    = 0;  // -> fontType1, Gfx8BitFont
@@ -37,6 +71,7 @@ message Font {
   optional string  base_font   = 2 [default = "Helvetica"];  // std-14 vs garbage -> builtin lookup vs substitution
   optional bool    omit_type    = 3 [default = false];       // drop /Type /Font    -> malformed-dict path
   optional bool    omit_subtype = 4 [default = false];       // drop /Subtype       -> fontUnknownType path
+  optional FontDescriptor font_descriptor = 5;               // P1.5: embedded font program -> FoFi parsers ('descriptor' is a protobuf-reserved name)
 }
 
 message Page {
