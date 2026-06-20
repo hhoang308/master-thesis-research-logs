@@ -119,12 +119,41 @@ message Font {
   optional CidFont cid = 11;
 }
 
+// P3: image XObject. Lazy like fonts -- a content-stream `Do` operator triggers
+// Gfx::doImage, which builds the filter chain (makeFilter) and the rendering device
+// pulls the pixels through it. The harness's FuzzOutputDev drains the stream so the
+// decoder actually runs. `data` is written verbatim (never pre-compressed) so the
+// fuzzer feeds controlled garbage straight to DCT/JPX/CCITT/LZW/Flate. width/height/
+// bits are unclamped -> exercises the w*h*bpc allocation math (integer overflow).
+message ImageXObject {
+  enum Filter {
+    RAW       = 0;  // no /Filter -- raw samples
+    FLATE     = 1;  // /FlateDecode
+    DCT       = 2;  // /DCTDecode      -> DCTStream (libjpeg)
+    JPX       = 3;  // /JPXDecode      -> JPXStream (xpdf JPEG2000)
+    CCITT     = 4;  // /CCITTFaxDecode -> CCITTFaxStream
+    LZW       = 5;  // /LZWDecode      -> LZWStream
+    RUNLENGTH = 6;  // /RunLengthDecode
+  }
+  enum ColorSpace { DEVICE_RGB = 0; DEVICE_GRAY = 1; DEVICE_CMYK = 2; }
+
+  optional uint32     width              = 1 [default = 1];
+  optional uint32     height             = 2 [default = 1];
+  optional uint32     bits_per_component = 3 [default = 8];   // /BitsPerComponent
+  optional Filter     filter             = 4 [default = RAW];
+  optional ColorSpace color_space        = 5 [default = DEVICE_RGB];
+  optional bool       image_mask         = 6 [default = false]; // /ImageMask true (no /ColorSpace)
+  optional bytes      data               = 7;  // stream payload -> decoder
+  optional sint32     length_delta       = 8 [default = 0];   // /Length over/under-read
+}
+
 message Page {
   optional float width  = 1 [default = 612];
   optional float height = 2 [default = 792];
   optional uint32 parent_ref = 3;
   repeated ContentStream content_streams = 4;  // 0=no stream, 1=/Contents N 0 R, N+=/Contents [...]
   repeated Font fonts = 5;  // referenced as /F0, /F1, ... in /Resources; driver stream forces makeFont
+  repeated ImageXObject images = 6;  // referenced as /Im0, /Im1, ... in /Resources; driver runs `/Imk Do`
 }
 
 message IndirectObject {

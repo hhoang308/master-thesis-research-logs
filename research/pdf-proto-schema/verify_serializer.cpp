@@ -228,6 +228,57 @@ int main() {
         failures += run_test("cidfont-stream-cidtogid-multipage", doc);
     }
 
+    // Test 13 (P3): page with a DCTDecode image XObject. Must stay a valid PDF
+    // (image stream object accounted for in xref; /Resources has /XObject).
+    {
+        pdf_proto::PdfDocument doc;
+        pdf_proto::Page* p = doc.add_pages();
+        p->set_width(612); p->set_height(792);
+        pdf_proto::ImageXObject* im = p->add_images();
+        im->set_width(2); im->set_height(2);
+        im->set_bits_per_component(8);
+        im->set_filter(pdf_proto::ImageXObject::DCT);
+        im->set_color_space(pdf_proto::ImageXObject::DEVICE_RGB);
+        im->set_data(std::string("\xFF\xD8\xFF\xE0", 4) + "junkjpeg");  // JPEG SOI-ish
+        failures += run_test("image-dct-xobject", doc);
+    }
+
+    // Test 14 (P3): font + image on the same page -> /Resources has both /Font and
+    // /XObject; the driver stream runs both Tf and Do.
+    {
+        pdf_proto::PdfDocument doc;
+        pdf_proto::Page* p = doc.add_pages();
+        p->set_width(612); p->set_height(792);
+        pdf_proto::Font* f = p->add_fonts();
+        f->set_base_font("Helvetica");
+        pdf_proto::ImageXObject* im = p->add_images();
+        im->set_width(1); im->set_height(1);
+        im->set_filter(pdf_proto::ImageXObject::RAW);
+        im->set_color_space(pdf_proto::ImageXObject::DEVICE_GRAY);
+        im->set_bits_per_component(8);
+        im->set_data(std::string("\x80", 1));  // 1 gray sample
+        failures += run_test("font-and-image-same-page", doc);
+    }
+
+    // Test 15 (P3): multi-page with images + an ImageMask -> xref-order regression
+    // across content/image/driver classes; also the stencil-mask path (no /ColorSpace).
+    {
+        pdf_proto::PdfDocument doc;
+        for (int pg = 0; pg < 2; pg++) {
+            pdf_proto::Page* p = doc.add_pages();
+            p->set_width(612); p->set_height(792);
+            pdf_proto::ContentStream* cs = p->add_content_streams();
+            cs->set_raw_content("q Q");
+            pdf_proto::ImageXObject* im = p->add_images();
+            im->set_width(8); im->set_height(8);
+            im->set_image_mask(true);   // stencil mask: 1bpc, no /ColorSpace
+            im->set_bits_per_component(1);
+            im->set_filter(pdf_proto::ImageXObject::RAW);
+            im->set_data(std::string(8, '\xAA'));  // 8x8 1bpc = 8 bytes
+        }
+        failures += run_test("multipage-imagemask-xref", doc);
+    }
+
     google::protobuf::ShutdownProtobufLibrary();
     return failures;
 }

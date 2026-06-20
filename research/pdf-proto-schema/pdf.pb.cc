@@ -51,6 +51,40 @@ struct PageTreeDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 PageTreeDefaultTypeInternal _PageTree_default_instance_;
 
+inline constexpr ImageXObject::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        data_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        filter_{static_cast< ::pdf_proto::ImageXObject_Filter >(0)},
+        color_space_{static_cast< ::pdf_proto::ImageXObject_ColorSpace >(0)},
+        image_mask_{false},
+        length_delta_{0},
+        width_{1u},
+        height_{1u},
+        bits_per_component_{8u} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR ImageXObject::ImageXObject(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(ImageXObject_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct ImageXObjectDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR ImageXObjectDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~ImageXObjectDefaultTypeInternal() {}
+  union {
+    ImageXObject _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ImageXObjectDefaultTypeInternal _ImageXObject_default_instance_;
+
 inline constexpr Font_EncodingDiff::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
@@ -284,6 +318,7 @@ inline constexpr Page::Impl_::Impl_(
       : _cached_size_{0},
         content_streams_{},
         fonts_{},
+        images_{},
         parent_ref_{0u},
         width_{612},
         height_{792} {}
@@ -361,7 +396,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 IndirectObjectDefaultTypeInternal _IndirectObject_default_instance_;
 }  // namespace pdf_proto
 static const ::_pb::EnumDescriptor* PROTOBUF_NONNULL
-    file_level_enum_descriptors_pdf_2eproto[5];
+    file_level_enum_descriptors_pdf_2eproto[7];
 static constexpr const ::_pb::ServiceDescriptor* PROTOBUF_NONNULL* PROTOBUF_NULLABLE
     file_level_service_descriptors_pdf_2eproto = nullptr;
 const ::uint32_t
@@ -474,18 +509,39 @@ const ::uint32_t
         3,
         5,
         0x081, // bitmap
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::ImageXObject, _impl_._has_bits_),
+        11, // hasbit index offset
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::ImageXObject, _impl_.width_),
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::ImageXObject, _impl_.height_),
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::ImageXObject, _impl_.bits_per_component_),
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::ImageXObject, _impl_.filter_),
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::ImageXObject, _impl_.color_space_),
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::ImageXObject, _impl_.image_mask_),
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::ImageXObject, _impl_.data_),
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::ImageXObject, _impl_.length_delta_),
+        5,
+        6,
+        7,
+        1,
+        2,
+        3,
+        0,
+        4,
+        0x081, // bitmap
         PROTOBUF_FIELD_OFFSET(::pdf_proto::Page, _impl_._has_bits_),
-        8, // hasbit index offset
+        9, // hasbit index offset
         PROTOBUF_FIELD_OFFSET(::pdf_proto::Page, _impl_.width_),
         PROTOBUF_FIELD_OFFSET(::pdf_proto::Page, _impl_.height_),
         PROTOBUF_FIELD_OFFSET(::pdf_proto::Page, _impl_.parent_ref_),
         PROTOBUF_FIELD_OFFSET(::pdf_proto::Page, _impl_.content_streams_),
         PROTOBUF_FIELD_OFFSET(::pdf_proto::Page, _impl_.fonts_),
-        3,
+        PROTOBUF_FIELD_OFFSET(::pdf_proto::Page, _impl_.images_),
         4,
-        2,
+        5,
+        3,
         0,
         1,
+        2,
         0x085, // bitmap
         PROTOBUF_FIELD_OFFSET(::pdf_proto::IndirectObject, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::pdf_proto::IndirectObject, _impl_._oneof_case_[0]),
@@ -516,9 +572,10 @@ static const ::_pbi::MigrationSchema
         {53, sizeof(::pdf_proto::Font_EncodingDiff)},
         {60, sizeof(::pdf_proto::Font_CidFont)},
         {81, sizeof(::pdf_proto::Font)},
-        {106, sizeof(::pdf_proto::Page)},
-        {119, sizeof(::pdf_proto::IndirectObject)},
-        {132, sizeof(::pdf_proto::PdfDocument)},
+        {106, sizeof(::pdf_proto::ImageXObject)},
+        {125, sizeof(::pdf_proto::Page)},
+        {140, sizeof(::pdf_proto::IndirectObject)},
+        {153, sizeof(::pdf_proto::PdfDocument)},
 };
 static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::pdf_proto::_Catalog_default_instance_._instance,
@@ -529,6 +586,7 @@ static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::pdf_proto::_Font_EncodingDiff_default_instance_._instance,
     &::pdf_proto::_Font_CidFont_default_instance_._instance,
     &::pdf_proto::_Font_default_instance_._instance,
+    &::pdf_proto::_ImageXObject_default_instance_._instance,
     &::pdf_proto::_Page_default_instance_._instance,
     &::pdf_proto::_IndirectObject_default_instance_._instance,
     &::pdf_proto::_PdfDocument_default_instance_._instance,
@@ -576,28 +634,39 @@ const char descriptor_table_protodef_pdf_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIAB
     "ype\022\t\n\005TYPE1\020\000\022\014\n\010TRUETYPE\020\001\022\t\n\005TYPE3\020\002\022"
     "\t\n\005TYPE0\020\003\"U\n\014BaseEncoding\022\r\n\tBASE_NONE\020"
     "\000\022\014\n\010STANDARD\020\001\022\013\n\007WINANSI\020\002\022\014\n\010MACROMAN"
-    "\020\003\022\r\n\tMACEXPERT\020\004\"\226\001\n\004Page\022\022\n\005width\030\001 \001("
-    "\002:\003612\022\023\n\006height\030\002 \001(\002:\003792\022\022\n\nparent_re"
-    "f\030\003 \001(\r\0221\n\017content_streams\030\004 \003(\0132\030.pdf_p"
-    "roto.ContentStream\022\036\n\005fonts\030\005 \003(\0132\017.pdf_"
-    "proto.Font\"\232\001\n\016IndirectObject\022\016\n\006number\030"
-    "\001 \002(\r\022%\n\007catalog\030\002 \001(\0132\022.pdf_proto.Catal"
-    "ogH\000\022(\n\tpage_tree\030\003 \001(\0132\023.pdf_proto.Page"
-    "TreeH\000\022\037\n\004page\030\004 \001(\0132\017.pdf_proto.PageH\000B"
-    "\006\n\004body\"-\n\013PdfDocument\022\036\n\005pages\030\001 \003(\0132\017."
-    "pdf_proto.Page"
+    "\020\003\022\r\n\tMACEXPERT\020\004\"\241\003\n\014ImageXObject\022\020\n\005wi"
+    "dth\030\001 \001(\r:\0011\022\021\n\006height\030\002 \001(\r:\0011\022\035\n\022bits_"
+    "per_component\030\003 \001(\r:\0018\0223\n\006filter\030\004 \001(\0162\036"
+    ".pdf_proto.ImageXObject.Filter:\003RAW\022C\n\013c"
+    "olor_space\030\005 \001(\0162\".pdf_proto.ImageXObjec"
+    "t.ColorSpace:\nDEVICE_RGB\022\031\n\nimage_mask\030\006"
+    " \001(\010:\005false\022\014\n\004data\030\007 \001(\014\022\027\n\014length_delt"
+    "a\030\010 \001(\021:\0010\"Q\n\006Filter\022\007\n\003RAW\020\000\022\t\n\005FLATE\020\001"
+    "\022\007\n\003DCT\020\002\022\007\n\003JPX\020\003\022\t\n\005CCITT\020\004\022\007\n\003LZW\020\005\022\r"
+    "\n\tRUNLENGTH\020\006\">\n\nColorSpace\022\016\n\nDEVICE_RG"
+    "B\020\000\022\017\n\013DEVICE_GRAY\020\001\022\017\n\013DEVICE_CMYK\020\002\"\277\001"
+    "\n\004Page\022\022\n\005width\030\001 \001(\002:\003612\022\023\n\006height\030\002 \001"
+    "(\002:\003792\022\022\n\nparent_ref\030\003 \001(\r\0221\n\017content_s"
+    "treams\030\004 \003(\0132\030.pdf_proto.ContentStream\022\036"
+    "\n\005fonts\030\005 \003(\0132\017.pdf_proto.Font\022\'\n\006images"
+    "\030\006 \003(\0132\027.pdf_proto.ImageXObject\"\232\001\n\016Indi"
+    "rectObject\022\016\n\006number\030\001 \002(\r\022%\n\007catalog\030\002 "
+    "\001(\0132\022.pdf_proto.CatalogH\000\022(\n\tpage_tree\030\003"
+    " \001(\0132\023.pdf_proto.PageTreeH\000\022\037\n\004page\030\004 \001("
+    "\0132\017.pdf_proto.PageH\000B\006\n\004body\"-\n\013PdfDocum"
+    "ent\022\036\n\005pages\030\001 \003(\0132\017.pdf_proto.Page"
 };
 static ::absl::once_flag descriptor_table_pdf_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_pdf_2eproto = {
     false,
     false,
-    2014,
+    2475,
     descriptor_table_protodef_pdf_2eproto,
     "pdf.proto",
     &descriptor_table_pdf_2eproto_once,
     nullptr,
     0,
-    11,
+    12,
     schemas,
     file_default_instances,
     TableStruct_pdf_2eproto::offsets,
@@ -635,6 +704,18 @@ const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL Font_BaseEncoding_des
 }
 PROTOBUF_CONSTINIT const uint32_t Font_BaseEncoding_internal_data_[] = {
     327680u, 0u, };
+const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL ImageXObject_Filter_descriptor() {
+  ::google::protobuf::internal::AssignDescriptors(&descriptor_table_pdf_2eproto);
+  return file_level_enum_descriptors_pdf_2eproto[5];
+}
+PROTOBUF_CONSTINIT const uint32_t ImageXObject_Filter_internal_data_[] = {
+    458752u, 0u, };
+const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL ImageXObject_ColorSpace_descriptor() {
+  ::google::protobuf::internal::AssignDescriptors(&descriptor_table_pdf_2eproto);
+  return file_level_enum_descriptors_pdf_2eproto[6];
+}
+PROTOBUF_CONSTINIT const uint32_t ImageXObject_ColorSpace_internal_data_[] = {
+    196608u, 0u, };
 // ===================================================================
 
 class Catalog::_Internal {
@@ -3804,6 +3885,445 @@ void Font::InternalSwap(Font* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
 }
 // ===================================================================
 
+class ImageXObject::_Internal {
+ public:
+  using HasBits =
+      decltype(::std::declval<ImageXObject>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+      8 * PROTOBUF_FIELD_OFFSET(ImageXObject, _impl_._has_bits_);
+};
+
+ImageXObject::ImageXObject(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, ImageXObject_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:pdf_proto.ImageXObject)
+}
+PROTOBUF_NDEBUG_INLINE ImageXObject::Impl_::Impl_(
+    [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
+    [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+    [[maybe_unused]] const ::pdf_proto::ImageXObject& from_msg)
+      : _has_bits_{from._has_bits_},
+        _cached_size_{0},
+        data_(arena, from.data_) {}
+
+ImageXObject::ImageXObject(
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
+    const ImageXObject& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, ImageXObject_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  ImageXObject* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
+  ::memcpy(reinterpret_cast<char*>(&_impl_) +
+               offsetof(Impl_, filter_),
+           reinterpret_cast<const char*>(&from._impl_) +
+               offsetof(Impl_, filter_),
+           offsetof(Impl_, bits_per_component_) -
+               offsetof(Impl_, filter_) +
+               sizeof(Impl_::bits_per_component_));
+
+  // @@protoc_insertion_point(copy_constructor:pdf_proto.ImageXObject)
+}
+PROTOBUF_NDEBUG_INLINE ImageXObject::Impl_::Impl_(
+    [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
+    [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+      : _cached_size_{0},
+        data_(arena),
+        width_{1u},
+        height_{1u},
+        bits_per_component_{8u} {}
+
+inline void ImageXObject::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  ::memset(reinterpret_cast<char*>(&_impl_) +
+               offsetof(Impl_, filter_),
+           0,
+           offsetof(Impl_, length_delta_) -
+               offsetof(Impl_, filter_) +
+               sizeof(Impl_::length_delta_));
+}
+ImageXObject::~ImageXObject() {
+  // @@protoc_insertion_point(destructor:pdf_proto.ImageXObject)
+  SharedDtor(*this);
+}
+inline void ImageXObject::SharedDtor(MessageLite& self) {
+  ImageXObject& this_ = static_cast<ImageXObject&>(self);
+  if constexpr (::_pbi::DebugHardenCheckHasBitConsistency()) {
+    this_.CheckHasBitConsistency();
+  }
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.data_.Destroy();
+  this_._impl_.~Impl_();
+}
+
+inline void* PROTOBUF_NONNULL ImageXObject::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
+  return ::new (mem) ImageXObject(arena);
+}
+constexpr auto ImageXObject::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::CopyInit(sizeof(ImageXObject),
+                                            alignof(ImageXObject));
+}
+constexpr auto ImageXObject::InternalGenerateClassData_() {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
+          &_ImageXObject_default_instance_._instance,
+          &_table_.header,
+          nullptr,  // OnDemandRegisterArenaDtor
+          nullptr,  // IsInitialized
+          &ImageXObject::MergeImpl,
+          ::google::protobuf::Message::GetNewImpl<ImageXObject>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+          &ImageXObject::SharedDtor,
+          ::google::protobuf::Message::GetClearImpl<ImageXObject>(), &ImageXObject::ByteSizeLong,
+              &ImageXObject::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          PROTOBUF_FIELD_OFFSET(ImageXObject, _impl_._cached_size_),
+          false,
+      },
+      &ImageXObject::kDescriptorMethods,
+      &descriptor_table_pdf_2eproto,
+      nullptr,  // tracker
+  };
+}
+
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const
+    ::google::protobuf::internal::ClassDataFull ImageXObject_class_data_ =
+        ImageXObject::InternalGenerateClassData_();
+
+PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
+ImageXObject::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&ImageXObject_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(ImageXObject_class_data_.tc_table);
+  return ImageXObject_class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<3, 8, 2, 0, 2>
+ImageXObject::_table_ = {
+  {
+    PROTOBUF_FIELD_OFFSET(ImageXObject, _impl_._has_bits_),
+    0, // no _extensions_
+    8, 56,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967040,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    8,  // num_field_entries
+    2,  // num_aux_entries
+    offsetof(decltype(_table_), aux_entries),
+    ImageXObject_class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::pdf_proto::ImageXObject>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    // optional sint32 length_delta = 8 [default = 0];
+    {::_pbi::TcParser::FastZ32S1,
+     {64, 4, 0,
+      PROTOBUF_FIELD_OFFSET(ImageXObject, _impl_.length_delta_)}},
+    // optional uint32 width = 1 [default = 1];
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(ImageXObject, _impl_.width_), 5>(),
+     {8, 5, 0,
+      PROTOBUF_FIELD_OFFSET(ImageXObject, _impl_.width_)}},
+    // optional uint32 height = 2 [default = 1];
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(ImageXObject, _impl_.height_), 6>(),
+     {16, 6, 0,
+      PROTOBUF_FIELD_OFFSET(ImageXObject, _impl_.height_)}},
+    // optional uint32 bits_per_component = 3 [default = 8];
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(ImageXObject, _impl_.bits_per_component_), 7>(),
+     {24, 7, 0,
+      PROTOBUF_FIELD_OFFSET(ImageXObject, _impl_.bits_per_component_)}},
+    // optional .pdf_proto.ImageXObject.Filter filter = 4 [default = RAW];
+    {::_pbi::TcParser::FastEr0S1,
+     {32, 1, 6,
+      PROTOBUF_FIELD_OFFSET(ImageXObject, _impl_.filter_)}},
+    // optional .pdf_proto.ImageXObject.ColorSpace color_space = 5 [default = DEVICE_RGB];
+    {::_pbi::TcParser::FastEr0S1,
+     {40, 2, 2,
+      PROTOBUF_FIELD_OFFSET(ImageXObject, _impl_.color_space_)}},
+    // optional bool image_mask = 6 [default = false];
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(ImageXObject, _impl_.image_mask_), 3>(),
+     {48, 3, 0,
+      PROTOBUF_FIELD_OFFSET(ImageXObject, _impl_.image_mask_)}},
+    // optional bytes data = 7;
+    {::_pbi::TcParser::FastBS1,
+     {58, 0, 0,
+      PROTOBUF_FIELD_OFFSET(ImageXObject, _impl_.data_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // optional uint32 width = 1 [default = 1];
+    {PROTOBUF_FIELD_OFFSET(ImageXObject, _impl_.width_), _Internal::kHasBitsOffset + 5, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // optional uint32 height = 2 [default = 1];
+    {PROTOBUF_FIELD_OFFSET(ImageXObject, _impl_.height_), _Internal::kHasBitsOffset + 6, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // optional uint32 bits_per_component = 3 [default = 8];
+    {PROTOBUF_FIELD_OFFSET(ImageXObject, _impl_.bits_per_component_), _Internal::kHasBitsOffset + 7, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // optional .pdf_proto.ImageXObject.Filter filter = 4 [default = RAW];
+    {PROTOBUF_FIELD_OFFSET(ImageXObject, _impl_.filter_), _Internal::kHasBitsOffset + 1, 0, (0 | ::_fl::kFcOptional | ::_fl::kEnumRange)},
+    // optional .pdf_proto.ImageXObject.ColorSpace color_space = 5 [default = DEVICE_RGB];
+    {PROTOBUF_FIELD_OFFSET(ImageXObject, _impl_.color_space_), _Internal::kHasBitsOffset + 2, 1, (0 | ::_fl::kFcOptional | ::_fl::kEnumRange)},
+    // optional bool image_mask = 6 [default = false];
+    {PROTOBUF_FIELD_OFFSET(ImageXObject, _impl_.image_mask_), _Internal::kHasBitsOffset + 3, 0, (0 | ::_fl::kFcOptional | ::_fl::kBool)},
+    // optional bytes data = 7;
+    {PROTOBUF_FIELD_OFFSET(ImageXObject, _impl_.data_), _Internal::kHasBitsOffset + 0, 0, (0 | ::_fl::kFcOptional | ::_fl::kBytes | ::_fl::kRepAString)},
+    // optional sint32 length_delta = 8 [default = 0];
+    {PROTOBUF_FIELD_OFFSET(ImageXObject, _impl_.length_delta_), _Internal::kHasBitsOffset + 4, 0, (0 | ::_fl::kFcOptional | ::_fl::kSInt32)},
+  }},
+  {{
+      {0, 6},
+      {0, 2},
+  }},
+  {{
+  }},
+};
+PROTOBUF_NOINLINE void ImageXObject::Clear() {
+// @@protoc_insertion_point(message_clear_start:pdf_proto.ImageXObject)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  cached_has_bits = _impl_._has_bits_[0];
+  if (CheckHasBit(cached_has_bits, 0x00000001U)) {
+    _impl_.data_.ClearNonDefaultToEmpty();
+  }
+  if (BatchCheckHasBit(cached_has_bits, 0x000000feU)) {
+    ::memset(&_impl_.filter_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.length_delta_) -
+        reinterpret_cast<char*>(&_impl_.filter_)) + sizeof(_impl_.length_delta_));
+    _impl_.width_ = 1u;
+    _impl_.height_ = 1u;
+    _impl_.bits_per_component_ = 8u;
+  }
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::uint8_t* PROTOBUF_NONNULL ImageXObject::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const ImageXObject& this_ = static_cast<const ImageXObject&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::uint8_t* PROTOBUF_NONNULL ImageXObject::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const ImageXObject& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  if constexpr (::_pbi::DebugHardenCheckHasBitConsistency()) {
+    this_.CheckHasBitConsistency();
+  }
+  // @@protoc_insertion_point(serialize_to_array_start:pdf_proto.ImageXObject)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  cached_has_bits = this_._impl_._has_bits_[0];
+  // optional uint32 width = 1 [default = 1];
+  if (CheckHasBit(cached_has_bits, 0x00000020U)) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+        1, this_._internal_width(), target);
+  }
+
+  // optional uint32 height = 2 [default = 1];
+  if (CheckHasBit(cached_has_bits, 0x00000040U)) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+        2, this_._internal_height(), target);
+  }
+
+  // optional uint32 bits_per_component = 3 [default = 8];
+  if (CheckHasBit(cached_has_bits, 0x00000080U)) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+        3, this_._internal_bits_per_component(), target);
+  }
+
+  // optional .pdf_proto.ImageXObject.Filter filter = 4 [default = RAW];
+  if (CheckHasBit(cached_has_bits, 0x00000002U)) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteEnumToArray(
+        4, this_._internal_filter(), target);
+  }
+
+  // optional .pdf_proto.ImageXObject.ColorSpace color_space = 5 [default = DEVICE_RGB];
+  if (CheckHasBit(cached_has_bits, 0x00000004U)) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteEnumToArray(
+        5, this_._internal_color_space(), target);
+  }
+
+  // optional bool image_mask = 6 [default = false];
+  if (CheckHasBit(cached_has_bits, 0x00000008U)) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteBoolToArray(
+        6, this_._internal_image_mask(), target);
+  }
+
+  // optional bytes data = 7;
+  if (CheckHasBit(cached_has_bits, 0x00000001U)) {
+    const ::std::string& _s = this_._internal_data();
+    target = stream->WriteBytesMaybeAliased(7, _s, target);
+  }
+
+  // optional sint32 length_delta = 8 [default = 0];
+  if (CheckHasBit(cached_has_bits, 0x00000010U)) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteSInt32ToArray(
+        8, this_._internal_length_delta(), target);
+  }
+
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:pdf_proto.ImageXObject)
+  return target;
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::size_t ImageXObject::ByteSizeLong(const MessageLite& base) {
+  const ImageXObject& this_ = static_cast<const ImageXObject&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::size_t ImageXObject::ByteSizeLong() const {
+  const ImageXObject& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(message_byte_size_start:pdf_proto.ImageXObject)
+  ::size_t total_size = 0;
+
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
+
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  total_size += static_cast<bool>(0x00000008U & cached_has_bits) * 2;
+  if (BatchCheckHasBit(cached_has_bits, 0x000000f7U)) {
+    // optional bytes data = 7;
+    if (CheckHasBit(cached_has_bits, 0x00000001U)) {
+      total_size += 1 + ::google::protobuf::internal::WireFormatLite::BytesSize(
+                                      this_._internal_data());
+    }
+    // optional .pdf_proto.ImageXObject.Filter filter = 4 [default = RAW];
+    if (CheckHasBit(cached_has_bits, 0x00000002U)) {
+      total_size += 1 +
+                    ::_pbi::WireFormatLite::EnumSize(this_._internal_filter());
+    }
+    // optional .pdf_proto.ImageXObject.ColorSpace color_space = 5 [default = DEVICE_RGB];
+    if (CheckHasBit(cached_has_bits, 0x00000004U)) {
+      total_size += 1 +
+                    ::_pbi::WireFormatLite::EnumSize(this_._internal_color_space());
+    }
+    // optional sint32 length_delta = 8 [default = 0];
+    if (CheckHasBit(cached_has_bits, 0x00000010U)) {
+      total_size += ::_pbi::WireFormatLite::SInt32SizePlusOne(
+          this_._internal_length_delta());
+    }
+    // optional uint32 width = 1 [default = 1];
+    if (CheckHasBit(cached_has_bits, 0x00000020U)) {
+      total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+          this_._internal_width());
+    }
+    // optional uint32 height = 2 [default = 1];
+    if (CheckHasBit(cached_has_bits, 0x00000040U)) {
+      total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+          this_._internal_height());
+    }
+    // optional uint32 bits_per_component = 3 [default = 8];
+    if (CheckHasBit(cached_has_bits, 0x00000080U)) {
+      total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+          this_._internal_bits_per_component());
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
+
+void ImageXObject::MergeImpl(::google::protobuf::MessageLite& to_msg,
+                            const ::google::protobuf::MessageLite& from_msg) {
+   auto* const _this =
+      static_cast<ImageXObject*>(&to_msg);
+  auto& from = static_cast<const ImageXObject&>(from_msg);
+  if constexpr (::_pbi::DebugHardenCheckHasBitConsistency()) {
+    from.CheckHasBitConsistency();
+  }
+  // @@protoc_insertion_point(class_specific_merge_from_start:pdf_proto.ImageXObject)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  cached_has_bits = from._impl_._has_bits_[0];
+  if (BatchCheckHasBit(cached_has_bits, 0x000000ffU)) {
+    if (CheckHasBit(cached_has_bits, 0x00000001U)) {
+      _this->_internal_set_data(from._internal_data());
+    }
+    if (CheckHasBit(cached_has_bits, 0x00000002U)) {
+      _this->_impl_.filter_ = from._impl_.filter_;
+    }
+    if (CheckHasBit(cached_has_bits, 0x00000004U)) {
+      _this->_impl_.color_space_ = from._impl_.color_space_;
+    }
+    if (CheckHasBit(cached_has_bits, 0x00000008U)) {
+      _this->_impl_.image_mask_ = from._impl_.image_mask_;
+    }
+    if (CheckHasBit(cached_has_bits, 0x00000010U)) {
+      _this->_impl_.length_delta_ = from._impl_.length_delta_;
+    }
+    if (CheckHasBit(cached_has_bits, 0x00000020U)) {
+      _this->_impl_.width_ = from._impl_.width_;
+    }
+    if (CheckHasBit(cached_has_bits, 0x00000040U)) {
+      _this->_impl_.height_ = from._impl_.height_;
+    }
+    if (CheckHasBit(cached_has_bits, 0x00000080U)) {
+      _this->_impl_.bits_per_component_ = from._impl_.bits_per_component_;
+    }
+  }
+  _this->_impl_._has_bits_[0] |= cached_has_bits;
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+}
+
+void ImageXObject::CopyFrom(const ImageXObject& from) {
+  // @@protoc_insertion_point(class_specific_copy_from_start:pdf_proto.ImageXObject)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void ImageXObject::InternalSwap(ImageXObject* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+  using ::std::swap;
+  auto* arena = GetArena();
+  ABSL_DCHECK_EQ(arena, other->GetArena());
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.data_, &other->_impl_.data_, arena);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(ImageXObject, _impl_.bits_per_component_)
+      + sizeof(ImageXObject::_impl_.bits_per_component_)
+      - PROTOBUF_FIELD_OFFSET(ImageXObject, _impl_.filter_)>(
+          reinterpret_cast<char*>(&_impl_.filter_),
+          reinterpret_cast<char*>(&other->_impl_.filter_));
+}
+
+::google::protobuf::Metadata ImageXObject::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
 class Page::_Internal {
  public:
   using HasBits =
@@ -3828,7 +4348,8 @@ PROTOBUF_NDEBUG_INLINE Page::Impl_::Impl_(
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         content_streams_{visibility, arena, from.content_streams_},
-        fonts_{visibility, arena, from.fonts_} {}
+        fonts_{visibility, arena, from.fonts_},
+        images_{visibility, arena, from.images_} {}
 
 Page::Page(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
@@ -3859,6 +4380,7 @@ PROTOBUF_NDEBUG_INLINE Page::Impl_::Impl_(
       : _cached_size_{0},
         content_streams_{visibility, arena},
         fonts_{visibility, arena},
+        images_{visibility, arena},
         width_{612},
         height_{792} {}
 
@@ -3893,6 +4415,10 @@ constexpr auto Page::InternalNewImpl_() {
                   ::google::protobuf::Message::internal_visibility()),
       PROTOBUF_FIELD_OFFSET(Page, _impl_.fonts_) +
           decltype(Page::_impl_.fonts_)::
+              InternalGetArenaOffset(
+                  ::google::protobuf::Message::internal_visibility()),
+      PROTOBUF_FIELD_OFFSET(Page, _impl_.images_) +
+          decltype(Page::_impl_.images_)::
               InternalGetArenaOffset(
                   ::google::protobuf::Message::internal_visibility()),
   });
@@ -3939,17 +4465,17 @@ Page::GetClassData() const {
   return Page_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<3, 5, 2, 0, 2>
+const ::_pbi::TcParseTable<3, 6, 3, 0, 2>
 Page::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(Page, _impl_._has_bits_),
     0, // no _extensions_
-    5, 56,  // max_field_number, fast_idx_mask
+    6, 56,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967264,  // skipmap
+    4294967232,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    5,  // num_field_entries
-    2,  // num_aux_entries
+    6,  // num_field_entries
+    3,  // num_aux_entries
     offsetof(decltype(_table_), aux_entries),
     Page_class_data_.base(),
     nullptr,  // post_loop_handler
@@ -3961,15 +4487,15 @@ Page::_table_ = {
     {::_pbi::TcParser::MiniParse, {}},
     // optional float width = 1 [default = 612];
     {::_pbi::TcParser::FastF32S1,
-     {13, 3, 0,
+     {13, 4, 0,
       PROTOBUF_FIELD_OFFSET(Page, _impl_.width_)}},
     // optional float height = 2 [default = 792];
     {::_pbi::TcParser::FastF32S1,
-     {21, 4, 0,
+     {21, 5, 0,
       PROTOBUF_FIELD_OFFSET(Page, _impl_.height_)}},
     // optional uint32 parent_ref = 3;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(Page, _impl_.parent_ref_), 2>(),
-     {24, 2, 0,
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(Page, _impl_.parent_ref_), 3>(),
+     {24, 3, 0,
       PROTOBUF_FIELD_OFFSET(Page, _impl_.parent_ref_)}},
     // repeated .pdf_proto.ContentStream content_streams = 4;
     {::_pbi::TcParser::FastMtR1,
@@ -3979,25 +4505,31 @@ Page::_table_ = {
     {::_pbi::TcParser::FastMtR1,
      {42, 1, 1,
       PROTOBUF_FIELD_OFFSET(Page, _impl_.fonts_)}},
-    {::_pbi::TcParser::MiniParse, {}},
+    // repeated .pdf_proto.ImageXObject images = 6;
+    {::_pbi::TcParser::FastMtR1,
+     {50, 2, 2,
+      PROTOBUF_FIELD_OFFSET(Page, _impl_.images_)}},
     {::_pbi::TcParser::MiniParse, {}},
   }}, {{
     65535, 65535
   }}, {{
     // optional float width = 1 [default = 612];
-    {PROTOBUF_FIELD_OFFSET(Page, _impl_.width_), _Internal::kHasBitsOffset + 3, 0, (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
+    {PROTOBUF_FIELD_OFFSET(Page, _impl_.width_), _Internal::kHasBitsOffset + 4, 0, (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
     // optional float height = 2 [default = 792];
-    {PROTOBUF_FIELD_OFFSET(Page, _impl_.height_), _Internal::kHasBitsOffset + 4, 0, (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
+    {PROTOBUF_FIELD_OFFSET(Page, _impl_.height_), _Internal::kHasBitsOffset + 5, 0, (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
     // optional uint32 parent_ref = 3;
-    {PROTOBUF_FIELD_OFFSET(Page, _impl_.parent_ref_), _Internal::kHasBitsOffset + 2, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    {PROTOBUF_FIELD_OFFSET(Page, _impl_.parent_ref_), _Internal::kHasBitsOffset + 3, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
     // repeated .pdf_proto.ContentStream content_streams = 4;
     {PROTOBUF_FIELD_OFFSET(Page, _impl_.content_streams_), _Internal::kHasBitsOffset + 0, 0, (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
     // repeated .pdf_proto.Font fonts = 5;
     {PROTOBUF_FIELD_OFFSET(Page, _impl_.fonts_), _Internal::kHasBitsOffset + 1, 1, (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
+    // repeated .pdf_proto.ImageXObject images = 6;
+    {PROTOBUF_FIELD_OFFSET(Page, _impl_.images_), _Internal::kHasBitsOffset + 2, 2, (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
   }},
   {{
       {::_pbi::TcParser::GetTable<::pdf_proto::ContentStream>()},
       {::_pbi::TcParser::GetTable<::pdf_proto::Font>()},
+      {::_pbi::TcParser::GetTable<::pdf_proto::ImageXObject>()},
   }},
   {{
   }},
@@ -4010,15 +4542,18 @@ PROTOBUF_NOINLINE void Page::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if (BatchCheckHasBit(cached_has_bits, 0x00000003U)) {
+  if (BatchCheckHasBit(cached_has_bits, 0x00000007U)) {
     if (CheckHasBitForRepeated(cached_has_bits, 0x00000001U)) {
       _impl_.content_streams_.Clear();
     }
     if (CheckHasBitForRepeated(cached_has_bits, 0x00000002U)) {
       _impl_.fonts_.Clear();
     }
+    if (CheckHasBitForRepeated(cached_has_bits, 0x00000004U)) {
+      _impl_.images_.Clear();
+    }
   }
-  if (BatchCheckHasBit(cached_has_bits, 0x0000001cU)) {
+  if (BatchCheckHasBit(cached_has_bits, 0x00000038U)) {
     _impl_.parent_ref_ = 0u;
     _impl_.width_ = 612;
     _impl_.height_ = 792;
@@ -4047,21 +4582,21 @@ PROTOBUF_NOINLINE void Page::Clear() {
 
   cached_has_bits = this_._impl_._has_bits_[0];
   // optional float width = 1 [default = 612];
-  if (CheckHasBit(cached_has_bits, 0x00000008U)) {
+  if (CheckHasBit(cached_has_bits, 0x00000010U)) {
     target = stream->EnsureSpace(target);
     target = ::_pbi::WireFormatLite::WriteFloatToArray(
         1, this_._internal_width(), target);
   }
 
   // optional float height = 2 [default = 792];
-  if (CheckHasBit(cached_has_bits, 0x00000010U)) {
+  if (CheckHasBit(cached_has_bits, 0x00000020U)) {
     target = stream->EnsureSpace(target);
     target = ::_pbi::WireFormatLite::WriteFloatToArray(
         2, this_._internal_height(), target);
   }
 
   // optional uint32 parent_ref = 3;
-  if (CheckHasBit(cached_has_bits, 0x00000004U)) {
+  if (CheckHasBit(cached_has_bits, 0x00000008U)) {
     target = stream->EnsureSpace(target);
     target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
         3, this_._internal_parent_ref(), target);
@@ -4093,6 +4628,19 @@ PROTOBUF_NOINLINE void Page::Clear() {
     }
   }
 
+  // repeated .pdf_proto.ImageXObject images = 6;
+  if (CheckHasBitForRepeated(cached_has_bits, 0x00000004U)) {
+    for (unsigned i = 0, n = static_cast<unsigned>(
+                             this_._internal_images_size());
+         i < n; i++) {
+      const auto& repfield = this_._internal_images().Get(i);
+      target =
+          ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+              6, repfield, repfield.GetCachedSize(),
+              target, stream);
+    }
+  }
+
   if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
     target =
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -4118,8 +4666,8 @@ PROTOBUF_NOINLINE void Page::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  total_size += ::absl::popcount(0x00000018U & cached_has_bits) * 5;
-  if (BatchCheckHasBit(cached_has_bits, 0x00000007U)) {
+  total_size += ::absl::popcount(0x00000030U & cached_has_bits) * 5;
+  if (BatchCheckHasBit(cached_has_bits, 0x0000000fU)) {
     // repeated .pdf_proto.ContentStream content_streams = 4;
     if (CheckHasBitForRepeated(cached_has_bits, 0x00000001U)) {
       total_size += 1UL * this_._internal_content_streams_size();
@@ -4134,8 +4682,15 @@ PROTOBUF_NOINLINE void Page::Clear() {
         total_size += ::google::protobuf::internal::WireFormatLite::MessageSize(msg);
       }
     }
+    // repeated .pdf_proto.ImageXObject images = 6;
+    if (CheckHasBitForRepeated(cached_has_bits, 0x00000004U)) {
+      total_size += 1UL * this_._internal_images_size();
+      for (const auto& msg : this_._internal_images()) {
+        total_size += ::google::protobuf::internal::WireFormatLite::MessageSize(msg);
+      }
+    }
     // optional uint32 parent_ref = 3;
-    if (CheckHasBit(cached_has_bits, 0x00000004U)) {
+    if (CheckHasBit(cached_has_bits, 0x00000008U)) {
       total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
           this_._internal_parent_ref());
     }
@@ -4159,7 +4714,7 @@ void Page::MergeImpl(::google::protobuf::MessageLite& to_msg,
   (void)cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if (BatchCheckHasBit(cached_has_bits, 0x0000001fU)) {
+  if (BatchCheckHasBit(cached_has_bits, 0x0000003fU)) {
     if (CheckHasBitForRepeated(cached_has_bits, 0x00000001U)) {
       _this->_internal_mutable_content_streams()->InternalMergeFromWithArena(
           ::google::protobuf::MessageLite::internal_visibility(), arena,
@@ -4170,13 +4725,18 @@ void Page::MergeImpl(::google::protobuf::MessageLite& to_msg,
           ::google::protobuf::MessageLite::internal_visibility(), arena,
           from._internal_fonts());
     }
-    if (CheckHasBit(cached_has_bits, 0x00000004U)) {
-      _this->_impl_.parent_ref_ = from._impl_.parent_ref_;
+    if (CheckHasBitForRepeated(cached_has_bits, 0x00000004U)) {
+      _this->_internal_mutable_images()->InternalMergeFromWithArena(
+          ::google::protobuf::MessageLite::internal_visibility(), arena,
+          from._internal_images());
     }
     if (CheckHasBit(cached_has_bits, 0x00000008U)) {
-      _this->_impl_.width_ = from._impl_.width_;
+      _this->_impl_.parent_ref_ = from._impl_.parent_ref_;
     }
     if (CheckHasBit(cached_has_bits, 0x00000010U)) {
+      _this->_impl_.width_ = from._impl_.width_;
+    }
+    if (CheckHasBit(cached_has_bits, 0x00000020U)) {
       _this->_impl_.height_ = from._impl_.height_;
     }
   }
@@ -4199,6 +4759,7 @@ void Page::InternalSwap(Page* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
   _impl_.content_streams_.InternalSwap(&other->_impl_.content_streams_);
   _impl_.fonts_.InternalSwap(&other->_impl_.fonts_);
+  _impl_.images_.InternalSwap(&other->_impl_.images_);
   ::google::protobuf::internal::memswap<
       PROTOBUF_FIELD_OFFSET(Page, _impl_.height_)
       + sizeof(Page::_impl_.height_)

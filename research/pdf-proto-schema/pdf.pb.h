@@ -64,6 +64,10 @@ enum Font_CidFont_CidSubtype : int;
 extern const uint32_t Font_CidFont_CidSubtype_internal_data_[];
 enum Font_Subtype : int;
 extern const uint32_t Font_Subtype_internal_data_[];
+enum ImageXObject_ColorSpace : int;
+extern const uint32_t ImageXObject_ColorSpace_internal_data_[];
+enum ImageXObject_Filter : int;
+extern const uint32_t ImageXObject_Filter_internal_data_[];
 class Catalog;
 struct CatalogDefaultTypeInternal;
 extern CatalogDefaultTypeInternal _Catalog_default_instance_;
@@ -92,6 +96,10 @@ class Font_EncodingDiff;
 struct Font_EncodingDiffDefaultTypeInternal;
 extern Font_EncodingDiffDefaultTypeInternal _Font_EncodingDiff_default_instance_;
 extern const ::google::protobuf::internal::ClassDataFull Font_EncodingDiff_class_data_;
+class ImageXObject;
+struct ImageXObjectDefaultTypeInternal;
+extern ImageXObjectDefaultTypeInternal _ImageXObject_default_instance_;
+extern const ::google::protobuf::internal::ClassDataFull ImageXObject_class_data_;
 class IndirectObject;
 struct IndirectObjectDefaultTypeInternal;
 extern IndirectObjectDefaultTypeInternal _IndirectObject_default_instance_;
@@ -126,6 +134,12 @@ internal::EnumTraitsT<::pdf_proto::Font_CidFont_CidSubtype_internal_data_>
 template <>
 internal::EnumTraitsT<::pdf_proto::Font_Subtype_internal_data_>
     internal::EnumTraitsImpl::value<::pdf_proto::Font_Subtype>;
+template <>
+internal::EnumTraitsT<::pdf_proto::ImageXObject_ColorSpace_internal_data_>
+    internal::EnumTraitsImpl::value<::pdf_proto::ImageXObject_ColorSpace>;
+template <>
+internal::EnumTraitsT<::pdf_proto::ImageXObject_Filter_internal_data_>
+    internal::EnumTraitsImpl::value<::pdf_proto::ImageXObject_Filter>;
 }  // namespace protobuf
 }  // namespace google
 
@@ -294,6 +308,76 @@ inline const ::std::string& Font_BaseEncoding_Name(Font_BaseEncoding value) {
 inline bool Font_BaseEncoding_Parse(
     ::absl::string_view name, Font_BaseEncoding* PROTOBUF_NONNULL value) {
   return ::google::protobuf::internal::ParseNamedEnum<Font_BaseEncoding>(Font_BaseEncoding_descriptor(), name,
+                                           value);
+}
+enum ImageXObject_Filter : int {
+  ImageXObject_Filter_RAW = 0,
+  ImageXObject_Filter_FLATE = 1,
+  ImageXObject_Filter_DCT = 2,
+  ImageXObject_Filter_JPX = 3,
+  ImageXObject_Filter_CCITT = 4,
+  ImageXObject_Filter_LZW = 5,
+  ImageXObject_Filter_RUNLENGTH = 6,
+};
+
+extern const uint32_t ImageXObject_Filter_internal_data_[];
+inline constexpr ImageXObject_Filter ImageXObject_Filter_Filter_MIN =
+    static_cast<ImageXObject_Filter>(0);
+inline constexpr ImageXObject_Filter ImageXObject_Filter_Filter_MAX =
+    static_cast<ImageXObject_Filter>(6);
+inline bool ImageXObject_Filter_IsValid(int value) {
+  return 0 <= value && value <= 6;
+}
+inline constexpr int ImageXObject_Filter_Filter_ARRAYSIZE = 6 + 1;
+const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL ImageXObject_Filter_descriptor();
+template <typename T>
+const ::std::string& ImageXObject_Filter_Name(T value) {
+  static_assert(::std::is_same<T, ImageXObject_Filter>::value ||
+                    ::std::is_integral<T>::value,
+                "Incorrect type passed to Filter_Name().");
+  return ImageXObject_Filter_Name(static_cast<ImageXObject_Filter>(value));
+}
+template <>
+inline const ::std::string& ImageXObject_Filter_Name(ImageXObject_Filter value) {
+  return ::google::protobuf::internal::NameOfDenseEnum<ImageXObject_Filter_descriptor, 0, 6>(
+      static_cast<int>(value));
+}
+inline bool ImageXObject_Filter_Parse(
+    ::absl::string_view name, ImageXObject_Filter* PROTOBUF_NONNULL value) {
+  return ::google::protobuf::internal::ParseNamedEnum<ImageXObject_Filter>(ImageXObject_Filter_descriptor(), name,
+                                           value);
+}
+enum ImageXObject_ColorSpace : int {
+  ImageXObject_ColorSpace_DEVICE_RGB = 0,
+  ImageXObject_ColorSpace_DEVICE_GRAY = 1,
+  ImageXObject_ColorSpace_DEVICE_CMYK = 2,
+};
+
+extern const uint32_t ImageXObject_ColorSpace_internal_data_[];
+inline constexpr ImageXObject_ColorSpace ImageXObject_ColorSpace_ColorSpace_MIN =
+    static_cast<ImageXObject_ColorSpace>(0);
+inline constexpr ImageXObject_ColorSpace ImageXObject_ColorSpace_ColorSpace_MAX =
+    static_cast<ImageXObject_ColorSpace>(2);
+inline bool ImageXObject_ColorSpace_IsValid(int value) {
+  return 0 <= value && value <= 2;
+}
+inline constexpr int ImageXObject_ColorSpace_ColorSpace_ARRAYSIZE = 2 + 1;
+const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL ImageXObject_ColorSpace_descriptor();
+template <typename T>
+const ::std::string& ImageXObject_ColorSpace_Name(T value) {
+  static_assert(::std::is_same<T, ImageXObject_ColorSpace>::value ||
+                    ::std::is_integral<T>::value,
+                "Incorrect type passed to ColorSpace_Name().");
+  return ImageXObject_ColorSpace_Name(static_cast<ImageXObject_ColorSpace>(value));
+}
+template <>
+inline const ::std::string& ImageXObject_ColorSpace_Name(ImageXObject_ColorSpace value) {
+  return ::google::protobuf::internal::NameOfDenseEnum<ImageXObject_ColorSpace_descriptor, 0, 2>(
+      static_cast<int>(value));
+}
+inline bool ImageXObject_ColorSpace_Parse(
+    ::absl::string_view name, ImageXObject_ColorSpace* PROTOBUF_NONNULL value) {
+  return ::google::protobuf::internal::ParseNamedEnum<ImageXObject_ColorSpace>(ImageXObject_ColorSpace_descriptor(), name,
                                            value);
 }
 
@@ -498,6 +582,339 @@ class PageTree final : public ::google::protobuf::Message
 };
 
 extern const ::google::protobuf::internal::ClassDataFull PageTree_class_data_;
+// -------------------------------------------------------------------
+
+class ImageXObject final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:pdf_proto.ImageXObject) */ {
+ public:
+  inline ImageXObject() : ImageXObject(nullptr) {}
+  ~ImageXObject() PROTOBUF_FINAL;
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+  void operator delete(ImageXObject* PROTOBUF_NONNULL msg, ::std::destroying_delete_t) {
+    SharedDtor(*msg);
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(ImageXObject));
+  }
+#endif
+
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR ImageXObject(::google::protobuf::internal::ConstantInitialized);
+
+  inline ImageXObject(const ImageXObject& from) : ImageXObject(nullptr, from) {}
+  inline ImageXObject(ImageXObject&& from) noexcept
+      : ImageXObject(nullptr, ::std::move(from)) {}
+  inline ImageXObject& operator=(const ImageXObject& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ImageXObject& operator=(ImageXObject&& from) noexcept {
+    if (this == &from) return *this;
+    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const ImageXObject& default_instance() {
+    return *reinterpret_cast<const ImageXObject*>(
+        &_ImageXObject_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 8;
+  friend void swap(ImageXObject& a, ImageXObject& b) { a.Swap(&b); }
+  inline void Swap(ImageXObject* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ImageXObject* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  ImageXObject* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<ImageXObject>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const ImageXObject& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const ImageXObject& from) { ImageXObject::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
+
+  public:
+  bool IsInitialized() const {
+    return true;
+  }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(ImageXObject* PROTOBUF_NONNULL other);
+ private:
+  template <typename T>
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
+  static ::absl::string_view FullMessageName() { return "pdf_proto.ImageXObject"; }
+
+  explicit ImageXObject(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  ImageXObject(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const ImageXObject& from);
+  ImageXObject(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, ImageXObject&& from) noexcept
+      : ImageXObject(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static constexpr auto InternalNewImpl_();
+
+ public:
+  static constexpr auto InternalGenerateClassData_();
+
+  ::google::protobuf::Metadata GetMetadata() const;
+  // nested types ----------------------------------------------------
+  using Filter = ImageXObject_Filter;
+  static constexpr Filter RAW = ImageXObject_Filter_RAW;
+  static constexpr Filter FLATE = ImageXObject_Filter_FLATE;
+  static constexpr Filter DCT = ImageXObject_Filter_DCT;
+  static constexpr Filter JPX = ImageXObject_Filter_JPX;
+  static constexpr Filter CCITT = ImageXObject_Filter_CCITT;
+  static constexpr Filter LZW = ImageXObject_Filter_LZW;
+  static constexpr Filter RUNLENGTH = ImageXObject_Filter_RUNLENGTH;
+  static inline bool Filter_IsValid(int value) {
+    return ImageXObject_Filter_IsValid(value);
+  }
+  static constexpr Filter Filter_MIN = ImageXObject_Filter_Filter_MIN;
+  static constexpr Filter Filter_MAX = ImageXObject_Filter_Filter_MAX;
+  static constexpr int Filter_ARRAYSIZE = ImageXObject_Filter_Filter_ARRAYSIZE;
+  static inline const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL Filter_descriptor() {
+    return ImageXObject_Filter_descriptor();
+  }
+  template <typename T>
+  static inline const ::std::string& Filter_Name(T value) {
+    return ImageXObject_Filter_Name(value);
+  }
+  static inline bool Filter_Parse(
+      ::absl::string_view name, Filter* PROTOBUF_NONNULL value) {
+    return ImageXObject_Filter_Parse(name, value);
+  }
+  using ColorSpace = ImageXObject_ColorSpace;
+  static constexpr ColorSpace DEVICE_RGB = ImageXObject_ColorSpace_DEVICE_RGB;
+  static constexpr ColorSpace DEVICE_GRAY = ImageXObject_ColorSpace_DEVICE_GRAY;
+  static constexpr ColorSpace DEVICE_CMYK = ImageXObject_ColorSpace_DEVICE_CMYK;
+  static inline bool ColorSpace_IsValid(int value) {
+    return ImageXObject_ColorSpace_IsValid(value);
+  }
+  static constexpr ColorSpace ColorSpace_MIN = ImageXObject_ColorSpace_ColorSpace_MIN;
+  static constexpr ColorSpace ColorSpace_MAX = ImageXObject_ColorSpace_ColorSpace_MAX;
+  static constexpr int ColorSpace_ARRAYSIZE = ImageXObject_ColorSpace_ColorSpace_ARRAYSIZE;
+  static inline const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL ColorSpace_descriptor() {
+    return ImageXObject_ColorSpace_descriptor();
+  }
+  template <typename T>
+  static inline const ::std::string& ColorSpace_Name(T value) {
+    return ImageXObject_ColorSpace_Name(value);
+  }
+  static inline bool ColorSpace_Parse(
+      ::absl::string_view name, ColorSpace* PROTOBUF_NONNULL value) {
+    return ImageXObject_ColorSpace_Parse(name, value);
+  }
+
+  // accessors -------------------------------------------------------
+  enum : int {
+    kDataFieldNumber = 7,
+    kFilterFieldNumber = 4,
+    kColorSpaceFieldNumber = 5,
+    kImageMaskFieldNumber = 6,
+    kLengthDeltaFieldNumber = 8,
+    kWidthFieldNumber = 1,
+    kHeightFieldNumber = 2,
+    kBitsPerComponentFieldNumber = 3,
+  };
+  // optional bytes data = 7;
+  bool has_data() const;
+  void clear_data() ;
+  const ::std::string& data() const;
+  template <typename Arg_ = const ::std::string&, typename... Args_>
+  void set_data(Arg_&& arg, Args_... args);
+  ::std::string* PROTOBUF_NONNULL mutable_data();
+  [[nodiscard]] ::std::string* PROTOBUF_NULLABLE release_data();
+  void set_allocated_data(::std::string* PROTOBUF_NULLABLE value);
+
+  private:
+  const ::std::string& _internal_data() const;
+  PROTOBUF_ALWAYS_INLINE void _internal_set_data(const ::std::string& value);
+  ::std::string* PROTOBUF_NONNULL _internal_mutable_data();
+
+  public:
+  // optional .pdf_proto.ImageXObject.Filter filter = 4 [default = RAW];
+  bool has_filter() const;
+  void clear_filter() ;
+  ::pdf_proto::ImageXObject_Filter filter() const;
+  void set_filter(::pdf_proto::ImageXObject_Filter value);
+
+  private:
+  ::pdf_proto::ImageXObject_Filter _internal_filter() const;
+  void _internal_set_filter(::pdf_proto::ImageXObject_Filter value);
+
+  public:
+  // optional .pdf_proto.ImageXObject.ColorSpace color_space = 5 [default = DEVICE_RGB];
+  bool has_color_space() const;
+  void clear_color_space() ;
+  ::pdf_proto::ImageXObject_ColorSpace color_space() const;
+  void set_color_space(::pdf_proto::ImageXObject_ColorSpace value);
+
+  private:
+  ::pdf_proto::ImageXObject_ColorSpace _internal_color_space() const;
+  void _internal_set_color_space(::pdf_proto::ImageXObject_ColorSpace value);
+
+  public:
+  // optional bool image_mask = 6 [default = false];
+  bool has_image_mask() const;
+  void clear_image_mask() ;
+  bool image_mask() const;
+  void set_image_mask(bool value);
+
+  private:
+  bool _internal_image_mask() const;
+  void _internal_set_image_mask(bool value);
+
+  public:
+  // optional sint32 length_delta = 8 [default = 0];
+  bool has_length_delta() const;
+  void clear_length_delta() ;
+  ::int32_t length_delta() const;
+  void set_length_delta(::int32_t value);
+
+  private:
+  ::int32_t _internal_length_delta() const;
+  void _internal_set_length_delta(::int32_t value);
+
+  public:
+  // optional uint32 width = 1 [default = 1];
+  bool has_width() const;
+  void clear_width() ;
+  ::uint32_t width() const;
+  void set_width(::uint32_t value);
+
+  private:
+  ::uint32_t _internal_width() const;
+  void _internal_set_width(::uint32_t value);
+
+  public:
+  // optional uint32 height = 2 [default = 1];
+  bool has_height() const;
+  void clear_height() ;
+  ::uint32_t height() const;
+  void set_height(::uint32_t value);
+
+  private:
+  ::uint32_t _internal_height() const;
+  void _internal_set_height(::uint32_t value);
+
+  public:
+  // optional uint32 bits_per_component = 3 [default = 8];
+  bool has_bits_per_component() const;
+  void clear_bits_per_component() ;
+  ::uint32_t bits_per_component() const;
+  void set_bits_per_component(::uint32_t value);
+
+  private:
+  ::uint32_t _internal_bits_per_component() const;
+  void _internal_set_bits_per_component(::uint32_t value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:pdf_proto.ImageXObject)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<3, 8,
+                                   2, 0,
+                                   2>
+      _table_;
+
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const ImageXObject& from_msg);
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    ::google::protobuf::internal::ArenaStringPtr data_;
+    int filter_;
+    int color_space_;
+    bool image_mask_;
+    ::int32_t length_delta_;
+    ::uint32_t width_;
+    ::uint32_t height_;
+    ::uint32_t bits_per_component_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_pdf_2eproto;
+};
+
+extern const ::google::protobuf::internal::ClassDataFull ImageXObject_class_data_;
 // -------------------------------------------------------------------
 
 class Font_EncodingDiff final : public ::google::protobuf::Message
@@ -2532,7 +2949,7 @@ class Page final : public ::google::protobuf::Message
     return *reinterpret_cast<const Page*>(
         &_Page_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 8;
+  static constexpr int kIndexInFileMessages = 9;
   friend void swap(Page& a, Page& b) { a.Swap(&b); }
   inline void Swap(Page* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -2621,6 +3038,7 @@ class Page final : public ::google::protobuf::Message
   enum : int {
     kContentStreamsFieldNumber = 4,
     kFontsFieldNumber = 5,
+    kImagesFieldNumber = 6,
     kParentRefFieldNumber = 3,
     kWidthFieldNumber = 1,
     kHeightFieldNumber = 2,
@@ -2659,6 +3077,23 @@ class Page final : public ::google::protobuf::Message
   const ::pdf_proto::Font& fonts(int index) const;
   ::pdf_proto::Font* PROTOBUF_NONNULL add_fonts();
   const ::google::protobuf::RepeatedPtrField<::pdf_proto::Font>& fonts() const;
+  // repeated .pdf_proto.ImageXObject images = 6;
+  int images_size() const;
+  private:
+  int _internal_images_size() const;
+
+  public:
+  void clear_images() ;
+  ::pdf_proto::ImageXObject* PROTOBUF_NONNULL mutable_images(int index);
+  ::google::protobuf::RepeatedPtrField<::pdf_proto::ImageXObject>* PROTOBUF_NONNULL mutable_images();
+
+  private:
+  const ::google::protobuf::RepeatedPtrField<::pdf_proto::ImageXObject>& _internal_images() const;
+  ::google::protobuf::RepeatedPtrField<::pdf_proto::ImageXObject>* PROTOBUF_NONNULL _internal_mutable_images();
+  public:
+  const ::pdf_proto::ImageXObject& images(int index) const;
+  ::pdf_proto::ImageXObject* PROTOBUF_NONNULL add_images();
+  const ::google::protobuf::RepeatedPtrField<::pdf_proto::ImageXObject>& images() const;
   // optional uint32 parent_ref = 3;
   bool has_parent_ref() const;
   void clear_parent_ref() ;
@@ -2696,8 +3131,8 @@ class Page final : public ::google::protobuf::Message
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<3, 5,
-                                   2, 0,
+  static const ::google::protobuf::internal::TcParseTable<3, 6,
+                                   3, 0,
                                    2>
       _table_;
 
@@ -2720,6 +3155,7 @@ class Page final : public ::google::protobuf::Message
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::google::protobuf::RepeatedPtrField< ::pdf_proto::ContentStream > content_streams_;
     ::google::protobuf::RepeatedPtrField< ::pdf_proto::Font > fonts_;
+    ::google::protobuf::RepeatedPtrField< ::pdf_proto::ImageXObject > images_;
     ::uint32_t parent_ref_;
     float width_;
     float height_;
@@ -2787,7 +3223,7 @@ class PdfDocument final : public ::google::protobuf::Message
     return *reinterpret_cast<const PdfDocument*>(
         &_PdfDocument_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 10;
+  static constexpr int kIndexInFileMessages = 11;
   friend void swap(PdfDocument& a, PdfDocument& b) { a.Swap(&b); }
   inline void Swap(PdfDocument* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -2990,7 +3426,7 @@ class IndirectObject final : public ::google::protobuf::Message
     kPage = 4,
     BODY_NOT_SET = 0,
   };
-  static constexpr int kIndexInFileMessages = 9;
+  static constexpr int kIndexInFileMessages = 10;
   friend void swap(IndirectObject& a, IndirectObject& b) { a.Swap(&b); }
   inline void Swap(IndirectObject* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -5226,18 +5662,300 @@ inline void Font::set_allocated_cid(::pdf_proto::Font_CidFont* PROTOBUF_NULLABLE
 
 // -------------------------------------------------------------------
 
+// ImageXObject
+
+// optional uint32 width = 1 [default = 1];
+inline bool ImageXObject::has_width() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000020U);
+  return value;
+}
+inline void ImageXObject::clear_width() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.width_ = 1u;
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000020U);
+}
+inline ::uint32_t ImageXObject::width() const {
+  // @@protoc_insertion_point(field_get:pdf_proto.ImageXObject.width)
+  return _internal_width();
+}
+inline void ImageXObject::set_width(::uint32_t value) {
+  _internal_set_width(value);
+  SetHasBit(_impl_._has_bits_[0], 0x00000020U);
+  // @@protoc_insertion_point(field_set:pdf_proto.ImageXObject.width)
+}
+inline ::uint32_t ImageXObject::_internal_width() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.width_;
+}
+inline void ImageXObject::_internal_set_width(::uint32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.width_ = value;
+}
+
+// optional uint32 height = 2 [default = 1];
+inline bool ImageXObject::has_height() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000040U);
+  return value;
+}
+inline void ImageXObject::clear_height() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.height_ = 1u;
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000040U);
+}
+inline ::uint32_t ImageXObject::height() const {
+  // @@protoc_insertion_point(field_get:pdf_proto.ImageXObject.height)
+  return _internal_height();
+}
+inline void ImageXObject::set_height(::uint32_t value) {
+  _internal_set_height(value);
+  SetHasBit(_impl_._has_bits_[0], 0x00000040U);
+  // @@protoc_insertion_point(field_set:pdf_proto.ImageXObject.height)
+}
+inline ::uint32_t ImageXObject::_internal_height() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.height_;
+}
+inline void ImageXObject::_internal_set_height(::uint32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.height_ = value;
+}
+
+// optional uint32 bits_per_component = 3 [default = 8];
+inline bool ImageXObject::has_bits_per_component() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000080U);
+  return value;
+}
+inline void ImageXObject::clear_bits_per_component() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.bits_per_component_ = 8u;
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000080U);
+}
+inline ::uint32_t ImageXObject::bits_per_component() const {
+  // @@protoc_insertion_point(field_get:pdf_proto.ImageXObject.bits_per_component)
+  return _internal_bits_per_component();
+}
+inline void ImageXObject::set_bits_per_component(::uint32_t value) {
+  _internal_set_bits_per_component(value);
+  SetHasBit(_impl_._has_bits_[0], 0x00000080U);
+  // @@protoc_insertion_point(field_set:pdf_proto.ImageXObject.bits_per_component)
+}
+inline ::uint32_t ImageXObject::_internal_bits_per_component() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.bits_per_component_;
+}
+inline void ImageXObject::_internal_set_bits_per_component(::uint32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.bits_per_component_ = value;
+}
+
+// optional .pdf_proto.ImageXObject.Filter filter = 4 [default = RAW];
+inline bool ImageXObject::has_filter() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000002U);
+  return value;
+}
+inline void ImageXObject::clear_filter() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.filter_ = 0;
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000002U);
+}
+inline ::pdf_proto::ImageXObject_Filter ImageXObject::filter() const {
+  // @@protoc_insertion_point(field_get:pdf_proto.ImageXObject.filter)
+  return _internal_filter();
+}
+inline void ImageXObject::set_filter(::pdf_proto::ImageXObject_Filter value) {
+  _internal_set_filter(value);
+  SetHasBit(_impl_._has_bits_[0], 0x00000002U);
+  // @@protoc_insertion_point(field_set:pdf_proto.ImageXObject.filter)
+}
+inline ::pdf_proto::ImageXObject_Filter ImageXObject::_internal_filter() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return static_cast<::pdf_proto::ImageXObject_Filter>(_impl_.filter_);
+}
+inline void ImageXObject::_internal_set_filter(::pdf_proto::ImageXObject_Filter value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+
+                                          assert(::google::protobuf::internal::ValidateEnum(
+                                              value, ::pdf_proto::ImageXObject_Filter_internal_data_));
+                                          _impl_.filter_ = value;
+}
+
+// optional .pdf_proto.ImageXObject.ColorSpace color_space = 5 [default = DEVICE_RGB];
+inline bool ImageXObject::has_color_space() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000004U);
+  return value;
+}
+inline void ImageXObject::clear_color_space() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.color_space_ = 0;
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000004U);
+}
+inline ::pdf_proto::ImageXObject_ColorSpace ImageXObject::color_space() const {
+  // @@protoc_insertion_point(field_get:pdf_proto.ImageXObject.color_space)
+  return _internal_color_space();
+}
+inline void ImageXObject::set_color_space(::pdf_proto::ImageXObject_ColorSpace value) {
+  _internal_set_color_space(value);
+  SetHasBit(_impl_._has_bits_[0], 0x00000004U);
+  // @@protoc_insertion_point(field_set:pdf_proto.ImageXObject.color_space)
+}
+inline ::pdf_proto::ImageXObject_ColorSpace ImageXObject::_internal_color_space() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return static_cast<::pdf_proto::ImageXObject_ColorSpace>(_impl_.color_space_);
+}
+inline void ImageXObject::_internal_set_color_space(::pdf_proto::ImageXObject_ColorSpace value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+
+                                          assert(::google::protobuf::internal::ValidateEnum(
+                                              value, ::pdf_proto::ImageXObject_ColorSpace_internal_data_));
+                                          _impl_.color_space_ = value;
+}
+
+// optional bool image_mask = 6 [default = false];
+inline bool ImageXObject::has_image_mask() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000008U);
+  return value;
+}
+inline void ImageXObject::clear_image_mask() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.image_mask_ = false;
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000008U);
+}
+inline bool ImageXObject::image_mask() const {
+  // @@protoc_insertion_point(field_get:pdf_proto.ImageXObject.image_mask)
+  return _internal_image_mask();
+}
+inline void ImageXObject::set_image_mask(bool value) {
+  _internal_set_image_mask(value);
+  SetHasBit(_impl_._has_bits_[0], 0x00000008U);
+  // @@protoc_insertion_point(field_set:pdf_proto.ImageXObject.image_mask)
+}
+inline bool ImageXObject::_internal_image_mask() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.image_mask_;
+}
+inline void ImageXObject::_internal_set_image_mask(bool value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.image_mask_ = value;
+}
+
+// optional bytes data = 7;
+inline bool ImageXObject::has_data() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000001U);
+  return value;
+}
+inline void ImageXObject::clear_data() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.data_.ClearToEmpty();
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000001U);
+}
+inline const ::std::string& ImageXObject::data() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:pdf_proto.ImageXObject.data)
+  return _internal_data();
+}
+template <typename Arg_, typename... Args_>
+PROTOBUF_ALWAYS_INLINE void ImageXObject::set_data(Arg_&& arg, Args_... args) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  SetHasBit(_impl_._has_bits_[0], 0x00000001U);
+  _impl_.data_.SetBytes(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:pdf_proto.ImageXObject.data)
+}
+inline ::std::string* PROTOBUF_NONNULL ImageXObject::mutable_data()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  SetHasBit(_impl_._has_bits_[0], 0x00000001U);
+  ::std::string* _s = _internal_mutable_data();
+  // @@protoc_insertion_point(field_mutable:pdf_proto.ImageXObject.data)
+  return _s;
+}
+inline const ::std::string& ImageXObject::_internal_data() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.data_.Get();
+}
+inline void ImageXObject::_internal_set_data(const ::std::string& value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.data_.Set(value, GetArena());
+}
+inline ::std::string* PROTOBUF_NONNULL ImageXObject::_internal_mutable_data() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _impl_.data_.Mutable( GetArena());
+}
+inline ::std::string* PROTOBUF_NULLABLE ImageXObject::release_data() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:pdf_proto.ImageXObject.data)
+  if (!CheckHasBit(_impl_._has_bits_[0], 0x00000001U)) {
+    return nullptr;
+  }
+  ClearHasBit(_impl_._has_bits_[0], 0x00000001U);
+  auto* released = _impl_.data_.Release();
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString()) {
+    _impl_.data_.Set("", GetArena());
+  }
+  return released;
+}
+inline void ImageXObject::set_allocated_data(::std::string* PROTOBUF_NULLABLE value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (value != nullptr) {
+    SetHasBit(_impl_._has_bits_[0], 0x00000001U);
+  } else {
+    ClearHasBit(_impl_._has_bits_[0], 0x00000001U);
+  }
+  _impl_.data_.SetAllocated(value, GetArena());
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.data_.IsDefault()) {
+    _impl_.data_.Set("", GetArena());
+  }
+  // @@protoc_insertion_point(field_set_allocated:pdf_proto.ImageXObject.data)
+}
+
+// optional sint32 length_delta = 8 [default = 0];
+inline bool ImageXObject::has_length_delta() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000010U);
+  return value;
+}
+inline void ImageXObject::clear_length_delta() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.length_delta_ = 0;
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000010U);
+}
+inline ::int32_t ImageXObject::length_delta() const {
+  // @@protoc_insertion_point(field_get:pdf_proto.ImageXObject.length_delta)
+  return _internal_length_delta();
+}
+inline void ImageXObject::set_length_delta(::int32_t value) {
+  _internal_set_length_delta(value);
+  SetHasBit(_impl_._has_bits_[0], 0x00000010U);
+  // @@protoc_insertion_point(field_set:pdf_proto.ImageXObject.length_delta)
+}
+inline ::int32_t ImageXObject::_internal_length_delta() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.length_delta_;
+}
+inline void ImageXObject::_internal_set_length_delta(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.length_delta_ = value;
+}
+
+// -------------------------------------------------------------------
+
 // Page
 
 // optional float width = 1 [default = 612];
 inline bool Page::has_width() const {
-  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000008U);
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000010U);
   return value;
 }
 inline void Page::clear_width() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.width_ = 612;
   ClearHasBit(_impl_._has_bits_[0],
-                  0x00000008U);
+                  0x00000010U);
 }
 inline float Page::width() const {
   // @@protoc_insertion_point(field_get:pdf_proto.Page.width)
@@ -5245,7 +5963,7 @@ inline float Page::width() const {
 }
 inline void Page::set_width(float value) {
   _internal_set_width(value);
-  SetHasBit(_impl_._has_bits_[0], 0x00000008U);
+  SetHasBit(_impl_._has_bits_[0], 0x00000010U);
   // @@protoc_insertion_point(field_set:pdf_proto.Page.width)
 }
 inline float Page::_internal_width() const {
@@ -5259,14 +5977,14 @@ inline void Page::_internal_set_width(float value) {
 
 // optional float height = 2 [default = 792];
 inline bool Page::has_height() const {
-  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000010U);
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000020U);
   return value;
 }
 inline void Page::clear_height() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.height_ = 792;
   ClearHasBit(_impl_._has_bits_[0],
-                  0x00000010U);
+                  0x00000020U);
 }
 inline float Page::height() const {
   // @@protoc_insertion_point(field_get:pdf_proto.Page.height)
@@ -5274,7 +5992,7 @@ inline float Page::height() const {
 }
 inline void Page::set_height(float value) {
   _internal_set_height(value);
-  SetHasBit(_impl_._has_bits_[0], 0x00000010U);
+  SetHasBit(_impl_._has_bits_[0], 0x00000020U);
   // @@protoc_insertion_point(field_set:pdf_proto.Page.height)
 }
 inline float Page::_internal_height() const {
@@ -5288,14 +6006,14 @@ inline void Page::_internal_set_height(float value) {
 
 // optional uint32 parent_ref = 3;
 inline bool Page::has_parent_ref() const {
-  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000004U);
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000008U);
   return value;
 }
 inline void Page::clear_parent_ref() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.parent_ref_ = 0u;
   ClearHasBit(_impl_._has_bits_[0],
-                  0x00000004U);
+                  0x00000008U);
 }
 inline ::uint32_t Page::parent_ref() const {
   // @@protoc_insertion_point(field_get:pdf_proto.Page.parent_ref)
@@ -5303,7 +6021,7 @@ inline ::uint32_t Page::parent_ref() const {
 }
 inline void Page::set_parent_ref(::uint32_t value) {
   _internal_set_parent_ref(value);
-  SetHasBit(_impl_._has_bits_[0], 0x00000004U);
+  SetHasBit(_impl_._has_bits_[0], 0x00000008U);
   // @@protoc_insertion_point(field_set:pdf_proto.Page.parent_ref)
 }
 inline ::uint32_t Page::_internal_parent_ref() const {
@@ -5425,6 +6143,62 @@ inline ::google::protobuf::RepeatedPtrField<::pdf_proto::Font>* PROTOBUF_NONNULL
 Page::_internal_mutable_fonts() {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return &_impl_.fonts_;
+}
+
+// repeated .pdf_proto.ImageXObject images = 6;
+inline int Page::_internal_images_size() const {
+  return _internal_images().size();
+}
+inline int Page::images_size() const {
+  return _internal_images_size();
+}
+inline void Page::clear_images() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.images_.Clear();
+  ClearHasBitForRepeated(_impl_._has_bits_[0],
+                  0x00000004U);
+}
+inline ::pdf_proto::ImageXObject* PROTOBUF_NONNULL Page::mutable_images(int index)
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable:pdf_proto.Page.images)
+  return _internal_mutable_images()->Mutable(index);
+}
+inline ::google::protobuf::RepeatedPtrField<::pdf_proto::ImageXObject>* PROTOBUF_NONNULL Page::mutable_images()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  SetHasBitForRepeated(_impl_._has_bits_[0], 0x00000004U);
+  // @@protoc_insertion_point(field_mutable_list:pdf_proto.Page.images)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _internal_mutable_images();
+}
+inline const ::pdf_proto::ImageXObject& Page::images(int index) const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:pdf_proto.Page.images)
+  return _internal_images().Get(index);
+}
+inline ::pdf_proto::ImageXObject* PROTOBUF_NONNULL Page::add_images()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::pdf_proto::ImageXObject* _add =
+      _internal_mutable_images()->InternalAddWithArena(
+          ::google::protobuf::MessageLite::internal_visibility(), GetArena());
+  SetHasBitForRepeated(_impl_._has_bits_[0], 0x00000004U);
+  // @@protoc_insertion_point(field_add:pdf_proto.Page.images)
+  return _add;
+}
+inline const ::google::protobuf::RepeatedPtrField<::pdf_proto::ImageXObject>& Page::images() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:pdf_proto.Page.images)
+  return _internal_images();
+}
+inline const ::google::protobuf::RepeatedPtrField<::pdf_proto::ImageXObject>&
+Page::_internal_images() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.images_;
+}
+inline ::google::protobuf::RepeatedPtrField<::pdf_proto::ImageXObject>* PROTOBUF_NONNULL
+Page::_internal_mutable_images() {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return &_impl_.images_;
 }
 
 // -------------------------------------------------------------------
@@ -5815,6 +6589,18 @@ struct is_proto_enum<::pdf_proto::Font_BaseEncoding> : std::true_type {};
 template <>
 inline const EnumDescriptor* PROTOBUF_NONNULL GetEnumDescriptor<::pdf_proto::Font_BaseEncoding>() {
   return ::pdf_proto::Font_BaseEncoding_descriptor();
+}
+template <>
+struct is_proto_enum<::pdf_proto::ImageXObject_Filter> : std::true_type {};
+template <>
+inline const EnumDescriptor* PROTOBUF_NONNULL GetEnumDescriptor<::pdf_proto::ImageXObject_Filter>() {
+  return ::pdf_proto::ImageXObject_Filter_descriptor();
+}
+template <>
+struct is_proto_enum<::pdf_proto::ImageXObject_ColorSpace> : std::true_type {};
+template <>
+inline const EnumDescriptor* PROTOBUF_NONNULL GetEnumDescriptor<::pdf_proto::ImageXObject_ColorSpace>() {
+  return ::pdf_proto::ImageXObject_ColorSpace_descriptor();
 }
 
 }  // namespace protobuf

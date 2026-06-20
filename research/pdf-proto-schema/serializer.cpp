@@ -34,6 +34,30 @@ static const char* fontfile_key_name(pdf_proto::EmbeddedFontFile::Key k) {
   }
 }
 
+// Map proto ImageXObject.Filter -> PDF /Filter name, or nullptr for RAW (no filter).
+static const char* image_filter_name(pdf_proto::ImageXObject::Filter f) {
+  switch (f) {
+    case pdf_proto::ImageXObject::FLATE:     return "FlateDecode";
+    case pdf_proto::ImageXObject::DCT:       return "DCTDecode";
+    case pdf_proto::ImageXObject::JPX:       return "JPXDecode";
+    case pdf_proto::ImageXObject::CCITT:     return "CCITTFaxDecode";
+    case pdf_proto::ImageXObject::LZW:       return "LZWDecode";
+    case pdf_proto::ImageXObject::RUNLENGTH: return "RunLengthDecode";
+    case pdf_proto::ImageXObject::RAW:
+    default:                                 return nullptr;
+  }
+}
+
+// Map proto ImageXObject.ColorSpace -> PDF device colorspace name.
+static const char* image_colorspace_name(pdf_proto::ImageXObject::ColorSpace c) {
+  switch (c) {
+    case pdf_proto::ImageXObject::DEVICE_GRAY: return "DeviceGray";
+    case pdf_proto::ImageXObject::DEVICE_CMYK: return "DeviceCMYK";
+    case pdf_proto::ImageXObject::DEVICE_RGB:
+    default:                                   return "DeviceRGB";
+  }
+}
+
 // Map proto Font.BaseEncoding -> PDF encoding name, or nullptr for BASE_NONE.
 static const char* base_encoding_name(pdf_proto::Font::BaseEncoding e) {
   switch (e) {
@@ -120,6 +144,8 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
   // scramble the xref for multi-page docs.)
   int page_count = doc.pages_size();
   std::vector<std::vector<int>> cs_objs(page_count);
+  // P3: image_objs[i][k] = object number of image k's XObject stream.
+  std::vector<std::vector<int>> image_objs(page_count);
   std::vector<std::vector<int>> font_objs(page_count);
   // fontfile_objs[i][k] = object number of font k's embedded program stream, or -1.
   std::vector<std::vector<int>> fontfile_objs(page_count);
@@ -137,14 +163,17 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
   };
   {
     int next = 3 + page_count;
+    // Canonical object-class order (assignment == write order, to keep xref consistent):
+    // content, images, fonts, descendants, cidgid, fontfile, tounicode, drivers.
     for (int i = 0; i < page_count; i++)
       for (int j = 0; j < doc.pages(i).content_streams_size(); j++)
         cs_objs[i].push_back(next++);
     for (int i = 0; i < page_count; i++)
+      for (int k = 0; k < doc.pages(i).images_size(); k++)
+        image_objs[i].push_back(next++);
+    for (int i = 0; i < page_count; i++)
       for (int k = 0; k < doc.pages(i).fonts_size(); k++)
         font_objs[i].push_back(next++);
-    // Canonical object-class order (assignment == write order, to keep xref consistent):
-    // content, fonts, descendants, cidgid, fontfile, tounicode, drivers.
     for (int i = 0; i < page_count; i++) {
       descendant_objs[i].assign(doc.pages(i).fonts_size(), -1);
       for (int k = 0; k < doc.pages(i).fonts_size(); k++)
@@ -170,8 +199,9 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
         if (doc.pages(i).fonts(k).has_to_unicode())
           tounicode_objs[i][k] = next++;
     }
+    // Driver content stream needed whenever a page has fonts (Tf) OR images (Do).
     for (int i = 0; i < page_count; i++)
-      if (doc.pages(i).fonts_size() > 0)
+      if (doc.pages(i).fonts_size() > 0 || doc.pages(i).images_size() > 0)
         driver_objs[i] = next++;
   }
 
@@ -195,12 +225,22 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
     out << (3 + i) << " 0 obj\n"
         << "<< /Type /Page /Parent 2 0 R"
         << " /MediaBox [0 0 " << w << " " << h << "]";
-    // Font resources: /F0 /F1 ... map to the pre-assigned font objects.
-    if (!font_objs[i].empty()) {
-      out << " /Resources << /Font <<";
-      for (size_t k = 0; k < font_objs[i].size(); k++)
-        out << " /F" << k << " " << font_objs[i][k] << " 0 R";
-      out << " >> >>";
+    // Resources: /Font (/F0 /F1 ...) and/or /XObject (/Im0 /Im1 ...) sub-dicts.
+    if (!font_objs[i].empty() || !image_objs[i].empty()) {
+      out << " /Resources <<";
+      if (!font_objs[i].empty()) {
+        out << " /Font <<";
+        for (size_t k = 0; k < font_objs[i].size(); k++)
+          out << " /F" << k << " " << font_objs[i][k] << " 0 R";
+        out << " >>";
+      }
+      if (!image_objs[i].empty()) {
+        out << " /XObject <<";
+        for (size_t k = 0; k < image_objs[i].size(); k++)
+          out << " /Im" << k << " " << image_objs[i][k] << " 0 R";
+        out << " >>";
+      }
+      out << " >>";
     }
     // /Contents = driver stream (if any, first so Tf precedes fuzzer ops) + fuzzer streams.
     std::vector<int> contents;
@@ -249,6 +289,32 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
         << payload
         << "\nendstream\nendobj\n";
     } // end inner stream loop
+  }
+
+  // P3: image XObject stream objects. `data` is written verbatim (NOT compressed) so the
+  // chosen /Filter decoder (DCT/JPX/CCITT/LZW/Flate) receives the raw fuzzer bytes. The
+  // harness's FuzzOutputDev drains the stream via `Do`, forcing the decoder to run.
+  for (int i = 0; i < page_count; i++) {
+    for (int k = 0; k < (int)image_objs[i].size(); k++) {
+      record_offset();
+      const pdf_proto::ImageXObject& img = doc.pages(i).images(k);
+      const std::string& data = img.data();
+      long written_len = (long)data.size() + img.length_delta();
+      out << image_objs[i][k] << " 0 obj\n"
+          << "<< /Type /XObject /Subtype /Image"
+          << " /Width " << img.width()
+          << " /Height " << img.height()
+          << " /BitsPerComponent " << img.bits_per_component();
+      if (img.image_mask())
+        out << " /ImageMask true";  // stencil mask: no /ColorSpace
+      else
+        out << " /ColorSpace /" << image_colorspace_name(img.color_space());
+      const char* ifn = image_filter_name(img.filter());
+      if (ifn)
+        out << " /Filter /" << ifn;
+      out << " /Length " << written_len << " >>\nstream\n"
+          << data << "\nendstream\nendobj\n";
+    }
   }
 
   // Helper: emit an inline "/FontDescriptor << ... >>". fontfile_obj >= 0 adds the
@@ -408,7 +474,8 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
     }
   }
 
-  // Driver content streams: force lazy font loading via Tf for every page font.
+  // Driver content streams: force lazy resource loading -- Tf for every font
+  // (-> GfxFont::makeFont) and `Do` for every image (-> Gfx::doImage -> decoder).
   for (int i = 0; i < page_count; i++) {
     if (driver_objs[i] < 0) continue;
     std::ostringstream payload;
@@ -416,6 +483,8 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
     for (int k = 0; k < (int)font_objs[i].size(); k++)
       payload << "/F" << k << " 12 Tf (Ag) Tj\n";
     payload << "ET\n";
+    for (int k = 0; k < (int)image_objs[i].size(); k++)
+      payload << "q /Im" << k << " Do Q\n";
     std::string body = payload.str();
     record_offset();
     out << driver_objs[i] << " 0 obj\n<< /Length " << body.size()
