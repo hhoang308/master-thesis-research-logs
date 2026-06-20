@@ -7,24 +7,40 @@ if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   message(FATAL_ERROR "libFuzzer requires Clang. Re-run with -DCMAKE_CXX_COMPILER=clang++")
 endif()
 
-# Sanitizer flags propagate into xpdf subdirectory too
 # clang-14 auto-selects GCC 12 but only GCC 11 headers are installed on this machine.
 # Explicitly point to GCC 11 C++ headers and clang-14 sanitizer headers (needed by abseil).
-add_compile_options(-fsanitize=fuzzer-no-link,address -g -O1
+set(GCC11_INCLUDES
   -I/usr/include/c++/11
   -I/usr/include/x86_64-linux-gnu/c++/11
   -I/usr/lib/llvm-14/lib/clang/14.0.0/include)
-add_link_options(-fsanitize=fuzzer,address
-  -L/usr/lib/gcc/x86_64-linux-gnu/11)
+
+# COV_BUILD=ON: build a coverage-instrumented cov_driver (LLVM source coverage, no
+# fuzzer/ASan) for the fair AFL++-vs-libFuzzer comparison. Default OFF: the normal
+# fuzzer build with libFuzzer + ASan.
+option(COV_BUILD "Build cov_driver with LLVM source coverage instead of the fuzzers" OFF)
+
+if(COV_BUILD)
+  add_compile_options(-fprofile-instr-generate -fcoverage-mapping -g -O1 ${GCC11_INCLUDES})
+  add_link_options(-fprofile-instr-generate -fcoverage-mapping
+    -L/usr/lib/gcc/x86_64-linux-gnu/11)
+else()
+  # Sanitizer flags propagate into the xpdf subdirectory too.
+  add_compile_options(-fsanitize=fuzzer-no-link,address -g -O1 ${GCC11_INCLUDES})
+  add_link_options(-fsanitize=fuzzer,address
+    -L/usr/lib/gcc/x86_64-linux-gnu/11)
+endif()
 
 # ── Protobuf ──────────────────────────────────────────────────────────────────
 # CONFIG mode pulls in transitive abseil deps (required for protobuf >= v22)
 find_package(Protobuf REQUIRED CONFIG)
 
 # ── libprotobuf-mutator ───────────────────────────────────────────────────────
-set(LIB_PROTO_MUTATOR_TESTING OFF CACHE BOOL "" FORCE)
-set(LIB_PROTO_MUTATOR_DOWNLOAD_PROTOBUF OFF CACHE BOOL "" FORCE)
-add_subdirectory(libprotobuf-mutator)
+# Not needed for the coverage driver (it renders PDF files, no mutation).
+if(NOT COV_BUILD)
+  set(LIB_PROTO_MUTATOR_TESTING OFF CACHE BOOL "" FORCE)
+  set(LIB_PROTO_MUTATOR_DOWNLOAD_PROTOBUF OFF CACHE BOOL "" FORCE)
+  add_subdirectory(libprotobuf-mutator)
+endif()
 
 # ── xpdf (gives us xpdf_objs, goo, fofi targets) ─────────────────────────────
 set(XPDF_SRC ${CMAKE_CURRENT_SOURCE_DIR}/../xpdf-4.06)
@@ -44,6 +60,17 @@ include_directories(
 # ── PoDoFo ────────────────────────────────────────────────────────────────────
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(PODOFO libpodofo)
+
+# ── Coverage driver target (COV_BUILD) ───────────────────────────────────────
+if(COV_BUILD)
+  add_executable(cov_driver
+    cov_driver.cpp
+    $<TARGET_OBJECTS:xpdf_objs>
+  )
+  target_link_libraries(cov_driver goo fofi z pthread)
+  message(STATUS "COV_BUILD: building cov_driver (LLVM source coverage)")
+  return()  # skip the fuzzer targets in coverage mode
+endif()
 
 # ── xpdf fuzzer target ────────────────────────────────────────────────────────
 add_executable(pdf_fuzzer
