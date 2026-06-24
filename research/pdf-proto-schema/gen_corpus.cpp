@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <random>
 #include <string>
+#include <vector>
 #include <fstream>
 #include <sys/stat.h>
 #include <google/protobuf/text_format.h>
@@ -17,11 +18,14 @@
 
 using namespace pdf_proto;
 static std::mt19937 rng;
+static bool g_clean = false;   // --clean: sane values, no malformations (proper AFL seeds)
 static int  ri(int a, int b) { return std::uniform_int_distribution<int>(a, b)(rng); }
 static bool rb(double p)     { return std::uniform_real_distribution<double>(0,1)(rng) < p; }
 
 // A numeric value that is sometimes a boundary/pathological one (0, 1, -1, huge).
+// In --clean mode always returns the sane `normal` value.
 static int boundary_or(int normal) {
+    if (g_clean) return normal;
     switch (ri(0, 6)) {
         case 0: return 0;
         case 1: return 1;
@@ -38,7 +42,7 @@ static std::string rbytes(int n) {
 static std::string rname() {
     static const char* names[] = {"Helvetica","Times-Roman","Courier","Arial","Symbol",
                                    "weird name/with()delims","","F\x01\x02"};
-    return names[ri(0, 7)];
+    return names[ri(0, g_clean ? 4 : 7)];   // clean: only the 5 valid names
 }
 
 // Diversity counters.
@@ -62,7 +66,7 @@ static void fill_descriptor(FontDescriptor* fd, bool with_file) {
         if (ff->key()==EmbeddedFontFile::FONTFILE3) ff->set_subtype(ri(0,1)?"Type1C":"OpenType");
         ff->set_program(rb(0.3) ? std::string("%!PS-AdobeFont-1.0: G\n")
                                  : rbytes(ri(4,64)));
-        if (rb(0.3)) ff->set_length_delta(boundary_or(0));
+        if (!g_clean && rb(0.3)) ff->set_length_delta(boundary_or(0));
         st.embFontFile++;
     }
 }
@@ -71,13 +75,13 @@ static void fill_font(Font* f) {
     f->set_subtype((Font::Subtype)ri(0,3));
     st.fsub[f->subtype()]++;
     f->set_base_font(rname());
-    if (rb(0.2)) f->set_omit_type(true);
-    if (rb(0.2)) f->set_omit_subtype(true);
+    if (!g_clean && rb(0.2)) f->set_omit_type(true);
+    if (!g_clean && rb(0.2)) f->set_omit_subtype(true);
     bool malformed=false;
     if (f->subtype()==Font::TYPE0 && rb(0.8)) {
         auto* c = f->mutable_cid();
         c->set_cid_subtype((Font::CidFont::CidSubtype)ri(0,1));
-        c->set_registry(rb(0.1)?"A(d)obe":"Adobe");
+        c->set_registry((!g_clean && rb(0.1))?"A(d)obe":"Adobe");
         c->set_ordering("Identity");
         c->set_encoding("Identity-H");
         if (rb(0.5)) c->set_cid_to_gid_map_stream(rbytes(ri(2,32)));
@@ -108,24 +112,26 @@ static void fill_image(ImageXObject* im) {
     int bpc = boundary_or(8); im->set_bits_per_component(bpc);
     if ((unsigned)bpc > 16) st.hugeBpc++;
     im->set_color_space((ImageXObject::ColorSpace)ri(0,2));
-    if (rb(0.3)) { im->set_image_mask(true); st.imageMask++; }
+    if (rb(0.3)) { im->set_image_mask(true); im->set_bits_per_component(1); st.imageMask++; }
     im->set_data(rbytes(ri(0,48)));
-    if (rb(0.3)) { im->set_length_delta(boundary_or(0)); st.malformed++; }
+    if (!g_clean && rb(0.3)) { im->set_length_delta(boundary_or(0)); st.malformed++; }
 }
 
 static void fill_cs(ContentStream* cs) {
     cs->set_filter(rb(0.5)?ContentStream::FLATE:ContentStream::NONE);
     cs->set_raw_content(rb(0.5) ? std::string("BT /F0 12 Tf (x) Tj ET q Q") : rbytes(ri(0,64)));
-    if (rb(0.4)) { cs->set_length_delta(boundary_or(0)); st.malformed++; }
-    if (cs->filter()==ContentStream::FLATE && rb(0.4)) { cs->set_skip_compression(true); st.malformed++; }
+    if (!g_clean && rb(0.4)) { cs->set_length_delta(boundary_or(0)); st.malformed++; }
+    if (!g_clean && cs->filter()==ContentStream::FLATE && rb(0.4)) { cs->set_skip_compression(true); st.malformed++; }
 }
 
 int main(int argc, char** argv) {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
-    if (argc < 2) { fprintf(stderr,"usage: %s <out_dir> [count=2000] [seed=12345]\n",argv[0]); return 1; }
-    std::string dir = argv[1];
-    long count = (argc>=3)?atol(argv[2]):2000;
-    unsigned seed = (argc>=4)?(unsigned)atol(argv[3]):12345u;
+    std::vector<std::string> pos;
+    for (int i=1;i<argc;i++){ std::string a=argv[i]; if(a=="--clean") g_clean=true; else pos.push_back(a); }
+    if (pos.empty()) { fprintf(stderr,"usage: %s <out_dir> [count=2000] [seed=12345] [--clean]\n",argv[0]); return 1; }
+    std::string dir = pos[0];
+    long count = (pos.size()>=2)?atol(pos[1].c_str()):2000;
+    unsigned seed = (pos.size()>=3)?(unsigned)atol(pos[2].c_str()):12345u;
     mkdir(dir.c_str(), 0775);
     rng.seed(seed);
 
@@ -150,7 +156,8 @@ int main(int argc, char** argv) {
         std::ofstream(fn, std::ios::binary) << out;
     }
 
-    printf("=== generated %ld protos -> %s (seed %u) ===\n", count, dir.c_str(), seed);
+    printf("=== generated %ld protos -> %s (seed %u, mode=%s) ===\n",
+           count, dir.c_str(), seed, g_clean ? "CLEAN" : "adversarial");
     printf("multipage:           %ld (%.0f%%)\n", st.multipage, 100.0*st.multipage/count);
     printf("with content stream: %ld (%.0f%%)\n", st.withCS, 100.0*st.withCS/count);
     printf("with font:           %ld (%.0f%%)   [Type1=%ld TrueType=%ld Type3=%ld Type0=%ld]\n",

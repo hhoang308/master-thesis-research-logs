@@ -5,3 +5,4 @@ measure_valid_rate
 cov_driver
 verify_serializer
 generate_example
+afl-seeds-clean/
