@@ -7,3 +7,4 @@ verify_serializer
 generate_example
 afl-seeds-clean/
 afl_pdf_mutator.so
+build-afl/

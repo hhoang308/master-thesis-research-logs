@@ -18,11 +18,18 @@ set(GCC11_INCLUDES
 # fuzzer/ASan) for the fair AFL++-vs-libFuzzer comparison. Default OFF: the normal
 # fuzzer build with libFuzzer + ASan.
 option(COV_BUILD "Build cov_driver with LLVM source coverage instead of the fuzzers" OFF)
+# AFL_BUILD=ON (configure with CMAKE_CXX_COMPILER=afl-clang-fast++): build the AFL++
+# target harness (xpdf instrumented by afl-clang-fast). afl-clang-fast++ here wraps
+# conda-forge clang 18, which finds its own C++ headers -- so NO GCC11 include hacks
+# and NO sanitizer/fuzzer flags (afl-clang-fast injects its own instrumentation).
+option(AFL_BUILD "Build the AFL++ target harness with afl-clang-fast instrumentation" OFF)
 
 if(COV_BUILD)
   add_compile_options(-fprofile-instr-generate -fcoverage-mapping -g -O1 ${GCC11_INCLUDES})
   add_link_options(-fprofile-instr-generate -fcoverage-mapping
     -L/usr/lib/gcc/x86_64-linux-gnu/11)
+elseif(AFL_BUILD)
+  add_compile_options(-O2 -g)
 else()
   # Sanitizer flags propagate into the xpdf subdirectory too.
   add_compile_options(-fsanitize=fuzzer-no-link,address -g -O1 ${GCC11_INCLUDES})
@@ -35,8 +42,9 @@ endif()
 find_package(Protobuf REQUIRED CONFIG)
 
 # ── libprotobuf-mutator ───────────────────────────────────────────────────────
-# Not needed for the coverage driver (it renders PDF files, no mutation).
-if(NOT COV_BUILD)
+# Not needed for the coverage driver or the AFL harness (neither mutates -- the AFL
+# mutator lives in afl_pdf_mutator.so, built separately).
+if(NOT COV_BUILD AND NOT AFL_BUILD)
   set(LIB_PROTO_MUTATOR_TESTING OFF CACHE BOOL "" FORCE)
   set(LIB_PROTO_MUTATOR_DOWNLOAD_PROTOBUF OFF CACHE BOOL "" FORCE)
   add_subdirectory(libprotobuf-mutator)
@@ -70,6 +78,21 @@ if(COV_BUILD)
   target_link_libraries(cov_driver goo fofi z pthread)
   message(STATUS "COV_BUILD: building cov_driver (LLVM source coverage)")
   return()  # skip the fuzzer targets in coverage mode
+endif()
+
+# ── AFL++ target harness (AFL_BUILD) ──────────────────────────────────────────
+# Reads a PDF (from the mutator's post_process), renders it through xpdf. xpdf is
+# instrumented by afl-clang-fast; the harness gets the persistent-mode runtime +
+# fork server. No protobuf/serializer/LPM here (the mutator .so handles those).
+if(AFL_BUILD)
+  add_executable(afl_harness_xpdf
+    afl_harness_xpdf.cpp
+    $<TARGET_OBJECTS:xpdf_objs>
+  )
+  # xpdf has its own FlateDecode -> no system zlib needed (conda linker can't find -lz anyway).
+  target_link_libraries(afl_harness_xpdf goo fofi pthread)
+  message(STATUS "AFL_BUILD: building afl_harness_xpdf (afl-clang-fast instrumented)")
+  return()  # skip the libFuzzer targets in AFL mode
 endif()
 
 # ── xpdf fuzzer target ────────────────────────────────────────────────────────
