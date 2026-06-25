@@ -153,7 +153,7 @@ int main(int argc, char** argv) {
         if (npages>1) st.multipage++;
         if (hasF) st.withFont++; if (hasI) st.withImage++; if (hasC) st.withCS++;
 
-        std::string out; char fn[64];
+        std::string out; char fn[1024];   // long absolute paths overflowed a 64B buffer
         if (g_binary) {
             doc.SerializeToString(&out);                            // binary wire format -> AFL mutator
             snprintf(fn, sizeof(fn), "%s/gen_%06ld.pb", dir.c_str(), i);
