@@ -19,6 +19,7 @@
 using namespace pdf_proto;
 static std::mt19937 rng;
 static bool g_clean = false;   // --clean: sane values, no malformations (proper AFL seeds)
+static bool g_binary = false;  // --binary: emit binary-serialized .pb (for AFL++ mutator) vs text .txtpb
 static int  ri(int a, int b) { return std::uniform_int_distribution<int>(a, b)(rng); }
 static bool rb(double p)     { return std::uniform_real_distribution<double>(0,1)(rng) < p; }
 
@@ -127,8 +128,9 @@ static void fill_cs(ContentStream* cs) {
 int main(int argc, char** argv) {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
     std::vector<std::string> pos;
-    for (int i=1;i<argc;i++){ std::string a=argv[i]; if(a=="--clean") g_clean=true; else pos.push_back(a); }
-    if (pos.empty()) { fprintf(stderr,"usage: %s <out_dir> [count=2000] [seed=12345] [--clean]\n",argv[0]); return 1; }
+    for (int i=1;i<argc;i++){ std::string a=argv[i];
+        if(a=="--clean") g_clean=true; else if(a=="--binary") g_binary=true; else pos.push_back(a); }
+    if (pos.empty()) { fprintf(stderr,"usage: %s <out_dir> [count=2000] [seed=12345] [--clean] [--binary]\n",argv[0]); return 1; }
     std::string dir = pos[0];
     long count = (pos.size()>=2)?atol(pos[1].c_str()):2000;
     unsigned seed = (pos.size()>=3)?(unsigned)atol(pos[2].c_str()):12345u;
@@ -151,13 +153,20 @@ int main(int argc, char** argv) {
         if (npages>1) st.multipage++;
         if (hasF) st.withFont++; if (hasI) st.withImage++; if (hasC) st.withCS++;
 
-        std::string out; google::protobuf::TextFormat::PrintToString(doc, &out);
-        char fn[64]; snprintf(fn,sizeof(fn),"%s/gen_%06ld.txtpb", dir.c_str(), i);
-        std::ofstream(fn, std::ios::binary) << out;
+        std::string out; char fn[64];
+        if (g_binary) {
+            doc.SerializeToString(&out);                            // binary wire format -> AFL mutator
+            snprintf(fn, sizeof(fn), "%s/gen_%06ld.pb", dir.c_str(), i);
+        } else {
+            google::protobuf::TextFormat::PrintToString(doc, &out); // human-readable text proto
+            snprintf(fn, sizeof(fn), "%s/gen_%06ld.txtpb", dir.c_str(), i);
+        }
+        std::ofstream(fn, std::ios::binary).write(out.data(), out.size());
     }
 
-    printf("=== generated %ld protos -> %s (seed %u, mode=%s) ===\n",
-           count, dir.c_str(), seed, g_clean ? "CLEAN" : "adversarial");
+    printf("=== generated %ld protos -> %s (seed %u, mode=%s, format=%s) ===\n",
+           count, dir.c_str(), seed, g_clean ? "CLEAN" : "adversarial",
+           g_binary ? "binary .pb" : "text .txtpb");
     printf("multipage:           %ld (%.0f%%)\n", st.multipage, 100.0*st.multipage/count);
     printf("with content stream: %ld (%.0f%%)\n", st.withCS, 100.0*st.withCS/count);
     printf("with font:           %ld (%.0f%%)   [Type1=%ld TrueType=%ld Type3=%ld Type0=%ld]\n",
