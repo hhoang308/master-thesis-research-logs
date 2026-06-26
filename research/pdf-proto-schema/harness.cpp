@@ -66,9 +66,17 @@ DEFINE_PROTO_FUZZER(const pdf_proto::PdfDocument& doc) {
         if (n > 10) n = 10;
         if (n >= 1) {
             FuzzOutputDev dev;
-            pdf->displayPages(&dev, NULL, 1, n,
+#ifdef XPDF_LEGACY_DISPLAYPAGES
+            // xpdf <= 4.02: displayPages has NO LocalParams* parameter.
+            pdf->displayPages(&dev, 1, n,
                               72, 72, 0,               // hDPI, vDPI, rotate
                               gFalse, gTrue, gFalse);  // useMediaBox, crop, printing
+#else
+            // xpdf >= 4.05/4.06: displayPages takes LocalParams* (NULL) as 2nd arg.
+            pdf->displayPages(&dev, NULL, 1, n,
+                              72, 72, 0,
+                              gFalse, gTrue, gFalse);
+#endif
         }
     }
     delete pdf;

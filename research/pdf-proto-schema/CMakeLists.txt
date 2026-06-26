@@ -51,7 +51,13 @@ if(NOT COV_BUILD AND NOT AFL_BUILD)
 endif()
 
 # ── xpdf (gives us xpdf_objs, goo, fofi targets) ─────────────────────────────
-set(XPDF_SRC ${CMAKE_CURRENT_SOURCE_DIR}/../xpdf-4.06)
+set(XPDF_SRC "${CMAKE_CURRENT_SOURCE_DIR}/../xpdf-4.06" CACHE PATH "xpdf source tree (override with -DXPDF_SRC=.../xpdf-4.02)")
+# xpdf <= 4.02: PDFDoc::displayPages() has no LocalParams* arg (added ~4.05). Set this
+# when building against 4.02 so the harness calls the correct signature.
+option(XPDF_LEGACY_DISPLAYPAGES "xpdf<=4.02 displayPages has no LocalParams arg" OFF)
+if(XPDF_LEGACY_DISPLAYPAGES)
+  add_compile_definitions(XPDF_LEGACY_DISPLAYPAGES)
+endif()
 add_subdirectory(${XPDF_SRC} ${CMAKE_CURRENT_BINARY_DIR}/xpdf-build EXCLUDE_FROM_ALL)
 
 include_directories(
