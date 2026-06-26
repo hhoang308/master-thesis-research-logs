@@ -142,3 +142,16 @@ chính thức sẽ chạy lại trên harness mới**.
   không, hay bắt buộc phải hơn baseline về **tổng** coverage (khó, vì baseline dùng real-world
   seed có đủ mọi feature)?
 - Finding dạng DoS (cấp phát quá lớn) có được tính là kết quả không?
+
+
+
+mục tiêu: làm sao để build effective grammar (tức grammar thật tốt)
+	cách tiếp cận:
+		1. attack pattern based grammar: dựa theo CVE để tạo grammar
+			tham chiếu đối tượng đã bị xoá
+			integer overflow
+			can thiệp vào tham số
+		2. hot code based grammar: (optional) cross bridge js enginge, dựa vào hot code (những đoạn code/vùng code mà tự mình định nghĩa là quan trọng, có thể là những đoạn thay đổi DOM,...) và critical section chứ không dựa vào CVE nữa (vì chưa có ???)
+
+sau khi tạo xong thoả mãn 3 điều kiện trên, cần reproduce lại được các CVE (trong tuần sau)
+sau đó tìm trên các phiên bản mới hơn hoặc phần mềm khác
