@@ -1,294 +1,245 @@
 ## Mục tiêu luận văn
 
-Xây dựng một pipeline structure-aware fuzzing cho định dạng PDF sử dụng libFuzzer +
-libprotobuf-mutator, chứng minh rằng phương pháp này đạt coverage cao hơn và tìm được
-nhiều lỗi hơn so với AFL++ thuần tuý trên các PDF reader ít được fuzzing liên tục.
+**Đóng góp chính (sau khi thống nhất với GVHD, 2026-06):** thiết kế một **grammar/schema PDF
+có định hướng theo LỚP ĐIỂM YẾU** — *weakness-class-directed grammar* (ý tưởng "attack-pattern
+based" của thầy). Khác với grammar structure-aware *thông thường* (AFLSmart, Nautilus,
+FormatFuzzer) vốn chỉ lo giữ input **hợp lệ về cú pháp**, grammar ở đây được thiết kế để **chủ
+động sinh ra input chạm tới / kích hoạt các LỚP lỗi bảo mật đã biết** (integer/size overflow,
+use-after-free / tham chiếu object đã xoá, parameter tampering / type confusion, dữ liệu rác cho
+decoder...).
 
-**Hai tiêu chí đo lường:**
-1. Tỉ lệ input hợp lệ đạt 60-80% (so với AFL++ baseline).
-2. Coverage cao hơn AFL++ baseline sau cùng thời gian chạy.
+> **Về tên gọi:** patterns nhắm vào **lớp điểm yếu (CWE class)**, không phải một CVE cụ thể —
+> CVE chỉ là *ví dụ mẫu* để rút ra pattern. Vì vậy gọi là **"weakness-class-directed grammar"**
+> (hoặc "attack-pattern-driven, weakness-class-directed") để nhấn mạnh tính **tổng quát hoá**
+> trong một lớp lỗi, tránh hiểu nhầm là chỉ "replay" đúng CVE cũ (overfitting).
 
-**Đủ để bảo vệ luận văn thạc sĩ.** Nếu tìm được CVE mới trong xpdf/PoDoFo/qpdf thì
-có thể nâng lên thành workshop paper hoặc short paper.
+**Engine (libFuzzer / AFL++ + libprotobuf-mutator) chỉ là HẠ TẦNG** để chạy grammar, KHÔNG phải
+đóng góp của luận văn. Có thể hoán đổi; chọn cái nào chạy ổn + so sánh được với baseline.
+
+**Định nghĩa "grammar hiệu quả" + CÁCH ĐO (quan trọng — phải định lượng được):**
+1. **Rediscovery CVE đã biết** trên các phiên bản *cũ, có lỗi* của xpdf/PoDoFo/poppler — thí
+   nghiệm thuyết phục nhất: grammar weakness-directed chạm/tái hiện CVE **nhanh hơn / ổn định
+   hơn** AFL++ thuần.
+2. **Coverage của các hàm/parser NHẠY CẢM bảo mật** (font/image/xref/objstm parser), KHÔNG phải
+   tổng coverage (tổng coverage khó hơn baseline vì real-world seed có đủ feature).
+3. **Tỉ lệ input hợp lệ (valid-input rate)** — hiện ~89% (qpdf nghiêm ngặt).
+4. (phụ) So coverage / số bug với AFL++ baseline trên cùng target.
+
+**Đủ để bảo vệ thạc sĩ.** Nếu tìm được CVE mới trong xpdf/PoDoFo/qpdf → có thể nâng thành
+workshop/short paper.
+
+### Phạm vi (CHỐT 2026-06-26)
+
+- **Target chính (reproduction): xpdf 4.02** — còn ~20 CVE parse-path chưa vá → benchmark giàu
+  để chứng minh grammar tái hiện được lỗi đã biết.
+- **Target "đã vá cứng" (săn lỗi mới): xpdf 4.06** — gần như mọi CVE cũ đã vá (chỉ còn
+  CVE-2026-4407) → crash ở đây = lỗi mới.
+- **Target phụ (transfer, optional): PoDoFo** — chạy cùng grammar để chứng minh tổng quát hoá
+  (đã có harness + 1 finding). qpdf: bỏ/để sau (giảm phạm vi cho khả thi).
+- **Benchmark: ~8–10 CVE** trải 4 lớp điểm yếu (A int-overflow / B OOB / C corrupt-decoder /
+  E DoS object-loop), chi tiết ở `research/xpdf-cve-benchmark.md`. 7 CVE chạm được ngay với
+  schema hiện tại; phần còn lại mở khoá theo roadmap grammar (P2 / ObjStm / ColorSpace / JBIG2).
+- **Tiêu chí "tái hiện CVE":** signature ASan khớp hàm/CWE của CVE **VÀ** crash bản 4.02 nhưng
+  không crash bản đã vá (không phải "có crash bất kỳ").
+- **Engine:** hạ tầng, không phải đóng góp; libFuzzer đang chạy được, AFL++ để so cùng-engine.
 
 ---
 
-## Phương pháp
+## Phương pháp (3 lớp — chỉ lớp 1 là đóng góp)
 
 ```
-pdf.proto  ->  libprotobuf-mutator mutates PdfDocument  ->  SerializePdf()  ->  raw PDF bytes  ->  xpdf / PoDoFo / qpdf
+pdf.proto (GRAMMAR)  ->  LPM mutate PdfDocument  ->  SerializePdf()  ->  raw PDF  ->  xpdf / PoDoFo / qpdf
+   (đóng góp)              (engine/hạ tầng)         (enabler)            (target)
 ```
 
-- Định nghĩa `.proto` schema mô tả cấu trúc PDF.
-- libprotobuf-mutator tự động sinh và đột biến protobuf message theo schema -- không cần tự viết mutation logic.
-- Serializer chuyển protobuf message sang raw PDF bytes, **tự tính xref offset và `/Length`** (điểm khác biệt so với AFLSmart và các chunk-level tool).
-- Harness feed bytes vào target qua `DEFINE_PROTO_FUZZER`.
+1. **Grammar / schema (`pdf.proto`) — ĐÓNG GÓP CHÍNH.** Mô tả cấu trúc PDF *và* mã hoá sẵn các
+   pattern điểm yếu vào các field (xem mục "Bản đồ pattern" bên dưới).
+2. **Serializer (`serializer.cpp`) — enabler.** Chuyển protobuf message -> raw PDF bytes, **tự
+   tính xref offset và `/Length`** (điểm khác AFLSmart và chunk-level tool). Đã kiểm chứng kỹ.
+3. **Engine host — hạ tầng.** libprotobuf-mutator chạy trên libFuzzer (`DEFINE_PROTO_FUZZER`)
+   hoặc AFL++ (custom mutator). Chi tiết ở mục "Hạ tầng engine".
 
-**Lý do bỏ phương án ban đầu (AFL++ + lopdf IR):**
-- lopdf round-trip chỉ đạt 60% -- không đủ tin cậy.
-- Tự viết L1/L2/L3 mutation logic đồng thời với parser là quá lớn về kỹ thuật.
-- Phương án protobuf tách bạch rõ ràng: schema + serializer + libprotobuf-mutator. Chỉ một bài toán khó cần giải là serializer.
-
----
-
-## Target
-
-- **Ưu tiên** (ít được fuzzing liên tục): xpdf, PoDoFo, qpdf
-- **Tránh** (đã có đội ngũ chạy fuzzer liên tục): pdfium, poppler, mupdf, pdf.js
+**Lý do bỏ phương án ban đầu (AFL++ + lopdf IR):** lopdf round-trip chỉ ~60% (không tin cậy);
+tự viết L1/L2/L3 mutation cùng parser quá lớn; phương án protobuf tách bạch schema + serializer
++ LPM, chỉ còn 1 bài toán khó là serializer.
 
 ---
 
-## Tiến độ công việc
+## ★ TRÁI TIM LUẬN VĂN: Bản đồ Attack-pattern → Grammar field → CWE/CVE
 
-### 1. Baseline AFL++ [DONE]
+Mỗi field "bất thường" trong schema KHÔNG phải ngẫu nhiên mà ứng với một **lớp điểm yếu** và có
+**nguồn gốc CVE**. Đây là nội dung chính của Chương 4.
 
-- Seed corpus thu thập từ pdf.js và poppler test, lọc bằng `afl-cmin`.
-- AFL++ chạy trên xpdf 4.06 (`pdftotext`), đang chạy liên tục:
+| Lớp điểm yếu (CWE) | Pattern trong grammar | Field schema | CVE tham chiếu | Trạng thái |
+|---|---|---|---|---|
+| **Integer / size overflow** (CWE-190, CWE-789) | giá trị kích thước/đếm rất lớn, âm, 0 | `ImageXObject.width/height/bits_per_component`; `ContentStream.length_delta` | (PoDoFo alloc-size — finding của ta) | ✅ một phần |
+| ↳ cùng lớp, theo CVE cụ thể | `/N` của `/ObjStm`, `/Index` của `/XRef` | **[TODO]** ObjStm/XRef stream object | CVE-2009-3608 (xpdf `/ObjStm /N`), CVE-2017-15587 (MuPDF `/XRef /Index`) | ⏳ |
+| **Use-after-free / tham chiếu object đã xoá** (CWE-416) | `/Contents`, `/Font`, `/Kids` trỏ tới object **không tồn tại / đã free**; recursive ref | **[TODO P2]** `dangling_refs`, free-object trong xref, `parent_ref` vòng | CVE-2025-52885 (poppler UAF `StructTreeRoot::parseNumberTreeNode`) | ⏳ **ưu tiên cao** |
+| **Parameter tampering / type confusion** (CWE-843) | giá trị "gần hợp lệ" sai kiểu, sai `/Subtype`, thiếu key bắt buộc, chèn delimiter | `omit_type/omit_subtype` (đã có); **[TODO]** near-valid token injection | CVE-2024-4367 (PDF.js `/FontMatrix` injection) | ⏳ một phần |
+| **Corrupt-decoder input** | byte rác đưa vào decoder dù header hợp lệ | `skip_compression` (Flate rác); `ImageXObject.data` rác cho DCT/JPX/CCITT/LZW | (lớp lỗi parser ảnh/filter nói chung) | ✅ |
+| **(optional) Code/JS injection** | JS trong `/OpenAction`, `/AA`; `/FontMatrix` string | **[TODO]** Action / FontMatrix string | CVE-2024-4367 | ⏳ optional |
 
-| Thông số | Giá trị |
-|---|---|
-| Thời gian chạy | ~86 giờ |
-| Tổng executions | 101M |
-| Coverage | 47.69% (15,006 / 31,464 edges) |
-| Crashes | 0 |
-| Hangs | 297 |
-
-- Đây là số liệu baseline cho thực nghiệm so sánh.
-
----
-
-### 2. Proto schema [DONE giai đoạn 1+2 / TODO giai đoạn 3]
-
-**[DONE] Giai đoạn 1 -- Document skeleton tối giản**
-- `PdfDocument` chứa danh sách `Page`, mỗi `Page` có `width` / `height` (MediaBox).
-- Thêm `package pdf_proto` để tránh name collision với xpdf's `Catalog` class.
-- File: `research/pdf-proto-schema/pdf.proto`
-
-**[DONE] Giai đoạn 2 -- Stream object model**
-- Thêm `ContentStream` với `FilterType` enum (NONE / FLATE) và `raw_content` (bytes).
-- Thêm `content_stream` vào `Page`.
-- Kết quả smoke test 100 runs:
-  - Giai đoạn 1 (skeleton): 664 edges
-  - Sau Task 2a (raw stream, NONE filter): 705 edges (+41, +6.2%)
-  - Sau Task 2b (FlateDecode): **716 edges (+52 tổng, +7.8%)**
-- xpdf's FlateDecode/zlib code path đã được chạm đến.
-
-**[TODO] Giai đoạn 3 -- Mở rộng schema để tăng coverage**
-
-Lý do phải làm: schema hiện tại chỉ sinh ra PDF với MediaBox + ContentStream. libFuzzer đang
-cover 729/27,712 edges (~2.6%) trong khi AFL++ với real-world seeds đạt 47.74%. Phần lớn code
-của xpdf/PoDoFo nằm ở font parser, image decoder, color space, annotation -- không có object
-nào trong số này được model trong schema hiện tại. Để tiêu chí 2 (coverage cao hơn AFL++
-baseline sau cùng thời gian chạy) có thể đạt được, phải mở rộng schema để libFuzzer sinh ra
-input chạm đến những code path đó.
-
-Ngoài ra cần test các edge case quan trọng:
-- **Multi-page document**: test page tree traversal, cross-page reference -- đã có `repeated Page`
-  trong proto nhưng cần verify serializer và smoke test.
-- **Multiple objects per page**: một Page có nhiều Font, nhiều Image -- test resource dictionary
-  lookup, reference counting.
-- **Dangling reference**: `/Contents` hoặc `/Font` trỏ đến object number không tồn tại trong
-  xref -- test error handling path của parser.
-- **Free object reference**: xref entry đánh dấu `f` (free/deleted) nhưng vẫn bị reference --
-  test behavior khi PDF library đọc "deleted" object.
-- **Recursive reference**: Type3 font chứa content stream gọi lại chính nó, hoặc Page -> Parent
-  -> Kids -> Page tạo vòng lặp -- test stack overflow / infinite loop protection.
-
-Danh sách object cần implement theo thứ tự ưu tiên (cao -> thấp):
-
-**[P1] Font object (Type1 dummy)**
-- Lý do: font parser là phần lớn nhất của xpdf/PoDoFo. Type1 dummy (chỉ cần `/Type /Font
-  /Subtype /Type1 /BaseFont /Helvetica`) đủ để kích hoạt font lookup code mà không cần
-  nhúng font program thật.
-- Proto: `message Font { enum Subtype { TYPE1=0; TRUETYPE=1; TYPE3=2; } ... }`
-- Serializer: thêm font object, reference từ `/Resources << /Font << /F1 N 0 R >> >>` trong Page.
-- Coverage gain dự kiến: cao nhất trong tất cả các object.
-
-**[P2] Dangling và free object references**
-- Lý do: implementation cost thấp (chỉ thêm field vào proto), nhưng test được error handling
-  path quan trọng -- đây là nơi có nhiều CVE (null deref, UAF khi parser không check object
-  validity trước khi dereference).
-- Proto: thêm `optional uint32 extra_contents_ref` trong Page (reference đến object number
-  tùy ý, kể cả số không tồn tại).
-- Serializer: ghi `/Contents [N 0 R M 0 R]` với M có thể là object không có trong xref.
-
-**[P3] ImageXObject (với DCTDecode / JPXDecode)**
-- Lý do: image decoder (JPEG, JPEG2000) có nhiều CVE lịch sử, và là code path AFL++ với
-  real seeds dễ hit nhưng libFuzzer với schema đơn giản không thể chạm tới.
-- Proto: `message ImageXObject { uint32 width=1; uint32 height=2; FilterType filter=3;
-  bytes data=4; }` -- thêm vào Page resources.
-- Serializer: ghi image stream object với `/Type /XObject /Subtype /Image /Width /Height
-  /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length N`.
-
-**[P4] ColorSpace (ICCBased, Indexed)**
-- Lý do: color processing code trong xpdf/PoDoFo xử lý nhiều loại color space khác nhau.
-  ICCBased references một stream (ICC profile) -- tạo thêm một layer object reference.
-- Proto: `message ColorSpace { enum Type { DEVICE_RGB=0; DEVICE_CMYK=1; INDEXED=2;
-  ICC_BASED=3; } ... }`
-
-**[P5] Recursive reference (Type3 font)**
-- Lý do: Type3 font có content stream riêng (CharProcs), và content stream đó có thể
-  reference lại font khác -- tạo dependency graph phức tạp. Test stack overflow protection
-  và infinite loop guard trong parser.
-- Proto: `message Type3Font { map<string, ContentStream> char_procs = 1; }`
-- Serializer: viết CharProcs stream, reference từ /Resources của font.
-
-**[P6] Annotation (Link, FreeText)**
-- Lý do: annotation parser trong xpdf có nhiều nhánh (GoTo, URI, JavaScript action). Link
-  annotation với /Dest reference đến page khác test cross-object reference.
-- Proto: `message Annotation { enum Subtype { LINK=0; FREE_TEXT=1; } ... }`
-
-**[P7] JavaScript action (OpenAction, AA)**
-- Lý do: xpdf có JavaScript engine (xpdf-js). JS actions trong /OpenAction hoặc /AA
-  dictionary được thực thi khi mở file -- high-value target cho bug finding.
-- Proto: `message Action { enum Type { JAVASCRIPT=0; GOTO=1; } optional string js_code=2; }`
-- Chú ý: chỉ implement nếu còn thời gian -- JS engine trong xpdf ít được test nhất.
+**Chống "overfitting":** pattern là **mẫu của LỚP lỗi**, không phải replay 1 CVE. VD pattern
+integer-overflow nhắm *mọi* field kích thước/đếm, không chỉ field của 1 CVE. Bằng chứng tổng
+quát hoá: finding PoDoFo (alloc-size) **không** đến từ một CVE PDF cụ thể nào.
 
 ---
 
-### 3. Serializer [DONE giai đoạn 1+2]
+## Hiện trạng grammar (đã implement — kèm lý do attack-pattern)
 
-**[DONE] Giai đoạn 1 -- PDF hợp lệ từ protobuf message**
-- Tự tính xref offset và ghi đúng trailer.
-- Kết quả xác nhận:
-  - `pdfinfo`: Pages: 1, Page size: 612x792, PDF 1.4, 330 bytes -- không có lỗi.
-  - `pdftotext`: không có lỗi parse.
-- File: `research/pdf-proto-schema/serializer.cpp`
-
-**[DONE] Giai đoạn 2 -- Stream object**
-- Nén payload bằng zlib khi `filter = FLATE` (dùng `compress2()` từ zlib).
-- Ghi đúng `/Length` dựa trên kích thước thực của dữ liệu đã nén.
-- Thêm `/Contents N 0 R` reference vào Page dictionary.
-- Fallback về NONE nếu zlib compress thất bại (đảm bảo output luôn là PDF hợp lệ).
-- 4/4 test cases trong `verify_serializer` pass.
-
-**[TODO] Giai đoạn 2b -- Vá các gap trong stream object (cần làm trước run 2 và 3)**
-
-Serializer hiện tại over-sanitize một số trường hợp, khiến libFuzzer không thể chạm đến
-các code path lỗi quan trọng trong xpdf/PoDoFo. Cần fix 4 gap sau:
-
-- [ ] **[HIGH] `/Length` sai (length_delta)**: serializer luôn ghi `/Length` chính xác.
-  Thêm `sint32 length_delta = 3` vào `ContentStream` proto. Serializer cộng delta vào
-  `/Length` trước khi ghi ra -- cho phép LPM sinh `/Length` nhỏ hơn (under-read) hoặc
-  lớn hơn (over-read) thực tế. Đây là nguồn gốc của nhiều CVE trong PDF parser
-  (parser đọc sai số byte, bỏ qua `endstream`, hoặc đọc tràn sang object kế tiếp).
-
-- [ ] **[HIGH] FlateDecode data không hợp lệ (skip_compression)**: khi `filter = FLATE`,
-  serializer nén `raw_content` bằng zlib nên LPM không bao giờ sinh được byte stream
-  corrupt vào FlateStream decoder. Thêm `bool skip_compression = 4` vào `ContentStream`.
-  Khi true: ghi `raw_content` trực tiếp vào stream payload nhưng vẫn giữ header
-  `/Filter /FlateDecode` -- xpdf/PoDoFo sẽ thấy dữ liệu không phải zlib và chạy qua
-  toàn bộ error-handling path của FlateStream (invalid CMF byte, corrupt Huffman table,
-  truncated stream, wrong Adler-32 checksum).
-
-- [ ] **[MEDIUM] Bỏ clamp width/height**: serializer đang clamp `width/height` về [1, 14400]
-  (serializer.cpp line 73-74). Xóa clamp này để xpdf nhận NaN, 0, giá trị âm, giá trị
-  rất lớn. Các giá trị này có thể gây integer overflow trong tính toán page geometry
-  (width × height × bpp), đây là dạng lỗi phổ biến trong PDF renderer.
-
-- [ ] **[MEDIUM] Multiple streams per page (`repeated ContentStream`)**: PDF cho phép
-  `/Contents` là array nhiều stream: `/Contents [3 0 R 4 0 R]`, xpdf ghép chúng trước
-  khi parse. Đổi `optional ContentStream content_stream = 4` thành
-  `repeated ContentStream content_streams = 4`. Serializer ghi array reference khi có
-  nhiều hơn 1 stream. Test được stream concatenation logic.
-
----
-
-### 4. Harness + libFuzzer [DONE giai đoạn 1+2 / TODO giai đoạn 3]
-
-**[DONE] Giai đoạn 1 -- xpdf 4.06**
-- `DEFINE_PROTO_FUZZER` nhận `pdf_proto::PdfDocument`, gọi `SerializePdf`, feed vào `PDFDoc` của xpdf.
-- Build thành công với clang-14 + ASan + libprotobuf-mutator.
-- Smoke test 100 runs: coverage tăng từ 15 lên 664 edges, `LLVMFuzzerCustomMutator` active.
-- File: `research/pdf-proto-schema/harness.cpp`
-
-**[DONE] Giai đoạn 2 -- PoDoFo 0.9.7**
-- Install: `sudo apt install libpodofo-dev libpodofo0.9.7`
-- Harness dùng `PdfMemDocument::LoadFromBuffer()` -- feed bytes trực tiếp vào bộ nhớ, không cần temp file.
-- Kết quả smoke test:
-  - Coverage: 161 edges (PoDoFo và xpdf instrumented độc lập, không so sánh trực tiếp)
-  - Exec/s: ~6,300 (so với ~1,800 của xpdf -- nhanh hơn 2.6x vì không I/O)
-- File: `research/pdf-proto-schema/harness_podofo.cpp`
-
-**[TODO] Giai đoạn 3 -- qpdf**
-- Thêm harness cho qpdf.
-
----
-
-### 5. Thực nghiệm và so sánh [RUN 1 DONE / TODO run 2+3]
-
-**[DONE] Run 1 -- xpdf 4.06** (stopped early ~17h, schema exhausted)
-
-| Metric | Value |
-|---|---|
-| Runtime | ~17h (dừng sớm) |
-| Executions | 36.8M |
-| Exec/s | 602 |
-| Final coverage | 729 edges (~2.6% of 27,712 counters) |
-| Crashes | 0 |
-| Log | `research/experiments/libfuzzer-xpdf-run1/` |
-
-**[DONE] Run 1 -- PoDoFo 0.9.7** (stopped early ~15h, schema exhausted)
-
-| Metric | Value |
-|---|---|
-| Runtime | ~15h (dừng sớm) |
-| Executions | 256.9M |
-| Exec/s | 4,595 |
-| Final coverage | 161 edges |
-| Crashes | 0 |
-| Log | `research/experiments/libfuzzer-podofo-run1/` |
-
-**Kết luận Run 1:** Coverage plateau ngay trong 30 giây đầu tiên và không tăng thêm
-suốt 17h chạy. Schema Stage 1+2 chỉ sinh PDF với MediaBox + ContentStream, không có
-Font/Image/ColorSpace/Annotation nên libFuzzer không thể chạm đến phần lớn code của
-xpdf/PoDoFo. Cần fix schema trước khi chạy run 2.
-
-**[TODO] Trước khi chạy Run 2**
-- [ ] Fix Giai đoạn 2b: length_delta + skip_compression + bỏ clamp width/height.
-- [ ] Implement P1 Font object (Type1 dummy) vào schema + serializer.
-- [ ] Rebuild binary, smoke test coverage tăng so với 729 edges.
-
-**[TODO] Run 2 và Run 3**
-- [ ] Chạy run 2 với schema mới (24h), so sánh coverage vs run 1.
-- [ ] Chạy run 3 (24h), tính trung bình và độ lệch chuẩn qua 3 lần.
-- [ ] Vẽ coverage curve: edges vs time cho cả 2 target, so với AFL++ baseline.
-- [ ] So sánh trực tiếp: AFL++ baseline vs libFuzzer+protobuf-mutator trên xpdf.
-- [ ] Triage crash nếu có: stacktrace, root cause, reproduce.
-
----
-
-## Điều kiện bảo vệ
-
-1. **Kỹ thuật:** Schema + serializer + harness chạy được trên ít nhất một target.
-2. **Thực nghiệm:** Chạy đủ 24h x 3 lần, có trung bình và độ lệch chuẩn.
-3. **Kết quả:** Coverage hoặc valid input rate cao hơn AFL++ baseline.
-4. **Crash:** Reproduce được nếu có. Nếu không: phân tích coverage chứng minh pipeline chạm đến code path sâu hơn AFL++.
-5. **Phân tích:** Giải thích vì sao kết quả tốt hơn (hoặc không), nhận biết giới hạn, đề xuất hướng mở rộng.
-
----
-
-## Cấu trúc luận văn
-
-| Chương | Nội dung | Số trang |
+| Object | Pattern điểm yếu phục vụ | Trạng thái |
 |---|---|---|
-| 1 -- Giới thiệu | Bài toán, đóng góp cụ thể, cấu trúc luận văn | 5-8 |
-| 2 -- Kiến thức nền tảng | Coverage-guided fuzzing, libFuzzer, định dạng PDF (object model / xref / stream / filter), libprotobuf-mutator, structure-aware fuzzing | 15-20 |
-| 3 -- Related work | AFLSmart, Superion, FormatFuzzer, pFuzzer -- bảng so sánh theo semantic awareness / serializer validity / xref handling -- khoảng trống đề tài lấp | 8-12 |
-| 4 -- Thiết kế và triển khai | Schema design, serializer (tại sao xref+/Length quan trọng), harness, mở rộng schema với stream | 25-35 |
-| 5 -- Thực nghiệm | Setup, coverage curve AFL++ vs libFuzzer+protobuf, case study crash hoặc coverage, thảo luận | 20-25 |
-| 6 -- Kết luận | Tóm tắt đóng góp, hướng mở rộng | 3-5 |
+| Skeleton (Catalog/Pages/Page, MediaBox) | nền tảng | ✅ |
+| ContentStream + 4 gap-fix (`length_delta`, `skip_compression`, bỏ clamp MediaBox, `repeated`) | size overflow, corrupt-decoder, geometry overflow | ✅ |
+| Font đầy đủ (P1 dummy → P1.5 nhúng FontFile/FoFi → StepA Encoding/Widths/ToUnicode → StepB CID/Type0) | parser font (FoFiType1/TrueType/CFF), CMap, CID width | ✅ |
+| Image XObject (DCT/JPX/CCITT/LZW) | image decoder (JPEG2000 nhiều CVE), size overflow | ✅ |
+
+**Kiểm chứng serializer (`check_serializer`, nhiều oracle):** xref byte-offset đúng **2000/2000
+(100%)** trên proto đa dạng (sinh bằng `gen_corpus`, có histogram đo độ đa dạng); valid-rate
+ngoài: poppler/mupdf 100%, **qpdf nghiêm ngặt ~89%** (phần còn lại do malformation cố ý). Bài
+học: không đo "hợp lệ" bằng 1 parser khoan dung (pdfinfo).
+
+---
+
+## Việc tiếp theo (ưu tiên theo framing mới — grammar là trọng tâm)
+
+- [ ] **[CWE-416] P2 — UAF / tham chiếu object đã xoá**: thêm dangling refs (`/Contents`,`/Font`
+      trỏ object không có trong xref), free-object bị reference, recursive `parent`/`kids`. *(thiếu
+      rõ nhất, làm trước)*
+- [ ] **[CWE-190] Integer-overflow theo CVE**: model `/ObjStm` (`/N`,`/First`) và `/XRef` stream
+      (`/Index`,`/W`) để tái hiện CVE-2009-3608, CVE-2017-15587.
+- [ ] **[CWE-843] Parameter tampering**: near-valid token injection (chèn `(` `{` `;` `<<` sau
+      giá trị số/name) — đã defer trước đây, giờ là nội dung chính.
+- [ ] **Đánh giá hiệu quả**: dựng phiên bản *cũ có CVE* của xpdf/PoDoFo/poppler; đo
+      rediscovery + coverage hàm nhạy cảm so với AFL++ thuần (lặp 3 lần, mean/stddev).
+- [ ] **(hạ tầng)** chốt engine để chạy campaign: libFuzzer hiện chạy ổn (run5 đang chạy);
+      AFL++ để so "cùng engine" nếu cần (đang vướng lỗi heap-corruption ở integration — xem mục hạ tầng).
+- [ ] (optional) Action/JS, FontMatrix injection; hot-code-based grammar (thầy ghi optional).
+
+---
+
+## Điều kiện bảo vệ (reframed quanh grammar)
+
+1. **Kỹ thuật:** grammar + serializer + harness chạy được trên ≥1 target (✅ xpdf, PoDoFo).
+2. **Đóng góp:** grammar **weakness-class-directed**, có bản đồ pattern → field → CWE/CVE rõ ràng
+   (không phải structure-aware generic).
+3. **Hiệu quả (≥1 trong các bằng chứng):** rediscovery ≥k CVE đã biết; HOẶC reach hàm nhạy cảm
+   tốt hơn baseline; HOẶC valid-rate cao (~89%) + tìm được lỗi (đã có 1 finding PoDoFo).
+4. **Phân tích:** vì sao hiệu quả/không; giới hạn (overfitting → đã có lập luận tổng quát hoá);
+   hướng mở rộng.
+
+---
+
+## Cấu trúc luận văn (cập nhật theo framing mới)
+
+| Chương | Nội dung | Trang |
+|---|---|---|
+| 1 — Giới thiệu | Bài toán, **đóng góp = weakness-class-directed grammar**, cấu trúc | 5-8 |
+| 2 — Nền tảng | Coverage-guided fuzzing, định dạng PDF (object/xref/stream/filter), LPM, structure-aware fuzzing, **phân loại CWE/CAPEC** | 15-20 |
+| 3 — Related work | AFLSmart/Superion/Nautilus/FormatFuzzer — bảng so sánh; **khoảng trống: generic structure-aware vs security/weakness-directed grammar** | 8-12 |
+| 4 — Thiết kế | **★ Bản đồ attack-pattern → field → CWE/CVE (trọng tâm)**; serializer (xref+`/Length`); engine (hạ tầng) | 25-35 |
+| 5 — Thực nghiệm | Setup; **rediscovery CVE trên bản cũ**; coverage hàm nhạy cảm vs AFL++; valid-rate; case study finding | 20-25 |
+| 6 — Kết luận | Tóm tắt, giới hạn, mở rộng | 3-5 |
+
+---
+
+# ───────────────  HẠ TẦNG (ENGINE) — không phải đóng góp, để tham khảo  ───────────────
+
+## Lựa chọn engine: libFuzzer vs AFL++ + libprotobuf-mutator
+
+Engine chỉ là nơi chạy grammar. Hai lựa chọn, đều so sánh được với baseline (Nautilus, AFLSmart
+cũng so cross-strategy với AFL — điều kiện là *cùng target + cùng cách đo coverage*, không bắt
+buộc cùng engine):
+
+- **libFuzzer + LPM** (`DEFINE_PROTO_FUZZER`): đang **chạy ổn** (run5). So với AFL++ baseline thì
+  cần `llvm-cov` đo coverage trên cùng build xpdf (đã có tool `cov_driver`/`cov_compare.sh`).
+- **AFL++ + custom mutator** (`afl_pdf_mutator.so`): so sánh trực tiếp (cùng edge-bitmap như
+  baseline), nhưng **đang vướng lỗi `corrupted double-linked list`** ở integration AFL↔.so (đã
+  loại trừ: không phải OOM, không phải bug logic mutator — ASan sạch 50k vòng; nghi ABI/toolchain
+  giữa .so clang-14 và afl-fuzz conda-clang-18, đang xử lý).
+
+### Ghi chú kỹ thuật AFL++ + LPM (giữ nguyên)
+
+- Build serializer thành thư viện, dùng làm custom mutator AFL++. Không ảnh hưởng seed selection
+  & scheduling của AFL++, chỉ thay mutation operators (thay hẳn bit-flip/havoc/splice nếu
+  `AFL_CUSTOM_MUTATOR_ONLY=1`). LPM không coverage-aware: AFL đưa seed, LPM tự quyết field nào mutate.
+- **CmpLog**: AFL++ patch giá trị comparison vào input theo byte-offset. Với LPM, input qua
+  serialize nên byte-offset khác — CmpLog không biết chèn vào đâu. **Tắt CmpLog.**
+- Mutator của LPM dựa trên message tree (add/remove/change/repeat), không phải byte-level.
+- AFL++ + LPM ≈ Nautilus (coverage-guided structure-aware): AFL chọn seed tăng coverage, LPM giữ
+  đột biến hợp lệ cú pháp. Khác Nautilus:
+  - Nautilus dùng context-free grammar (recursion tự nhiên); LPM dùng protobuf schema (recursion
+    bị giới hạn trong message).
+  - Nautilus giữ input ở dạng derivation tree (splice/minimize subtree); LPM phải serialize/
+    deserialize liên tục.
+- Lý do không dùng fuzzer context-free grammar thuần (Nautilus, Gramatron): không tự tính được
+  byte-offset (phụ thuộc final layout) → vẫn phải thêm bước hậu xử lý → không khác gì LPM.
+  - Muốn tập trung recursion/tree-splice → AFL++ + grammar mutator (≈ Nautilus). LPM có hỗ trợ
+    recursive (giới hạn trong schema), nhưng chưa thấy CVE PDF về object-graph topology (nếu có
+    cũng chỉ DoS); lỗi PDF hầu hết nằm *bên trong* object.
+  - Muốn cả grammar mutation + serialization trong 1 công cụ → libAFL + nautilus mutator + bước
+    serialize phía sau.
+  - Muốn tập trung mutate *bên trong* object → LPM.
+- Cần harness cho AFL++ persistent mode (né overhead khởi tạo/huỷ process). Harness phải ổn định,
+  không tự crash.
+- Nhiều stream object nhận byte nhưng phải nén deflate (zlib) đúng filter, nếu không reader báo
+  lỗi giải nén. Riêng codec ảnh (`/JPXDecode`,`/DCTDecode`) thì truyền byte dị dạng thẳng được.
+
+### Định dạng seed cho AFL++ + libprotobuf-mutator (QUAN TRỌNG — dễ quên)
+
+**Seed cho AFL++ phải là `PdfDocument` proto đã serialize, KHÔNG phải file PDF** — vì custom
+mutator phải *deserialize* mỗi input về `PdfDocument` mới mutate được; seed là PDF thô → deserialize
+fail → message rỗng/rác.
+
+Có **HAI phép serialize** trong pipeline, đừng nhầm:
+
+| Phép | Chiều | Đảo ngược? | Dùng để |
+|---|---|---|---|
+| **protobuf (de)serialize** | `PdfDocument` ⟷ bytes | Có | định dạng *input/seed* AFL lưu & mutator round-trip |
+| **`SerializePdf()`** | `PdfDocument` → PDF bytes | Không (1 chiều) | file PDF thật target đọc |
+
+```
+SEED = PdfDocument proto đã serialize        <- gen_corpus tạo cái NÀY
+   v  AFL lưu/schedule blob proto-bytes
+custom mutator: deserialize -> mutate tree -> serialize -> trả AFL
+   v  afl_custom_post_process (hoặc harness): deserialize -> SerializePdf() -> PDF bytes
+   v  TARGET parse PDF
+```
+PDF chỉ tồn tại *tạm thời* lúc execution; thế giới của AFL toàn bộ là **proto**.
+
+Hệ quả: (1) seed = proto serialize → `gen_corpus` tạo đúng; (2) **không** tái dùng được corpus
+PDF của baseline làm seed (khác input domain); (3) đồng bộ định dạng text/binary giữa gen_corpus,
+mutator deserialize, post_process (`gen_corpus --binary` cho AFL).
+
+### Bài học phương pháp luận (QUAN TRỌNG — ghi vào Chương 5)
+
+Harness phải **thực thi content stream thật** (render trang) thì mới chạm tới font/image parser.
+Harness cũ chỉ `getNumPages` / `LoadFromBuffer`+`GetPageCount` → `Tf`/`Do` không chạy → coverage
+"tăng" trước đó chủ yếu là code serializer/protobuf, không phải độ sâu target. Đã sửa (xpdf:
+`displayPages`+`OutputDev`; PoDoFo: tokenize content + `GetFilteredCopy`), verify bằng gdb.
+
+---
+
+## Target & Baseline
+
+- **Target ưu tiên** (ít fuzzing liên tục): xpdf, PoDoFo, qpdf. **Tránh** (đã có đội fuzz liên
+  tục): pdfium, poppler, mupdf, pdf.js. *(Lưu ý: bản CŨ của poppler/mupdf vẫn dùng được cho thí
+  nghiệm rediscovery CVE.)*
+- **Baseline AFL++** (xpdf 4.06 `pdftotext`, ~86h): 47.69% (15,006/31,464 edges), 0 crash, 297
+  hang. Dùng làm mốc so sánh.
 
 ---
 
 ## Khái niệm liên quan
 
-1. **Structure-aware fuzzing:** thay vì đột biến raw bytes, fuzzer hiểu cấu trúc input qua schema và chỉ sinh ra input hợp lệ về mặt cấu trúc. Giúp vượt qua các bước kiểm tra format ở đầu parser và chạm đến logic sâu hơn.
-
-2. **libprotobuf-mutator (LPM):** thư viện của Google nhận một protobuf message và thực hiện mutation trên cây object theo schema, đảm bảo output vẫn là protobuf message hợp lệ. Tích hợp trực tiếp với libFuzzer qua `DEFINE_PROTO_FUZZER`.
-
-3. **Serializer:** bộ chuyển đổi từ protobuf message sang raw bytes của định dạng đích. Phần phức tạp nhất vì phải tự tính xref offset và `/Length` -- các giá trị phụ thuộc vào vị trí byte thực tế của từng object trong file.
-
-4. **xref table:** bảng tra cứu trong file PDF, ánh xạ object number sang byte offset trong file. Phải tính lại từ đầu sau mỗi lần mutation vì offset thay đổi.
-
-5. **RNG seed:** trong context libFuzzer, seed điều khiển toàn bộ quá trình mutation. Cùng seed cho cùng kết quả, giúp reproduce lỗi.
+1. **Weakness-class-directed grammar (đóng góp):** grammar được thiết kế để sinh input nhắm tới
+   các *lớp điểm yếu* (CWE), không chỉ giữ input hợp lệ. CVE là ví dụ mẫu để rút pattern.
+2. **CWE / CAPEC:** CWE = phân loại *điểm yếu* (CWE-190 int overflow, CWE-416 UAF...); CAPEC =
+   phân loại *attack pattern*. Grammar nhắm theo CWE class để tổng quát hoá.
+3. **Structure-aware fuzzing:** fuzzer hiểu cấu trúc qua schema, sinh input hợp lệ cú pháp để vượt
+   format-check và chạm logic sâu. (Generic — chưa định hướng lỗi.)
+4. **libprotobuf-mutator (LPM):** thư viện Google mutate protobuf message theo schema, giữ output
+   hợp lệ. Tích hợp libFuzzer (`DEFINE_PROTO_FUZZER`) hoặc AFL++ (custom mutator).
+5. **Serializer:** protobuf → raw bytes định dạng đích; khó nhất vì tự tính xref offset & `/Length`
+   (phụ thuộc vị trí byte thực tế).
+6. **xref table:** ánh xạ object number → byte offset; phải tính lại sau mỗi mutation.
