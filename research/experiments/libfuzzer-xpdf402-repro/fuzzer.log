@@ -1,0 +1,979 @@
+INFO: found LLVMFuzzerCustomMutator (0x562d45c96b50). Disabling -len_control by default.
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 1737627991
+INFO: Loaded 1 modules   (29021 inline 8-bit counters): 29021 [0x562d46165380, 0x562d4616c4dd), 
+INFO: Loaded 1 PC tables (29021 PCs): 29021 [0x562d4616c4e0,0x562d461ddab0), 
+INFO: -fork=1: fuzzing in separate process(s)
+INFO: -fork=1: 4400 seed inputs, starting to fuzz in /tmp/libFuzzerTemp.FuzzWithFork99567.dir
+#0: cov: 24034 ft: 24034 corp: 4400 exec/s 0 oom/timeout/crash: 0/0/0 time: 39s job: 1 dft_time: 0
+#837: cov: 24034 ft: 24034 corp: 4400 exec/s 279 oom/timeout/crash: 0/0/1 time: 42s job: 2 dft_time: 0
+  NEW_FUNC: 0x562d45c96fd0 in LLVMFuzzerTestOneInput /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/harness.cpp:48
+  NEW_FUNC: 0x562d45c97690 in FuzzOutputDev::upsideDown() /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/harness.cpp:24
+  NEW_FUNC: 0x562d45c976a0 in FuzzOutputDev::useDrawChar() /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/harness.cpp:25
+  NEW_FUNC: 0x562d45c976e0 in FuzzOutputDev::interpretType3Chars() /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/harness.cpp:26
+  NEW_FUNC: 0x562d45c976f0 in OutputDev::needNonText() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:78
+  NEW_FUNC: 0x562d45c97710 in OutputDev::checkPageSlice(Page*, double, double, int, int, int, int, int, int, int, int, int (*)(void*), void*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:101
+  NEW_FUNC: 0x562d45c97720 in OutputDev::startPage(int, GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:104
+  NEW_FUNC: 0x562d45c97730 in OutputDev::endPage() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:107
+  NEW_FUNC: 0x562d45c97740 in OutputDev::saveState(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:120
+  NEW_FUNC: 0x562d45c97750 in OutputDev::restoreState(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:121
+  NEW_FUNC: 0x562d45c97770 in OutputDev::updateLineDash(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:127
+  NEW_FUNC: 0x562d45c97780 in OutputDev::updateFlatness(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:128
+  NEW_FUNC: 0x562d45c97790 in OutputDev::updateLineJoin(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:129
+  NEW_FUNC: 0x562d45c977a0 in OutputDev::updateLineCap(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:130
+  NEW_FUNC: 0x562d45c977b0 in OutputDev::updateMiterLimit(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:131
+  NEW_FUNC: 0x562d45c977c0 in OutputDev::updateLineWidth(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:132
+  NEW_FUNC: 0x562d45c977d0 in OutputDev::updateStrokeAdjust(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:133
+  NEW_FUNC: 0x562d45c977e0 in OutputDev::updateFillColorSpace(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:134
+  NEW_FUNC: 0x562d45c977f0 in OutputDev::updateStrokeColorSpace(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:135
+  NEW_FUNC: 0x562d45c97800 in OutputDev::updateFillColor(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:136
+  NEW_FUNC: 0x562d45c97810 in OutputDev::updateStrokeColor(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:137
+  NEW_FUNC: 0x562d45c97820 in OutputDev::updateBlendMode(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:138
+  NEW_FUNC: 0x562d45c97830 in OutputDev::updateFillOpacity(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:139
+  NEW_FUNC: 0x562d45c97840 in OutputDev::updateStrokeOpacity(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:140
+  NEW_FUNC: 0x562d45c97850 in OutputDev::updateFillOverprint(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:141
+  NEW_FUNC: 0x562d45c97860 in OutputDev::updateStrokeOverprint(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:142
+  NEW_FUNC: 0x562d45c97870 in OutputDev::updateOverprintMode(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:143
+  NEW_FUNC: 0x562d45c97890 in OutputDev::updateTransfer(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:145
+  NEW_FUNC: 0x562d45c978a0 in OutputDev::updateFont(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:148
+  NEW_FUNC: 0x562d45c978b0 in OutputDev::updateTextMat(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:149
+  NEW_FUNC: 0x562d45c97910 in OutputDev::updateTextPos(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:155
+  NEW_FUNC: 0x562d45c979f0 in OutputDev::beginStringOp(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:183
+  NEW_FUNC: 0x562d45c97a00 in OutputDev::endStringOp(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:184
+  NEW_FUNC: 0x562d45c97a40 in OutputDev::drawString(GfxState*, GString*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:191
+  NEW_FUNC: 0x562d45c97a60 in OutputDev::endTextObject(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:196
+  NEW_FUNC: 0x562d45c97e30 in SerializePdf[abi:cxx11](pdf_proto::PdfDocument const&) /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/serializer.cpp:118
+  NEW_FUNC: 0x562d45ca4800 in pdf_name_escape(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/serializer.cpp:76
+  NEW_FUNC: 0x562d45ca4f00 in SerializePdf[abi:cxx11](pdf_proto::PdfDocument const&)::$_3::operator()(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, pdf_proto::FontDescriptor const&, int) const /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/serializer.cpp:324
+  NEW_FUNC: 0x562d45ca57f0 in pdf_string_escape(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/serializer.cpp:96
+  NEW_FUNC: 0x562d45ca5f80 in google::protobuf::internal::RepeatedPtrFieldBase::element_at(int) /home/hoangnh8/miniconda3/include/google/protobuf/repeated_ptr_field.h:674
+  NEW_FUNC: 0x562d45ca6180 in google::protobuf::internal::SooRep::size(bool) const /home/hoangnh8/miniconda3/include/google/protobuf/repeated_field.h:206
+  NEW_FUNC: 0x562d45ca63c0 in google::protobuf::RepeatedField<int>::elements(bool) /home/hoangnh8/miniconda3/include/google/protobuf/repeated_field.h:622
+  NEW_FUNC: 0x562d45ca6740 in void std::vector<XrefEntry, std::allocator<XrefEntry> >::_M_realloc_insert<XrefEntry>(__gnu_cxx::__normal_iterator<XrefEntry*, std::vector<XrefEntry, std::allocator<XrefEntry> > >, XrefEntry&&) /usr/include/c++/11/bits/vector.tcc:434
+  NEW_FUNC: 0x562d45ca6a60 in void std::vector<int, std::allocator<int> >::_M_realloc_insert<int>(__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, int&&) /usr/include/c++/11/bits/vector.tcc:434
+  NEW_FUNC: 0x562d45ca6da0 in std::vector<int, std::allocator<int> >::_M_fill_assign(unsigned long, int const&) /usr/include/c++/11/bits/vector.tcc:259
+  NEW_FUNC: 0x562d45ca7260 in void std::vector<int, std::allocator<int> >::_M_realloc_insert<int const&>(__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, int const&) /usr/include/c++/11/bits/vector.tcc:434
+  NEW_FUNC: 0x562d45ca8060 in pdf_proto::Catalog::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:812
+  NEW_FUNC: 0x562d45ca90e0 in pdf_proto::PageTree::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:1087
+  NEW_FUNC: 0x562d45caa850 in pdf_proto::ContentStream::~ContentStream() /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:1313
+  NEW_FUNC: 0x562d45cab000 in pdf_proto::ContentStream::PlacementNew_(void const*, void*, google::protobuf::Arena*) /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:1330
+  NEW_FUNC: 0x562d45cab110 in pdf_proto::ContentStream::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:1365
+  NEW_FUNC: 0x562d45cac740 in pdf_proto::EmbeddedFontFile::SharedDtor(google::protobuf::MessageLite&) /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:1667
+  NEW_FUNC: 0x562d45cacf30 in pdf_proto::EmbeddedFontFile::PlacementNew_(void const*, void*, google::protobuf::Arena*) /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:1681
+  NEW_FUNC: 0x562d45cad070 in pdf_proto::EmbeddedFontFile::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:1716
+  NEW_FUNC: 0x562d45caeb90 in pdf_proto::FontDescriptor::SharedDtor(google::protobuf::MessageLite&) /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:2034
+  NEW_FUNC: 0x562d45caf990 in pdf_proto::FontDescriptor::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:2094
+  NEW_FUNC: 0x562d45cb4e60 in pdf_proto::Font_CidFont::PlacementNew_(void const*, void*, google::protobuf::Arena*) /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:2868
+  NEW_FUNC: 0x562d45cb6fd0 in pdf_proto::Font::Font(google::protobuf::Arena*) /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:3313
+  NEW_FUNC: 0x562d45cb86d0 in pdf_proto::Font::PlacementNew_(void const*, void*, google::protobuf::Arena*) /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:3397
+  NEW_FUNC: 0x562d45cb8710 in pdf_proto::Font::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:3448
+  NEW_FUNC: 0x562d45cbafd0 in pdf_proto::ImageXObject::~ImageXObject() /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:3954
+  NEW_FUNC: 0x562d45cbb250 in pdf_proto::ImageXObject::~ImageXObject() /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:3954
+  NEW_FUNC: 0x562d45cbdbf0 in pdf_proto::Page::~Page() /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:4391
+  NEW_FUNC: 0x562d45cbde90 in pdf_proto::Page::~Page() /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:4391
+  NEW_FUNC: 0x562d45cbe520 in pdf_proto::Page::PlacementNew_(void const*, void*, google::protobuf::Arena*) /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:4407
+  NEW_FUNC: 0x562d45cbe6d0 in pdf_proto::Page::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:4462
+  NEW_FUNC: 0x562d45cc19d0 in pdf_proto::IndirectObject::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:4977
+  NEW_FUNC: 0x562d45cc3050 in pdf_proto::PdfDocument::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:5367
+  NEW_FUNC: 0x562d45cc3070 in pdf_proto::PdfDocument::Clear() /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:5408
+  NEW_FUNC: 0x562d45cc7a50 in google::protobuf::RepeatedField<int>::AnnotateSize(int, int) const /home/hoangnh8/miniconda3/include/google/protobuf/repeated_field.h:584
+  NEW_FUNC: 0x562d45cc9600 in void google::protobuf::RepeatedField<int>::InternalDeallocate<true>() /home/hoangnh8/miniconda3/include/google/protobuf/repeated_field.h:651
+  NEW_FUNC: 0x562d45cca2c0 in pdf_proto::Page::Impl_::~Impl_() /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.h:3145
+  NEW_FUNC: 0x562d45ccb880 in AcroForm::load(PDFDoc*, Catalog*, Object*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/AcroForm.cc:82
+  NEW_FUNC: 0x562d45ccdcc0 in AcroForm::~AcroForm() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/AcroForm.cc:193
+  NEW_FUNC: 0x562d45cce060 in AcroForm::~AcroForm() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/AcroForm.cc:193
+  NEW_FUNC: 0x562d45cef500 in Annots::Annots(PDFDoc*, Object*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Annot.cc:1345
+  NEW_FUNC: 0x562d45cf0440 in Annots::generateAnnotAppearances() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Annot.cc:1426
+  NEW_FUNC: 0x562d45cf0820 in Array::Array(XRef*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Array.cc:26
+  NEW_FUNC: 0x562d45cf0880 in Array::~Array() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Array.cc:33
+  NEW_FUNC: 0x562d45cf19b0 in PageTreeNode::~PageTreeNode() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Catalog.cc:60
+  NEW_FUNC: 0x562d45cf4c00 in Catalog::getPage(int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Catalog.cc:300
+  NEW_FUNC: 0x562d45cf4e70 in Catalog::doneWithPage(int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Catalog.cc:332
+  NEW_FUNC: 0x562d45cf6e10 in Catalog::loadPage2(int, int, PageTreeNode*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Catalog.cc:587
+  NEW_FUNC: 0x562d45cf9040 in Catalog::readFileAttachmentAnnots(Object*, char*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Catalog.cc:786
+  NEW_FUNC: 0x562d45cfd330 in CharCodeToUnicode::makeIdentityMapping() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/CharCodeToUnicode.cc:94
+  NEW_FUNC: 0x562d45cfead0 in CharCodeToUnicode::parseCMap1(int (*)(void*), void*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/CharCodeToUnicode.cc:258
+  NEW_FUNC: 0x562d45d01460 in CharCodeToUnicode::mergeCMap(GString*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/CharCodeToUnicode.cc:249
+  NEW_FUNC: 0x562d45d027c0 in CharCodeToUnicode::decRefCnt() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/CharCodeToUnicode.cc:599
+  NEW_FUNC: 0x562d45d02e90 in CharCodeToUnicode::mapToUnicode(unsigned int, unsigned int*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/CharCodeToUnicode.cc:647
+  NEW_FUNC: 0x562d45d03df0 in CMap::parse(CMapCache*, GString*, Object*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/CMap.cc:52
+  NEW_FUNC: 0x562d45d045f0 in CMap::parse(CMapCache*, GString*, GString*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/CMap.cc:76
+  NEW_FUNC: 0x562d45d06f80 in CMap::decRefCnt() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/CMap.cc:343
+  NEW_FUNC: 0x562d45d182b0 in FilterStream::getPos() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.h:196
+  NEW_FUNC: 0x562d45d183e0 in FilterStream::getDict() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.h:200
+  NEW_FUNC: 0x562d45d19950 in Dict::~Dict() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Dict.cc:45
+  NEW_FUNC: 0x562d45d19b40 in Dict::add(char*, Object*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Dict.cc:56
+  NEW_FUNC: 0x562d45d19ff0 in Dict::expand() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Dict.cc:77
+  NEW_FUNC: 0x562d45d1a940 in Dict::lookupNF(char const*, Object*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Dict.cc:129
+  NEW_FUNC: 0x562d45d1aba0 in Dict::getKey(int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Dict.cc:135
+  NEW_FUNC: 0x562d45d1ac60 in Dict::getValNF(int, Object*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Dict.cc:143
+  NEW_FUNC: 0x562d45d1ad30 in error(ErrorCategory, long, char const*, ...) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Error.cc:50
+  NEW_FUNC: 0x562d45d1b470 in Form::load(PDFDoc*, Catalog*, Object*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Form.cc:28
+  NEW_FUNC: 0x562d45d1b780 in Form::Form(PDFDoc*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Form.cc:50
+  NEW_FUNC: 0x562d45d1b7d0 in Form::~Form() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Form.cc:54
+  NEW_FUNC: 0x562d45d2d5d0 in Gfx::opBeginText(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:3575
+  NEW_FUNC: 0x562d45d2e220 in Gfx::opXObject(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:4058
+  NEW_FUNC: 0x562d45d2fec0 in Gfx::opEndText(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:3583
+  NEW_FUNC: 0x562d45d30010 in Gfx::opFill(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:1782
+  NEW_FUNC: 0x562d45d31420 in Gfx::opRestore(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:880
+  NEW_FUNC: 0x562d45d353a0 in Gfx::opSetFont(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:3596
+  NEW_FUNC: 0x562d45d357b0 in Gfx::opShowText(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:3688
+  NEW_FUNC: 0x562d45d40e90 in Gfx::opEndPath(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:1743
+  NEW_FUNC: 0x562d45d41160 in Gfx::opSave(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:876
+  NEW_FUNC: 0x562d45d46120 in GfxResources::GfxResources(XRef*, Dict*, GfxResources*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:275
+  NEW_FUNC: 0x562d45d46970 in GfxResources::~GfxResources() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:327
+  NEW_FUNC: 0x562d45d46f40 in GfxResources::lookupColorSpace(char const*, Object*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:397
+  NEW_FUNC: 0x562d45d47a60 in Gfx::Gfx(PDFDoc*, OutputDev*, int, Dict*, double, double, PDFRectangle*, PDFRectangle*, int, int (*)(void*), void*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:500
+  NEW_FUNC: 0x562d45d49570 in Gfx::~Gfx() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:588
+  NEW_FUNC: 0x562d45d49bb0 in Gfx::display(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:603
+  NEW_FUNC: 0x562d45d4a380 in Gfx::checkForContentStreamLoop(Object*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:650
+  NEW_FUNC: 0x562d45d4ab20 in Gfx::go(int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:683
+  NEW_FUNC: 0x562d45d618e0 in Gfx::doShowText(GString*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:3809
+  NEW_FUNC: 0x562d45d6acd0 in Gfx::endOfPage() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:4846
+  NEW_FUNC: 0x562d45d6da00 in GfxFont::makeFont(XRef*, char const*, Ref, Dict*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxFont.cc:168
+  NEW_FUNC: 0x562d45d6de00 in GfxFont::getFontType(XRef*, Dict*, Ref*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxFont.cc:233
+  NEW_FUNC: 0x562d45d6fb30 in GfxFont::~GfxFont() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxFont.cc:213
+  NEW_FUNC: 0x562d45d6fc50 in readFromStream(void*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxFont.cc:138
+  NEW_FUNC: 0x562d45d6fcc0 in GfxFont::readFontDescriptor(XRef*, Dict*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxFont.cc:417
+  NEW_FUNC: 0x562d45d70c40 in GfxFont::readToUnicodeCMap(Dict*, int, CharCodeToUnicode*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxFont.cc:515
+  NEW_FUNC: 0x562d45d73d60 in GfxFont::readEmbFontFile(XRef*, int*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxFont.cc:837
+  NEW_FUNC: 0x562d45d742f0 in Gfx8BitFont::Gfx8BitFont(XRef*, char const*, Ref, GString*, GfxFontType, Ref, Dict*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxFont.cc:882
+  NEW_FUNC: 0x562d45d797e0 in Gfx8BitFont::~Gfx8BitFont() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxFont.cc:1372
+  NEW_FUNC: 0x562d45d79a30 in Gfx8BitFont::~Gfx8BitFont() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxFont.cc:1372
+  NEW_FUNC: 0x562d45d79a70 in Gfx8BitFont::getNextChar(char*, int, unsigned int*, unsigned int*, int, int*, double*, double*, double*, double*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxFont.cc:1391
+  NEW_FUNC: 0x562d45d7b170 in GfxCIDFont::GfxCIDFont(XRef*, char const*, Ref, GString*, GfxFontType, Ref, Dict*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxFont.cc:1621
+  NEW_FUNC: 0x562d45d7f6a0 in GfxCIDFont::~GfxCIDFont() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxFont.cc:1937
+  NEW_FUNC: 0x562d45d7f880 in GfxCIDFont::~GfxCIDFont() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxFont.cc:1937
+  NEW_FUNC: 0x562d45d7f8c0 in GfxCIDFont::getNextChar(char*, int, unsigned int*, unsigned int*, int, int*, double*, double*, double*, double*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxFont.cc:1956
+  NEW_FUNC: 0x562d45d80b30 in GfxCIDFont::getWMode() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxFont.cc:2029
+  NEW_FUNC: 0x562d45d81140 in GfxFontDict::GfxFontDict(XRef*, Ref*, Dict*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxFont.cc:2103
+  NEW_FUNC: 0x562d45d81f00 in GfxFontDict::~GfxFontDict() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxFont.cc:2148
+  NEW_FUNC: 0x562d45d82130 in GfxFontDict::lookup(char*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxFont.cc:2153
+  NEW_FUNC: 0x562d45d83150 in GfxFont::getWMode() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxFont.h:190
+  NEW_FUNC: 0x562d45d83250 in GfxColorSpace::parse(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.cc:110
+  NEW_FUNC: 0x562d45d84440 in GfxColorSpace::create(GfxColorSpaceMode) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.cc:170
+  NEW_FUNC: 0x562d45d8ab40 in GfxColorSpace::getDefaultRanges(double*, double*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.cc:185
+  NEW_FUNC: 0x562d45d8ad90 in GfxDeviceGrayColorSpace::~GfxDeviceGrayColorSpace() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.cc:209
+  NEW_FUNC: 0x562d45d8adc0 in GfxDeviceGrayColorSpace::copy() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.cc:212
+  NEW_FUNC: 0x562d45d8ba10 in GfxDeviceRGBColorSpace::~GfxDeviceRGBColorSpace() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.cc:348
+  NEW_FUNC: 0x562d45d8d040 in GfxDeviceCMYKColorSpace::~GfxDeviceCMYKColorSpace() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.cc:555
+  NEW_FUNC: 0x562d45db1190 in GfxImageColorMap::GfxImageColorMap(int, Object*, GfxColorSpace*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.cc:3540
+  NEW_FUNC: 0x562d45db3710 in GfxImageColorMap::~GfxImageColorMap() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.cc:3724
+  NEW_FUNC: 0x562d45db7a40 in GfxPath::~GfxPath() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.cc:3973
+  NEW_FUNC: 0x562d45dba6e0 in GfxState::GfxState(double, double, PDFRectangle*, int, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.cc:4085
+  NEW_FUNC: 0x562d45dbb750 in GfxState::~GfxState() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.cc:4186
+  NEW_FUNC: 0x562d45dbbaf0 in GfxState::GfxState(GfxState*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.cc:4214
+  NEW_FUNC: 0x562d45dbd5d0 in GfxState::setStrokeColorSpace(GfxColorSpace*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.cc:4399
+  NEW_FUNC: 0x562d45dbd780 in GfxState::setStrokePattern(GfxPattern*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.cc:4413
+  NEW_FUNC: 0x562d45dbdab0 in GfxState::clearPath() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.cc:4439
+  NEW_FUNC: 0x562d45dbf290 in GfxState::shift(double, double) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.cc:4610
+  NEW_FUNC: 0x562d45dbf2f0 in GfxState::save() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.cc:4615
+  NEW_FUNC: 0x562d45dbf380 in GfxState::restore() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.cc:4623
+  NEW_FUNC: 0x562d45dbfbc0 in GfxDeviceGrayColorSpace::getMode() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.h:231
+  NEW_FUNC: 0x562d45dbfc00 in GfxDeviceRGBColorSpace::getMode() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.h:291
+  NEW_FUNC: 0x562d45dbfc10 in GfxDeviceRGBColorSpace::getNComps() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.h:297
+  NEW_FUNC: 0x562d45dbfc40 in GfxDeviceCMYKColorSpace::getMode() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.h:355
+  NEW_FUNC: 0x562d45dbfc50 in GfxDeviceCMYKColorSpace::getNComps() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.h:361
+  NEW_FUNC: 0x562d45dd0200 in GlobalParams::mapNameToUnicode(char const*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GlobalParams.cc:2301
+  NEW_FUNC: 0x562d45dd03a0 in GlobalParams::findCMapFile(GString*, GString*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GlobalParams.cc:2332
+  NEW_FUNC: 0x562d45dd3360 in GlobalParams::getDrawAnnotations() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GlobalParams.cc:3019
+  NEW_FUNC: 0x562d45dd33d0 in GlobalParams::getDrawFormFields() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GlobalParams.cc:3028
+  NEW_FUNC: 0x562d45dd3780 in GlobalParams::getMapNumericCharNames() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GlobalParams.cc:3084
+  NEW_FUNC: 0x562d45dd38d0 in GlobalParams::isDroppedFont(char const*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GlobalParams.cc:3111
+  NEW_FUNC: 0x562d45dd4060 in GlobalParams::getPrintCommands() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GlobalParams.cc:3186
+  NEW_FUNC: 0x562d45dd40d0 in GlobalParams::getErrQuiet() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GlobalParams.cc:3195
+  NEW_FUNC: 0x562d45dd4c90 in GlobalParams::getCMap(GString*, GString*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GlobalParams.cc:3304
+  NEW_FUNC: 0x562d45e09510 in JPXStream::JPXStream(Stream*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/JPXStream.cc:232
+  NEW_FUNC: 0x562d45e097d0 in JPXStream::~JPXStream() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/JPXStream.cc:263
+  NEW_FUNC: 0x562d45e098e0 in JPXStream::copy() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/JPXStream.cc:268
+  NEW_FUNC: 0x562d45e09b60 in JPXStream::reset() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/JPXStream.cc:272
+  NEW_FUNC: 0x562d45e09e30 in JPXStream::readBoxes() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/JPXStream.cc:593
+  NEW_FUNC: 0x562d45e0d520 in JPXStream::close() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/JPXStream.cc:286
+  NEW_FUNC: 0x562d45e0e430 in JPXStream::getChar() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/JPXStream.cc:368
+  NEW_FUNC: 0x562d45e0e630 in JPXStream::fillReadBuf() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/JPXStream.cc:407
+  NEW_FUNC: 0x562d45e0f2e0 in JPXStream::getImageParams(int*, StreamColorSpaceMode*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/JPXStream.cc:475
+  NEW_FUNC: 0x562d45e10940 in JPXStream::getImageParams2(int*, StreamColorSpaceMode*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/JPXStream.cc:555
+  NEW_FUNC: 0x562d45e12310 in JPXStream::readBoxHdr(unsigned int*, unsigned int*, unsigned int*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/JPXStream.cc:3304
+  NEW_FUNC: 0x562d45e13900 in JPXStream::readCodestream(unsigned int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/JPXStream.cc:901
+  NEW_FUNC: 0x562d45e37890 in Lexer::Lexer(XRef*, Stream*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Lexer.cc:50
+  NEW_FUNC: 0x562d45e37bd0 in Lexer::Lexer(XRef*, Object*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Lexer.cc:61
+  NEW_FUNC: 0x562d45e38040 in Lexer::~Lexer() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Lexer.cc:79
+  NEW_FUNC: 0x562d45e381e0 in Lexer::getChar() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Lexer.cc:89
+  NEW_FUNC: 0x562d45e385f0 in Lexer::getObj(Object*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Lexer.cc:112
+  NEW_FUNC: 0x562d45e3e140 in Lexer::skipToNextLine() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Lexer.cc:527
+  NEW_FUNC: 0x562d45e3ebc0 in Lexer::isSpace(int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Lexer.cc:548
+  NEW_FUNC: 0x562d45e483e0 in NameToCharCode::lookup(char const*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/NameToCharCode.cc:93
+  NEW_FUNC: 0x562d45e48660 in Object::initArray(XRef*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Object.cc:54
+  NEW_FUNC: 0x562d45e48720 in Object::initDict(XRef*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Object.cc:60
+  NEW_FUNC: 0x562d45e48860 in Object::initStream(Stream*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Object.cc:73
+  NEW_FUNC: 0x562d45e488c0 in Object::copy(Object*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Object.cc:79
+  NEW_FUNC: 0x562d45e48bb0 in Object::fetch(XRef*, Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Object.cc:113
+  NEW_FUNC: 0x562d45e48ce0 in Object::free() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Object.cc:118
+  NEW_FUNC: 0x562d45e498c0 in OptionalContent::OptionalContent(PDFDoc*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OptionalContent.cc:43
+  NEW_FUNC: 0x562d45e4ce20 in OptionalContent::~OptionalContent() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OptionalContent.cc:144
+  NEW_FUNC: 0x562d45e4d210 in OptionalContent::evalOCObject(Object*, int*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OptionalContent.cc:170
+  NEW_FUNC: 0x562d45e4fd00 in OCDisplayNode::~OCDisplayNode() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OptionalContent.cc:506
+  NEW_FUNC: 0x562d45e4ffd0 in Outline::Outline(Object*, XRef*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Outline.cc:26
+  NEW_FUNC: 0x562d45e50cf0 in Outline::~Outline() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Outline.cc:42
+  NEW_FUNC: 0x562d45e51a70 in OutputDev::setDefaultCTM(double*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.cc:26
+  NEW_FUNC: 0x562d45e520f0 in OutputDev::updateAll(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.cc:57
+  NEW_FUNC: 0x562d45e52ef0 in PageAttrs::PageAttrs(PageAttrs*, Dict*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Page.cc:66
+  NEW_FUNC: 0x562d45e53af0 in PageAttrs::readBox(Dict*, char const*, PDFRectangle*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Page.cc:182
+  NEW_FUNC: 0x562d45e547f0 in PageAttrs::~PageAttrs() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Page.cc:165
+  NEW_FUNC: 0x562d45e551f0 in Page::Page(PDFDoc*, int, Dict*, PageAttrs*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Page.cc:239
+  NEW_FUNC: 0x562d45e55ef0 in Page::~Page() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Page.cc:300
+  NEW_FUNC: 0x562d45e56210 in Page::display(OutputDev*, double, double, int, int, int, int, int (*)(void*), void*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Page.cc:320
+  NEW_FUNC: 0x562d45e56260 in Page::displaySlice(OutputDev*, double, double, int, int, int, int, int, int, int, int, int (*)(void*), void*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Page.cc:331
+  NEW_FUNC: 0x562d45e58030 in Parser::Parser(XRef*, Lexer*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Parser.cc:30
+  NEW_FUNC: 0x562d45e581a0 in Parser::~Parser() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Parser.cc:39
+  NEW_FUNC: 0x562d45e58240 in Parser::getObj(Object*, int, unsigned char*, CryptAlgorithm, int, int, int, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Parser.cc:48
+  NEW_FUNC: 0x562d45e5b310 in Parser::makeStream(Object*, unsigned char*, CryptAlgorithm, int, int, int, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Parser.cc:154
+  NEW_FUNC: 0x562d45e624b0 in PDFDoc::setup(GString*, GString*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/PDFDoc.cc:253
+  NEW_FUNC: 0x562d45e62740 in PDFDoc::PDFDoc(char*, GString*, GString*, PDFCore*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/PDFDoc.cc:158
+  NEW_FUNC: 0x562d45e62e60 in PDFDoc::checkHeader() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/PDFDoc.cc:355
+  NEW_FUNC: 0x562d45e632a0 in PDFDoc::setup2(GString*, GString*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/PDFDoc.cc:288
+  NEW_FUNC: 0x562d45e636c0 in PDFDoc::checkEncryption(GString*, GString*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/PDFDoc.cc:386
+  NEW_FUNC: 0x562d45e63bf0 in PDFDoc::~PDFDoc() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/PDFDoc.cc:322
+  NEW_FUNC: 0x562d45e63f40 in PDFDoc::displayPages(OutputDev*, int, int, double, double, int, int, int, int, int (*)(void*), void*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/PDFDoc.cc:441
+  NEW_FUNC: 0x562d45e65b40 in PSTokenizer::PSTokenizer(int (*)(void*), void*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/PSTokenizer.cc:45
+  NEW_FUNC: 0x562d45e65bb0 in PSTokenizer::~PSTokenizer() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/PSTokenizer.cc:51
+  NEW_FUNC: 0x562d45e65bc0 in PSTokenizer::getToken(char*, int, int*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/PSTokenizer.cc:54
+  NEW_FUNC: 0x562d45e6a7d0 in FilterStream::~FilterStream() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:61
+  NEW_FUNC: 0x562d45e6a7e0 in Stream::close() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:64
+  NEW_FUNC: 0x562d45e6a830 in Stream::getBlock(char*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:72
+  NEW_FUNC: 0x562d45e6ac60 in Stream::discardChars(unsigned int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:106
+  NEW_FUNC: 0x562d45e6af00 in Stream::addFilters(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:129
+  NEW_FUNC: 0x562d45e6b800 in Stream::makeFilter(char*, Stream*, Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:174
+  NEW_FUNC: 0x562d45e6d280 in FilterStream::FilterStream(Stream*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:331
+  NEW_FUNC: 0x562d45e6d2d0 in FilterStream::close() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:338
+  NEW_FUNC: 0x562d45e709a0 in FileStream::FileStream(_IO_FILE*, long, int, long, Object*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:756
+  NEW_FUNC: 0x562d45e70f80 in FileStream::~FileStream() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:776
+  NEW_FUNC: 0x562d45e710e0 in FileStream::copy() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:780
+  NEW_FUNC: 0x562d45e714d0 in FileStream::makeSubStream(long, int, long, Object*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:788
+  NEW_FUNC: 0x562d45e71740 in FileStream::reset() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:792
+  NEW_FUNC: 0x562d45e717e0 in FileStream::getBlock(char*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:797
+  NEW_FUNC: 0x562d45e719c0 in FileStream::fillBuf() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:818
+  NEW_FUNC: 0x562d45e71cd0 in FileStream::setPos(long, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:839
+  NEW_FUNC: 0x562d45e71e50 in FileStream::moveStart(int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:855
+  NEW_FUNC: 0x562d45e75290 in LZWStream::LZWStream(Stream*, int, int, int, int, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:1210
+  NEW_FUNC: 0x562d45e75ce0 in LZWStream::~LZWStream() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:1226
+  NEW_FUNC: 0x562d45e75e30 in LZWStream::copy() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:1233
+  NEW_FUNC: 0x562d45e76390 in LZWStream::getChar() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:1243
+  NEW_FUNC: 0x562d45e76670 in LZWStream::processNextCode() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:1322
+  NEW_FUNC: 0x562d45e77f00 in LZWStream::reset() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:1312
+  NEW_FUNC: 0x562d45e78890 in RunLengthStream::~RunLengthStream() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:1446
+  NEW_FUNC: 0x562d45e78970 in RunLengthStream::copy() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:1450
+  NEW_FUNC: 0x562d45e78b20 in RunLengthStream::reset() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:1454
+  NEW_FUNC: 0x562d45e79740 in CCITTFaxStream::CCITTFaxStream(Stream*, int, int, int, int, int, int, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:1532
+  NEW_FUNC: 0x562d45e79e60 in CCITTFaxStream::~CCITTFaxStream() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:1564
+  NEW_FUNC: 0x562d45e79fb0 in CCITTFaxStream::copy() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:1570
+  NEW_FUNC: 0x562d45e7a7b0 in CCITTFaxStream::reset() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:1575
+  NEW_FUNC: 0x562d45e7b400 in CCITTFaxStream::getChar() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:1602
+  NEW_FUNC: 0x562d45e7b930 in CCITTFaxStream::readRow() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:1769
+  NEW_FUNC: 0x562d45e843d0 in CCITTFaxStream::getBlackCode() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:2171
+  NEW_FUNC: 0x562d45e85590 in CCITTFaxStream::getWhiteCode() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:2112
+  NEW_FUNC: 0x562d45e868a0 in DCTStream::DCTStream(Stream*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:2632
+  NEW_FUNC: 0x562d45e86cc0 in DCTStream::~DCTStream() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:2652
+  NEW_FUNC: 0x562d45e86f10 in DCTStream::copy() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:2657
+  NEW_FUNC: 0x562d45e9c260 in FlateStream::FlateStream(Stream*, int, int, int, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:4895
+  NEW_FUNC: 0x562d45e9c8e0 in FlateStream::~FlateStream() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:4910
+  NEW_FUNC: 0x562d45e9cac0 in FlateStream::~FlateStream() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:4910
+  NEW_FUNC: 0x562d45e9cb00 in FlateStream::copy() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:4923
+  NEW_FUNC: 0x562d45e9ce60 in FlateStream::reset() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:4933
+  NEW_FUNC: 0x562d45e9d410 in FlateStream::getChar() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:4973
+  NEW_FUNC: 0x562d45e9d7f0 in FlateStream::readSome() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:5061
+  NEW_FUNC: 0x562d45e9fb70 in FlateStream::startBlock() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:5126
+  NEW_FUNC: 0x562d45ea2e60 in BufStream::BufStream(Stream*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:5406
+  NEW_FUNC: 0x562d45ea3030 in BufStream::~BufStream() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:5411
+  NEW_FUNC: 0x562d45ea3300 in BufStream::reset() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:5420
+  NEW_FUNC: 0x562d45ea3540 in BufStream::getChar() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:5429
+  NEW_FUNC: 0x562d45ea37d0 in BufStream::lookChar() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:5440
+  NEW_FUNC: 0x562d45ea8420 in BaseStream::getBaseStream() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.h:170
+  NEW_FUNC: 0x562d45ea8440 in BaseStream::getDict() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.h:172
+  NEW_FUNC: 0x562d45ea8490 in FileStream::getChar() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.h:315
+  NEW_FUNC: 0x562d45ea8590 in FileStream::lookChar() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.h:317
+  NEW_FUNC: 0x562d45ea8680 in FileStream::getPos() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.h:319
+  NEW_FUNC: 0x562d45ea86e0 in FileStream::getStart() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.h:321
+  NEW_FUNC: 0x562d45ea8ba0 in RunLengthStream::getChar() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.h:523
+  NEW_FUNC: 0x562d45eaa460 in TextString::TextString() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/TextString.cc:25
+  NEW_FUNC: 0x562d45eaa6d0 in TextString::~TextString() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/TextString.cc:46
+  NEW_FUNC: 0x562d45ecab90 in XRefPosSet::add(long) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/XRef.cc:80
+  NEW_FUNC: 0x562d45ecc500 in XRef::fetch(int, int, Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/XRef.cc:1031
+  NEW_FUNC: 0x562d45ecd880 in XRef::XRef(BaseStream*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/XRef.cc:294
+  NEW_FUNC: 0x562d45ecfd50 in XRef::getStartXref() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/XRef.cc:414
+  NEW_FUNC: 0x562d45ed02a0 in XRef::readXRef(long*, XRefPosSet*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/XRef.cc:442
+  NEW_FUNC: 0x562d45ed0ff0 in XRef::~XRef() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/XRef.cc:386
+  NEW_FUNC: 0x562d45ed14f0 in XRef::readXRefTable(long*, int, XRefPosSet*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/XRef.cc:509
+  NEW_FUNC: 0x562d45ed5e60 in XRef::getStreamEnd(long, long*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/XRef.cc:1241
+  NEW_FUNC: 0x562d45f01f30 in GHash::GHash(int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/GHash.cc:38
+  NEW_FUNC: 0x562d45f020f0 in GHash::~GHash() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/GHash.cc:50
+  NEW_FUNC: 0x562d45f023f0 in GHash::add(GString*, void*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/GHash.cc:67
+  NEW_FUNC: 0x562d45f03c50 in GHash::lookup(GString*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/GHash.cc:133
+  NEW_FUNC: 0x562d45f04100 in GHash::lookup(char const*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/GHash.cc:153
+  NEW_FUNC: 0x562d45f04550 in GHash::lookupInt(char const*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/GHash.cc:163
+  NEW_FUNC: 0x562d45f05640 in GHash::startIter(GHashIter**) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/GHash.cc:265
+  NEW_FUNC: 0x562d45f056e0 in GHash::getNext(GHashIter**, GString**, void**) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/GHash.cc:271
+  NEW_FUNC: 0x562d45f05fe0 in GList::GList() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/GList.cc:25
+  NEW_FUNC: 0x562d45f061c0 in GList::~GList() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/GList.cc:39
+  NEW_FUNC: 0x562d45f064b0 in GList::append(void*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/GList.cc:53
+  NEW_FUNC: 0x562d45f06ed0 in GList::del(int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/GList.cc:85
+  NEW_FUNC: 0x562d45f07470 in GString::GString() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/GString.cc:133
+  NEW_FUNC: 0x562d45f07520 in GString::resize(int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/GString.cc:112
+  NEW_FUNC: 0x562d45f07a00 in GString::GString(char const*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/GString.cc:139
+  NEW_FUNC: 0x562d45f07ad0 in GString::GString(char const*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/GString.cc:147
+  NEW_FUNC: 0x562d45f07d30 in GString::GString(GString*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/GString.cc:161
+  NEW_FUNC: 0x562d45f08b10 in GString::appendfv(char const*, __va_list_tag*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/GString.cc:272
+  NEW_FUNC: 0x562d45f0f170 in GString::formatv(char const*, __va_list_tag*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/GString.cc:200
+  NEW_FUNC: 0x562d45f0f280 in GString::~GString() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/GString.cc:208
+  NEW_FUNC: 0x562d45f0f380 in GString::append(char) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/GString.cc:218
+  NEW_FUNC: 0x562d45f0f4f0 in GString::append(GString*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/GString.cc:228
+  NEW_FUNC: 0x562d45f106e0 in GString::insert(int, char const*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/GString.cc:711
+  NEW_FUNC: 0x562d45f11170 in GString::cmp(GString*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/GString.cc:777
+  NEW_FUNC: 0x562d45f11f30 in grabPath(char*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/gfile.cc:254
+  NEW_FUNC: 0x562d45f12c50 in gfseek(_IO_FILE*, long, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/gfile.cc:669
+  NEW_FUNC: 0x562d45f12c80 in gftell(_IO_FILE*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/gfile.cc:681
+  NEW_FUNC: 0x562d45f12d30 in gmalloc /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/gmem.cc:139
+  NEW_FUNC: 0x562d45f12eb0 in gmallocn /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/gmem.cc:204
+  NEW_FUNC: 0x562d45f13130 in greallocn /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/gmem.cc:291
+  NEW_FUNC: 0x562d45f13230 in gfree /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/gmem.cc:307
+  NEW_FUNC: 0x562d45f13280 in copyString /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/gmem.cc:390
+  NEW_FUNC: 0x562d45f15960 in StreamReader::~StreamReader() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiIdentifier.cc:312
+  NEW_FUNC: 0x562d45f15990 in StreamReader::getByte(int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiIdentifier.cc:315
+  NEW_FUNC: 0x562d45f15a60 in StreamReader::fillBuf(int, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiIdentifier.cc:376
+  NEW_FUNC: 0x562d45f16690 in StreamReader::cmp(int, char const*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiIdentifier.cc:366
+  NEW_FUNC: 0x562d45f16880 in identify(Reader*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiIdentifier.cc:476
+  NEW_FUNC: 0x562d45f178a0 in FoFiIdentifier::identifyStream(int (*)(void*), void*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiIdentifier.cc:464
+  NEW_FUNC: 0x562d45f31a40 in FoFiType1::make(char*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiType1.cc:26
+  NEW_FUNC: 0x562d45f31f40 in FoFiType1::undoPFB() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiType1.cc:327
+  NEW_FUNC: 0x562d45f324b0 in FoFiType1::~FoFiType1() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiType1.cc:55
+  NEW_FUNC: 0x562d45f32650 in FoFiType1::~FoFiType1() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiType1.cc:55
+  NEW_FUNC: 0x562d45f32690 in FoFiType1::getName() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiType1.cc:69
+  NEW_FUNC: 0x562d45f32730 in FoFiType1::parse() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiType1.cc:196
+  NEW_FUNC: 0x562d45f343b0 in FoFiType1::getEncoding() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiType1.cc:76
+  NEW_FUNC: 0x562d45f35eb0 in FoFiType1C::make(char*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiType1C.cc:71
+  NEW_FUNC: 0x562d45f36010 in FoFiType1C::parse() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiType1C.cc:2569
+  NEW_FUNC: 0x562d45f37c50 in FoFiType1C::~FoFiType1C() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiType1C.cc:108
+  NEW_FUNC: 0x562d45f37f10 in FoFiType1C::~FoFiType1C() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiType1C.cc:108
+  NEW_FUNC: 0x562d45f48260 in FoFiType1C::getIndex(int, Type1CIndex*, int*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiType1C.cc:3294
+  NEW_FUNC: 0x562d45f78800 in FoFiBase::FoFiBase(char*, int, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiBase.cc:25
+  NEW_FUNC: 0x562d45f788d0 in FoFiBase::~FoFiBase() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiBase.cc:31
+  NEW_FUNC: 0x562d45f78cc0 in FoFiBase::getU8(int, int*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiBase.cc:77
+  NEW_FUNC: 0x562d45f78f50 in FoFiBase::getU16BE(int, int*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiBase.cc:100
+  NEW_FUNC: 0x562d45f79650 in FoFiBase::getUVarBE(int, int, int*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiBase.cc:157
+#2742: cov: 26066 ft: 24034 corp: 4400 exec/s 476 oom/timeout/crash: 0/0/1 time: 47s job: 3 dft_time: 0
+  NEW_FUNC: 0x562d45d2ce20 in Gfx::opBeginImage(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:4859
+  NEW_FUNC: 0x562d45d6af50 in Gfx::buildImageStream(int*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:4905
+  NEW_FUNC: 0x562d45e12f90 in JPXStream::readULong(unsigned int*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/JPXStream.cc:3390
+  NEW_FUNC: 0x562d45ea0a40 in FlateStream::getCodeWord(int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:5371
+  NEW_FUNC: 0x562d45ea0da0 in FlateStream::readDynamicCodes() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:5201
+  NEW_FUNC: 0x562d45ea2640 in FlateStream::compHuffmanCodes(int*, int, FlateHuffmanTab*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:5303
+#4743: cov: 26272 ft: 24034 corp: 4400 exec/s 400 oom/timeout/crash: 0/0/1 time: 52s job: 4 dft_time: 0
+  NEW_FUNC: 0x562d45d42370 in Gfx::opCloseStroke(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:1764
+  NEW_FUNC: 0x562d45e49030 in Object::getTypeName() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Object.cc:155
+  NEW_FUNC: 0x562d45e871e0 in DCTStream::reset() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:2661
+  NEW_FUNC: 0x562d45e88780 in DCTStream::readHeader(int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:3789
+  NEW_FUNC: 0x562d45e8e210 in DCTStream::close() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:2790
+  NEW_FUNC: 0x562d45e8e370 in DCTStream::getChar() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:2802
+  NEW_FUNC: 0x562d45e99850 in DCTStream::readScanInfo() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:3986
+  NEW_FUNC: 0x562d45f10b90 in GString::del(int, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/GString.cc:740
+#5431: cov: 26366 ft: 24036 corp: 4401 exec/s 114 oom/timeout/crash: 0/0/1 time: 58s job: 5 dft_time: 0
+  NEW_FUNC: 0x562d45c979c0 in OutputDev::clip(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:178
+  NEW_FUNC: 0x562d45d36be0 in Gfx::opClip(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:3563
+  NEW_FUNC: 0x562d45d40830 in Gfx::opLineTo(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:1661
+  NEW_FUNC: 0x562d45d40c60 in Gfx::opMoveTo(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:1657
+  NEW_FUNC: 0x562d45db8290 in GfxPath::moveTo(double, double) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.cc:3996
+  NEW_FUNC: 0x562d45db8300 in GfxPath::lineTo(double, double) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.cc:4002
+  NEW_FUNC: 0x562d45dbdc50 in GfxState::clip() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.cc:4444
+  NEW_FUNC: 0x562d45e9ede0 in FlateStream::lookChar() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:4990
+#7277: cov: 26510 ft: 24036 corp: 4401 exec/s 263 oom/timeout/crash: 0/0/1 time: 65s job: 6 dft_time: 0
+  NEW_FUNC: 0x562d45d3a210 in Gfx::opEOFill(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:1799
+  NEW_FUNC: 0x562d45d3fae0 in Gfx::opClosePath(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:1731
+#9869: cov: 26543 ft: 24039 corp: 4404 exec/s 324 oom/timeout/crash: 0/0/1 time: 74s job: 7 dft_time: 0
+  NEW_FUNC: 0x562d45db7320 in GfxSubpath::close() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.cc:3949
+  NEW_FUNC: 0x562d45db9bd0 in GfxPath::close() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.cc:4041
+  NEW_FUNC: 0x562d45e9b3a0 in DCTStream::readAdobeMarker() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:4169
+  NEW_FUNC: 0x562d45f19f70 in identifyCFF(Reader*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiIdentifier.cc:562
+#13745: cov: 26584 ft: 24039 corp: 4404 exec/s 430 oom/timeout/crash: 0/0/1 time: 83s job: 8 dft_time: 0
+  NEW_FUNC: 0x562d45d400b0 in Gfx::opSetLineJoin(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:921
+  NEW_FUNC: 0x562d45f15fd0 in StreamReader::getU16BE(int, int*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiIdentifier.cc:322
+  NEW_FUNC: 0x562d45f162f0 in StreamReader::getU32LE(int, unsigned int*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiIdentifier.cc:342
+  NEW_FUNC: 0x562d45f79470 in FoFiBase::getU32LE(int, int*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiBase.cc:143
+  NEW_FUNC: 0x562d45f797d0 in FoFiBase::checkRegion(int, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiBase.cc:172
+#17807: cov: 26616 ft: 24039 corp: 4404 exec/s 406 oom/timeout/crash: 0/0/1 time: 93s job: 9 dft_time: 0
+  NEW_FUNC: 0x562d45c97aa0 in FuzzOutputDev::drawImageMask(GfxState*, Object*, Stream*, int, int, int, int, int) /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/harness.cpp:35
+#17807: cov: 26632 ft: 24039 corp: 4404 exec/s 0 oom/timeout/crash: 0/0/1 time: 93s job: 10 dft_time: 0
+#23701: cov: 26632 ft: 24039 corp: 4404 exec/s 491 oom/timeout/crash: 0/0/2 time: 105s job: 11 dft_time: 0
+  NEW_FUNC: 0x562d45dbfbd0 in GfxDeviceGrayColorSpace::getNComps() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.h:237
+  NEW_FUNC: 0x562d45f164c0 in StreamReader::getUVarBE(int, int, unsigned int*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiIdentifier.cc:353
+#23701: cov: 26670 ft: 24040 corp: 4405 exec/s 0 oom/timeout/crash: 0/0/2 time: 105s job: 12 dft_time: 0
+#31198: cov: 26670 ft: 24040 corp: 4405 exec/s 535 oom/timeout/crash: 0/0/3 time: 119s job: 13 dft_time: 0
+  NEW_FUNC: 0x562d45d36c20 in Gfx::opEOClip(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:3567
+#34027: cov: 26679 ft: 24041 corp: 4406 exec/s 188 oom/timeout/crash: 0/0/3 time: 135s job: 14 dft_time: 0
+  NEW_FUNC: 0x562d45c97950 in OutputDev::stroke(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:161
+  NEW_FUNC: 0x562d45c97970 in OutputDev::eoFill(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:163
+  NEW_FUNC: 0x562d45d2bcc0 in Gfx::opEOFillStroke(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:1861
+  NEW_FUNC: 0x562d45d30b00 in Gfx::opSetLineCap(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:932
+#35993: cov: 26703 ft: 24041 corp: 4406 exec/s 122 oom/timeout/crash: 0/0/3 time: 152s job: 15 dft_time: 0
+  NEW_FUNC: 0x562d45d31b20 in Gfx::opStroke(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:1747
+  NEW_FUNC: 0x562d45f69100 in FoFiType1C::getOp(int, int, int*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiType1C.cc:3161
+  NEW_FUNC: 0x562d45f6d8e0 in FoFiType1C::readTopDict() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiType1C.cc:2676
+  NEW_FUNC: 0x562d45f71d10 in FoFiType1C::readPrivateDict(int, int, Type1CPrivateDict*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiType1C.cc:2829
+#39144: cov: 26764 ft: 24042 corp: 4407 exec/s 175 oom/timeout/crash: 0/0/3 time: 171s job: 16 dft_time: 0
+#42881: cov: 26770 ft: 24043 corp: 4408 exec/s 207 oom/timeout/crash: 0/0/3 time: 190s job: 17 dft_time: 0
+  NEW_FUNC: 0x562d45f026c0 in GHash::expand() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/goo/GHash.cc:316
+#42881: cov: 26788 ft: 24043 corp: 4408 exec/s 0 oom/timeout/crash: 0/0/3 time: 190s job: 18 dft_time: 0
+#44339: cov: 26788 ft: 24043 corp: 4408 exec/s 72 oom/timeout/crash: 0/0/4 time: 210s job: 19 dft_time: 0
+  NEW_FUNC: 0x562d45d2b640 in Gfx::opFillStroke(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:1816
+  NEW_FUNC: 0x562d45d374e0 in Gfx::opCloseEOFillStroke(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:1883
+  NEW_FUNC: 0x562d45d459e0 in Gfx::opSetLineWidth(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:948
+#45609: cov: 26807 ft: 24045 corp: 4410 exec/s 60 oom/timeout/crash: 0/0/4 time: 232s job: 20 dft_time: 0
+  NEW_FUNC: 0x562d45e72d90 in EmbedStream::EmbedStream(Stream*, Object*, int, long) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:960
+  NEW_FUNC: 0x562d45e72ea0 in EmbedStream::~EmbedStream() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:966
+#45609: cov: 26829 ft: 24045 corp: 4410 exec/s 0 oom/timeout/crash: 0/0/4 time: 233s job: 21 dft_time: 0
+#45609: cov: 26829 ft: 24045 corp: 4410 exec/s 0 oom/timeout/crash: 0/0/5 time: 233s job: 22 dft_time: 0
+#55671: cov: 26829 ft: 24045 corp: 4410 exec/s 419 oom/timeout/crash: 0/0/6 time: 257s job: 23 dft_time: 0
+#61593: cov: 26839 ft: 24050 corp: 4412 exec/s 236 oom/timeout/crash: 0/0/6 time: 282s job: 24 dft_time: 0
+#69207: cov: 26852 ft: 24051 corp: 4413 exec/s 292 oom/timeout/crash: 0/0/6 time: 308s job: 25 dft_time: 0
+#74335: cov: 26876 ft: 24053 corp: 4414 exec/s 189 oom/timeout/crash: 0/0/6 time: 336s job: 26 dft_time: 0
+#84382: cov: 26882 ft: 24053 corp: 4414 exec/s 358 oom/timeout/crash: 0/0/6 time: 364s job: 27 dft_time: 0
+#84382: cov: 26892 ft: 24053 corp: 4414 exec/s 0 oom/timeout/crash: 0/0/6 time: 364s job: 28 dft_time: 0
+#93990: cov: 26892 ft: 24053 corp: 4414 exec/s 320 oom/timeout/crash: 0/0/7 time: 394s job: 29 dft_time: 0
+  NEW_FUNC: 0x562d45c979d0 in OutputDev::eoClip(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:179
+  NEW_FUNC: 0x562d45d33600 in Gfx::opTextNextLine(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:3675
+#95560: cov: 26897 ft: 24053 corp: 4414 exec/s 49 oom/timeout/crash: 0/0/7 time: 427s job: 30 dft_time: 0
+  NEW_FUNC: 0x562d45e98560 in DCTStream::readProgressiveSOF() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:3941
+#95560: cov: 26911 ft: 24053 corp: 4414 exec/s 0 oom/timeout/crash: 0/0/7 time: 427s job: 31 dft_time: 0
+#104117: cov: 26911 ft: 24053 corp: 4414 exec/s 259 oom/timeout/crash: 0/0/8 time: 461s job: 32 dft_time: 0
+  NEW_FUNC: 0x562d45d36c60 in Gfx::opCloseFillStroke(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:1838
+#110501: cov: 26920 ft: 24053 corp: 4414 exec/s 187 oom/timeout/crash: 0/0/8 time: 496s job: 33 dft_time: 0
+#113746: cov: 26930 ft: 24053 corp: 4414 exec/s 90 oom/timeout/crash: 0/0/8 time: 532s job: 34 dft_time: 0
+  NEW_FUNC: 0x562d45e97940 in DCTStream::readBaselineSOF() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:3896
+#115247: cov: 26940 ft: 24053 corp: 4414 exec/s 45 oom/timeout/crash: 0/0/8 time: 565s job: 35 dft_time: 0
+#125927: cov: 26947 ft: 24053 corp: 4414 exec/s 288 oom/timeout/crash: 1/0/8 time: 603s job: 36 dft_time: 0
+#125927: cov: 26957 ft: 24056 corp: 4417 exec/s 0 oom/timeout/crash: 1/0/8 time: 603s job: 37 dft_time: 0
+#133563: cov: 26957 ft: 24056 corp: 4417 exec/s 195 oom/timeout/crash: 1/0/9 time: 642s job: 38 dft_time: 0
+  NEW_FUNC: 0x562d45d31280 in Gfx::opSetMiterLimit(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:943
+#145886: cov: 26960 ft: 24056 corp: 4417 exec/s 308 oom/timeout/crash: 1/0/9 time: 683s job: 39 dft_time: 0
+#146709: cov: 26970 ft: 24056 corp: 4417 exec/s 19 oom/timeout/crash: 1/0/9 time: 726s job: 40 dft_time: 0
+#157862: cov: 26975 ft: 24056 corp: 4417 exec/s 265 oom/timeout/crash: 1/0/9 time: 769s job: 41 dft_time: 0
+  NEW_FUNC: 0x562d45d43220 in Gfx::opSetFillColorN(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:1544
+#161054: cov: 26987 ft: 24057 corp: 4418 exec/s 67 oom/timeout/crash: 1/0/9 time: 816s job: 42 dft_time: 0
+#167754: cov: 26997 ft: 24057 corp: 4418 exec/s 152 oom/timeout/crash: 1/0/9 time: 861s job: 43 dft_time: 0
+#179085: cov: 26997 ft: 24058 corp: 4419 exec/s 251 oom/timeout/crash: 1/0/9 time: 907s job: 44 dft_time: 0
+#193610: cov: 27005 ft: 24061 corp: 4421 exec/s 315 oom/timeout/crash: 1/0/9 time: 953s job: 45 dft_time: 0
+#211820: cov: 27008 ft: 24062 corp: 4422 exec/s 387 oom/timeout/crash: 1/0/9 time: 1000s job: 46 dft_time: 0
+#211820: cov: 27013 ft: 24063 corp: 4423 exec/s 0 oom/timeout/crash: 1/0/9 time: 1001s job: 47 dft_time: 0
+#213418: cov: 27013 ft: 24063 corp: 4423 exec/s 31 oom/timeout/crash: 1/0/10 time: 1052s job: 48 dft_time: 0
+#225061: cov: 27018 ft: 24063 corp: 4423 exec/s 232 oom/timeout/crash: 1/0/10 time: 1102s job: 49 dft_time: 0
+#248932: cov: 27019 ft: 24063 corp: 4423 exec/s 468 oom/timeout/crash: 1/0/10 time: 1153s job: 50 dft_time: 0
+#262019: cov: 27023 ft: 24063 corp: 4423 exec/s 251 oom/timeout/crash: 1/0/10 time: 1206s job: 51 dft_time: 0
+  NEW_FUNC: 0x562d45c978f0 in OutputDev::updateWordSpace(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:153
+  NEW_FUNC: 0x562d45dbd6a0 in GfxState::setFillPattern(GfxPattern*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.cc:4406
+#281002: cov: 27035 ft: 24064 corp: 4424 exec/s 358 oom/timeout/crash: 1/0/10 time: 1259s job: 52 dft_time: 0
+#297369: cov: 27039 ft: 24064 corp: 4424 exec/s 303 oom/timeout/crash: 1/0/10 time: 1314s job: 53 dft_time: 0
+#313373: cov: 27041 ft: 24064 corp: 4424 exec/s 290 oom/timeout/crash: 1/0/10 time: 1369s job: 54 dft_time: 0
+#334773: cov: 27046 ft: 24064 corp: 4424 exec/s 382 oom/timeout/crash: 1/0/10 time: 1426s job: 55 dft_time: 0
+#348560: cov: 27047 ft: 24065 corp: 4425 exec/s 241 oom/timeout/crash: 1/0/10 time: 1483s job: 56 dft_time: 0
+#348560: cov: 27048 ft: 24066 corp: 4426 exec/s 0 oom/timeout/crash: 1/0/10 time: 1483s job: 57 dft_time: 0
+#353048: cov: 27048 ft: 24066 corp: 4426 exec/s 74 oom/timeout/crash: 1/0/11 time: 1543s job: 58 dft_time: 0
+  NEW_FUNC: 0x562d45d3ff10 in Gfx::opSetFlat(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:916
+#369355: cov: 27054 ft: 24066 corp: 4426 exec/s 271 oom/timeout/crash: 1/0/11 time: 1604s job: 59 dft_time: 0
+#380458: cov: 27056 ft: 24066 corp: 4426 exec/s 182 oom/timeout/crash: 1/0/11 time: 1665s job: 60 dft_time: 0
+#394596: cov: 27066 ft: 24066 corp: 4426 exec/s 228 oom/timeout/crash: 1/0/11 time: 1728s job: 61 dft_time: 0
+#398361: cov: 27071 ft: 24068 corp: 4428 exec/s 54 oom/timeout/crash: 1/0/11 time: 1797s job: 62 dft_time: 0
+#398361: cov: 27074 ft: 24069 corp: 4429 exec/s 0 oom/timeout/crash: 1/0/11 time: 1799s job: 63 dft_time: 0
+#420643: cov: 27074 ft: 24069 corp: 4429 exec/s 342 oom/timeout/crash: 1/0/12 time: 1864s job: 64 dft_time: 0
+  NEW_FUNC: 0x562d45d2d930 in Gfx::opBeginIgnoreUndef(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:4992
+#420643: cov: 27078 ft: 24069 corp: 4429 exec/s 0 oom/timeout/crash: 1/0/12 time: 1865s job: 65 dft_time: 0
+#437209: cov: 27078 ft: 24069 corp: 4429 exec/s 247 oom/timeout/crash: 1/0/13 time: 1932s job: 66 dft_time: 0
+#445297: cov: 27082 ft: 24069 corp: 4429 exec/s 117 oom/timeout/crash: 1/0/13 time: 2002s job: 67 dft_time: 0
+#463543: cov: 27083 ft: 24069 corp: 4429 exec/s 264 oom/timeout/crash: 1/0/13 time: 2071s job: 68 dft_time: 0
+  NEW_FUNC: 0x562d45c978e0 in OutputDev::updateRise(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:152
+#463543: cov: 27090 ft: 24071 corp: 4430 exec/s 0 oom/timeout/crash: 1/0/13 time: 2071s job: 69 dft_time: 0
+#481314: cov: 27090 ft: 24071 corp: 4430 exec/s 250 oom/timeout/crash: 1/0/14 time: 2143s job: 70 dft_time: 0
+  NEW_FUNC: 0x562d45d42a90 in Gfx::opSetFillColor(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:1505
+#506226: cov: 27096 ft: 24071 corp: 4430 exec/s 346 oom/timeout/crash: 1/0/14 time: 2215s job: 71 dft_time: 0
+#525091: cov: 27101 ft: 24072 corp: 4431 exec/s 258 oom/timeout/crash: 1/0/14 time: 2289s job: 72 dft_time: 0
+#543059: cov: 27104 ft: 24072 corp: 4431 exec/s 242 oom/timeout/crash: 1/0/14 time: 2363s job: 73 dft_time: 0
+  NEW_FUNC: 0x562d45d2f900 in Gfx::opEndImage(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:4969
+#543059: cov: 27107 ft: 24072 corp: 4431 exec/s 0 oom/timeout/crash: 1/0/14 time: 2363s job: 74 dft_time: 0
+#563989: cov: 27107 ft: 24072 corp: 4431 exec/s 275 oom/timeout/crash: 1/0/15 time: 2440s job: 75 dft_time: 0
+#577900: cov: 27107 ft: 24072 corp: 4431 exec/s 180 oom/timeout/crash: 1/0/15 time: 2517s job: 76 dft_time: 0
+#577900: cov: 27109 ft: 24075 corp: 4433 exec/s 0 oom/timeout/crash: 1/0/15 time: 2518s job: 77 dft_time: 0
+#584550: cov: 27109 ft: 24075 corp: 4433 exec/s 81 oom/timeout/crash: 1/0/16 time: 2601s job: 78 dft_time: 0
+#607660: cov: 27112 ft: 24076 corp: 4434 exec/s 288 oom/timeout/crash: 1/0/16 time: 2682s job: 79 dft_time: 0
+  NEW_FUNC: 0x562d45e9aea0 in DCTStream::readJFIFMarker() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:4139
+#630283: cov: 27119 ft: 24081 corp: 4435 exec/s 279 oom/timeout/crash: 1/0/16 time: 2763s job: 80 dft_time: 0
+#657215: cov: 27121 ft: 24085 corp: 4436 exec/s 328 oom/timeout/crash: 1/0/16 time: 2846s job: 81 dft_time: 0
+#674190: cov: 27121 ft: 24085 corp: 4436 exec/s 204 oom/timeout/crash: 1/0/16 time: 2929s job: 82 dft_time: 0
+#706219: cov: 27123 ft: 24085 corp: 4436 exec/s 381 oom/timeout/crash: 1/0/16 time: 3014s job: 83 dft_time: 0
+#735196: cov: 27127 ft: 24091 corp: 4440 exec/s 340 oom/timeout/crash: 1/0/16 time: 3099s job: 84 dft_time: 0
+#759639: cov: 27127 ft: 24091 corp: 4440 exec/s 284 oom/timeout/crash: 1/0/16 time: 3186s job: 85 dft_time: 0
+#791094: cov: 27132 ft: 24097 corp: 4443 exec/s 361 oom/timeout/crash: 1/0/16 time: 3273s job: 86 dft_time: 0
+#810557: cov: 27134 ft: 24099 corp: 4444 exec/s 221 oom/timeout/crash: 1/0/16 time: 3362s job: 87 dft_time: 0
+#810557: cov: 27134 ft: 24099 corp: 4444 exec/s 0 oom/timeout/crash: 1/0/16 time: 3362s job: 88 dft_time: 0
+#835314: cov: 27134 ft: 24099 corp: 4444 exec/s 275 oom/timeout/crash: 1/0/17 time: 3453s job: 89 dft_time: 0
+#863659: cov: 27142 ft: 24111 corp: 4445 exec/s 311 oom/timeout/crash: 1/0/17 time: 3545s job: 90 dft_time: 0
+  NEW_FUNC: 0x562d45e9a500 in DCTStream::readQuantTables() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:4050
+  NEW_FUNC: 0x562d45ea8990 in EmbedStream::getPos() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.h:399
+#897523: cov: 27150 ft: 24114 corp: 4447 exec/s 368 oom/timeout/crash: 1/0/17 time: 3637s job: 91 dft_time: 0
+#897523: cov: 27151 ft: 24115 corp: 4448 exec/s 0 oom/timeout/crash: 1/0/17 time: 3637s job: 92 dft_time: 0
+#926247: cov: 27151 ft: 24115 corp: 4448 exec/s 305 oom/timeout/crash: 1/0/18 time: 3732s job: 93 dft_time: 0
+#953669: cov: 27153 ft: 24118 corp: 4449 exec/s 288 oom/timeout/crash: 1/0/18 time: 3828s job: 94 dft_time: 0
+#980365: cov: 27159 ft: 24118 corp: 4449 exec/s 278 oom/timeout/crash: 1/0/18 time: 3924s job: 95 dft_time: 0
+#1014583: cov: 27159 ft: 24120 corp: 4451 exec/s 352 oom/timeout/crash: 1/0/18 time: 4022s job: 96 dft_time: 0
+#1016557: cov: 27167 ft: 24170 corp: 4465 exec/s 45 oom/timeout/crash: 1/0/18 time: 4066s job: 97 dft_time: 0
+#1016557: cov: 27173 ft: 24170 corp: 4465 exec/s 0 oom/timeout/crash: 2/0/18 time: 4066s job: 98 dft_time: 0
+#1026166: cov: 27173 ft: 24170 corp: 4465 exec/s 218 oom/timeout/crash: 2/0/19 time: 4110s job: 99 dft_time: 0
+  NEW_FUNC: 0x562d45d34cd0 in Gfx::opSetTextLeading(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:3616
+#1053507: cov: 27175 ft: 24170 corp: 4465 exec/s 270 oom/timeout/crash: 3/0/19 time: 4212s job: 100 dft_time: 0
+#1080830: cov: 27177 ft: 24171 corp: 4466 exec/s 267 oom/timeout/crash: 3/0/19 time: 4315s job: 101 dft_time: 0
+#1108755: cov: 27177 ft: 24171 corp: 4466 exec/s 271 oom/timeout/crash: 3/0/19 time: 4419s job: 102 dft_time: 0
+#1108755: cov: 27177 ft: 24171 corp: 4466 exec/s 0 oom/timeout/crash: 3/0/19 time: 4419s job: 103 dft_time: 0
+#1111362: cov: 27177 ft: 24171 corp: 4466 exec/s 130 oom/timeout/crash: 3/0/20 time: 4439s job: 104 dft_time: 0
+#1141725: cov: 27179 ft: 24171 corp: 4466 exec/s 286 oom/timeout/crash: 4/0/20 time: 4546s job: 105 dft_time: 0
+#1177494: cov: 27179 ft: 24172 corp: 4467 exec/s 334 oom/timeout/crash: 4/0/20 time: 4654s job: 106 dft_time: 0
+#1177494: cov: 27179 ft: 24173 corp: 4468 exec/s 0 oom/timeout/crash: 4/0/20 time: 4654s job: 107 dft_time: 0
+#1177494: cov: 27179 ft: 24173 corp: 4468 exec/s 0 oom/timeout/crash: 4/0/21 time: 4654s job: 108 dft_time: 0
+#1207739: cov: 27179 ft: 24173 corp: 4468 exec/s 274 oom/timeout/crash: 4/0/22 time: 4764s job: 109 dft_time: 0
+#1252138: cov: 27183 ft: 24174 corp: 4469 exec/s 399 oom/timeout/crash: 4/0/22 time: 4876s job: 110 dft_time: 0
+#1283693: cov: 27189 ft: 24176 corp: 4471 exec/s 281 oom/timeout/crash: 4/0/22 time: 4989s job: 111 dft_time: 0
+#1287364: cov: 27192 ft: 24180 corp: 4475 exec/s 32 oom/timeout/crash: 4/0/22 time: 5103s job: 112 dft_time: 0
+#1291428: cov: 27192 ft: 24180 corp: 4475 exec/s 35 oom/timeout/crash: 4/0/22 time: 5219s job: 113 dft_time: 0
+#1322116: cov: 27192 ft: 24180 corp: 4475 exec/s 266 oom/timeout/crash: 4/0/22 time: 5335s job: 114 dft_time: 0
+#1322116: cov: 27193 ft: 24180 corp: 4475 exec/s 0 oom/timeout/crash: 4/0/22 time: 5335s job: 115 dft_time: 0
+#1355628: cov: 27193 ft: 24180 corp: 4475 exec/s 286 oom/timeout/crash: 4/0/23 time: 5453s job: 116 dft_time: 0
+  NEW_FUNC: 0x562d45d32650 in Gfx::opSetStrokeColorN(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:1598
+#1363058: cov: 27194 ft: 24200 corp: 4482 exec/s 62 oom/timeout/crash: 4/0/23 time: 5571s job: 117 dft_time: 0
+#1402644: cov: 27194 ft: 24200 corp: 4482 exec/s 332 oom/timeout/crash: 4/0/23 time: 5691s job: 118 dft_time: 0
+#1416420: cov: 27195 ft: 24203 corp: 4485 exec/s 114 oom/timeout/crash: 4/0/23 time: 5813s job: 119 dft_time: 0
+#1444963: cov: 27197 ft: 24217 corp: 4487 exec/s 235 oom/timeout/crash: 4/0/23 time: 5935s job: 120 dft_time: 0
+#1473407: cov: 27197 ft: 24218 corp: 4488 exec/s 233 oom/timeout/crash: 4/0/23 time: 6058s job: 121 dft_time: 0
+#1473407: cov: 27200 ft: 24220 corp: 4489 exec/s 0 oom/timeout/crash: 4/0/23 time: 6058s job: 122 dft_time: 0
+#1473407: cov: 27200 ft: 24220 corp: 4489 exec/s 0 oom/timeout/crash: 4/0/24 time: 6058s job: 123 dft_time: 0
+#1505939: cov: 27200 ft: 24220 corp: 4489 exec/s 260 oom/timeout/crash: 4/0/25 time: 6184s job: 124 dft_time: 0
+#1538008: cov: 27200 ft: 24221 corp: 4490 exec/s 254 oom/timeout/crash: 4/0/25 time: 6311s job: 125 dft_time: 0
+#1545209: cov: 27200 ft: 24221 corp: 4490 exec/s 56 oom/timeout/crash: 4/0/25 time: 6439s job: 126 dft_time: 0
+#1579564: cov: 27200 ft: 24222 corp: 4491 exec/s 268 oom/timeout/crash: 4/0/25 time: 6569s job: 127 dft_time: 0
+#1618302: cov: 27200 ft: 24222 corp: 4491 exec/s 300 oom/timeout/crash: 4/0/25 time: 6698s job: 128 dft_time: 0
+#1618302: cov: 27200 ft: 24234 corp: 4494 exec/s 0 oom/timeout/crash: 4/0/25 time: 6699s job: 129 dft_time: 0
+#1646797: cov: 27200 ft: 24234 corp: 4494 exec/s 217 oom/timeout/crash: 4/0/26 time: 6830s job: 130 dft_time: 0
+  NEW_FUNC: 0x562d45d2ff80 in Gfx::opEndIgnoreUndef(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:4996
+#1677150: cov: 27202 ft: 24234 corp: 4494 exec/s 229 oom/timeout/crash: 4/0/26 time: 6964s job: 131 dft_time: 0
+#1711824: cov: 27202 ft: 24235 corp: 4495 exec/s 260 oom/timeout/crash: 4/0/26 time: 7098s job: 132 dft_time: 0
+#1741901: cov: 27202 ft: 24236 corp: 4496 exec/s 224 oom/timeout/crash: 4/0/26 time: 7232s job: 133 dft_time: 0
+  NEW_FUNC: 0x562d45e99180 in DCTStream::readHuffmanTables() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Stream.cc:4081
+#1741901: cov: 27209 ft: 24240 corp: 4497 exec/s 0 oom/timeout/crash: 4/0/26 time: 7233s job: 134 dft_time: 0
+#1757681: cov: 27209 ft: 24240 corp: 4497 exec/s 113 oom/timeout/crash: 4/0/27 time: 7373s job: 135 dft_time: 0
+#1791244: cov: 27211 ft: 24240 corp: 4497 exec/s 244 oom/timeout/crash: 4/0/27 time: 7511s job: 136 dft_time: 0
+#1798541: cov: 27212 ft: 24242 corp: 4499 exec/s 52 oom/timeout/crash: 4/0/27 time: 7651s job: 137 dft_time: 0
+#1831992: cov: 27212 ft: 24242 corp: 4499 exec/s 240 oom/timeout/crash: 4/0/27 time: 7791s job: 138 dft_time: 0
+#1864396: cov: 27212 ft: 24244 corp: 4501 exec/s 231 oom/timeout/crash: 4/0/27 time: 7932s job: 139 dft_time: 0
+#1885425: cov: 27213 ft: 24245 corp: 4502 exec/s 304 oom/timeout/crash: 4/0/27 time: 8002s job: 140 dft_time: 0
+#1901564: cov: 27213 ft: 24246 corp: 4503 exec/s 113 oom/timeout/crash: 5/0/27 time: 8144s job: 141 dft_time: 0
+#1907906: cov: 27218 ft: 24254 corp: 4505 exec/s 43 oom/timeout/crash: 5/0/27 time: 8290s job: 142 dft_time: 0
+#1925680: cov: 27220 ft: 24254 corp: 4505 exec/s 177 oom/timeout/crash: 5/0/27 time: 8390s job: 143 dft_time: 0
+#1970353: cov: 27220 ft: 24257 corp: 4507 exec/s 308 oom/timeout/crash: 6/0/27 time: 8537s job: 144 dft_time: 0
+#1998876: cov: 27220 ft: 24257 corp: 4507 exec/s 195 oom/timeout/crash: 6/0/27 time: 8684s job: 145 dft_time: 0
+#1998876: cov: 27223 ft: 24257 corp: 4507 exec/s 0 oom/timeout/crash: 6/0/27 time: 8684s job: 146 dft_time: 0
+#2013485: cov: 27223 ft: 24257 corp: 4507 exec/s 98 oom/timeout/crash: 6/0/28 time: 8833s job: 147 dft_time: 0
+#2013485: cov: 27223 ft: 24262 corp: 4509 exec/s 0 oom/timeout/crash: 6/0/28 time: 8833s job: 148 dft_time: 0
+#2015852: cov: 27223 ft: 24262 corp: 4509 exec/s 15 oom/timeout/crash: 6/0/29 time: 8985s job: 149 dft_time: 0
+#2065332: cov: 27226 ft: 24262 corp: 4509 exec/s 327 oom/timeout/crash: 6/0/29 time: 9137s job: 150 dft_time: 0
+  NEW_FUNC: 0x562d45c978c0 in OutputDev::updateCharSpace(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:150
+  NEW_FUNC: 0x562d45d34dc0 in Gfx::opSetCharSpacing(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:3591
+#2109975: cov: 27230 ft: 24274 corp: 4515 exec/s 293 oom/timeout/crash: 6/0/29 time: 9290s job: 151 dft_time: 0
+#2135228: cov: 27230 ft: 24281 corp: 4519 exec/s 165 oom/timeout/crash: 6/0/29 time: 9446s job: 152 dft_time: 0
+#2170815: cov: 27230 ft: 24282 corp: 4520 exec/s 231 oom/timeout/crash: 6/0/29 time: 9601s job: 153 dft_time: 0
+#2170815: cov: 27230 ft: 24283 corp: 4521 exec/s 0 oom/timeout/crash: 6/0/29 time: 9601s job: 154 dft_time: 0
+#2221233: cov: 27230 ft: 24283 corp: 4521 exec/s 323 oom/timeout/crash: 6/0/30 time: 9758s job: 155 dft_time: 0
+#2237286: cov: 27231 ft: 24286 corp: 4523 exec/s 100 oom/timeout/crash: 6/0/30 time: 9917s job: 156 dft_time: 0
+#2237286: cov: 27231 ft: 24286 corp: 4523 exec/s 0 oom/timeout/crash: 6/0/30 time: 9918s job: 157 dft_time: 0
+#2245833: cov: 27231 ft: 24286 corp: 4523 exec/s 102 oom/timeout/crash: 6/0/31 time: 10002s job: 158 dft_time: 0
+#2277178: cov: 27231 ft: 24286 corp: 4523 exec/s 195 oom/timeout/crash: 7/0/31 time: 10163s job: 159 dft_time: 0
+#2318819: cov: 27231 ft: 24287 corp: 4524 exec/s 258 oom/timeout/crash: 7/0/31 time: 10325s job: 160 dft_time: 0
+  NEW_FUNC: 0x562d45c97900 in OutputDev::updateHorizScaling(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:154
+  NEW_FUNC: 0x562d45d36a00 in Gfx::opSetHorizScaling(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:3635
+#2323822: cov: 27234 ft: 24299 corp: 4528 exec/s 31 oom/timeout/crash: 7/0/31 time: 10483s job: 161 dft_time: 0
+#2323822: cov: 27237 ft: 24299 corp: 4528 exec/s 0 oom/timeout/crash: 8/0/31 time: 10483s job: 162 dft_time: 0
+#2362089: cov: 27237 ft: 24299 corp: 4528 exec/s 233 oom/timeout/crash: 8/0/32 time: 10648s job: 163 dft_time: 0
+#2403731: cov: 27240 ft: 24300 corp: 4529 exec/s 252 oom/timeout/crash: 8/0/32 time: 10814s job: 164 dft_time: 0
+#2426770: cov: 27240 ft: 24311 corp: 4533 exec/s 138 oom/timeout/crash: 8/0/32 time: 10982s job: 165 dft_time: 0
+#2458827: cov: 27240 ft: 24311 corp: 4533 exec/s 191 oom/timeout/crash: 8/0/32 time: 11149s job: 166 dft_time: 0
+#2485203: cov: 27240 ft: 24314 corp: 4534 exec/s 162 oom/timeout/crash: 8/0/32 time: 11312s job: 167 dft_time: 0
+#2485203: cov: 27240 ft: 24314 corp: 4534 exec/s 0 oom/timeout/crash: 9/0/32 time: 11312s job: 168 dft_time: 0
+#2505031: cov: 27240 ft: 24314 corp: 4534 exec/s 115 oom/timeout/crash: 9/0/33 time: 11485s job: 169 dft_time: 0
+#2538363: cov: 27240 ft: 24318 corp: 4536 exec/s 194 oom/timeout/crash: 9/0/33 time: 11658s job: 170 dft_time: 0
+#2570989: cov: 27240 ft: 24335 corp: 4538 exec/s 189 oom/timeout/crash: 9/0/33 time: 11831s job: 171 dft_time: 0
+#2597506: cov: 27240 ft: 24338 corp: 4539 exec/s 153 oom/timeout/crash: 9/0/33 time: 12006s job: 172 dft_time: 0
+#2612344: cov: 27240 ft: 24339 corp: 4540 exec/s 85 oom/timeout/crash: 9/0/33 time: 12181s job: 173 dft_time: 0
+#2625555: cov: 27242 ft: 24339 corp: 4540 exec/s 269 oom/timeout/crash: 9/0/33 time: 12230s job: 174 dft_time: 0
+#2660118: cov: 27242 ft: 24339 corp: 4540 exec/s 196 oom/timeout/crash: 10/0/33 time: 12407s job: 175 dft_time: 0
+#2666717: cov: 27242 ft: 24358 corp: 4543 exec/s 37 oom/timeout/crash: 10/0/33 time: 12585s job: 176 dft_time: 0
+#2709877: cov: 27243 ft: 24362 corp: 4545 exec/s 242 oom/timeout/crash: 10/0/33 time: 12765s job: 177 dft_time: 0
+#2739909: cov: 27243 ft: 24363 corp: 4546 exec/s 244 oom/timeout/crash: 10/0/33 time: 12889s job: 178 dft_time: 0
+#2742039: cov: 27248 ft: 24377 corp: 4553 exec/s 133 oom/timeout/crash: 11/0/33 time: 12905s job: 179 dft_time: 0
+#2774570: cov: 27248 ft: 24377 corp: 4553 exec/s 179 oom/timeout/crash: 12/0/33 time: 13088s job: 180 dft_time: 0
+#2826200: cov: 27250 ft: 24378 corp: 4554 exec/s 283 oom/timeout/crash: 12/0/33 time: 13271s job: 181 dft_time: 0
+#2826200: cov: 27250 ft: 24383 corp: 4557 exec/s 0 oom/timeout/crash: 12/0/33 time: 13271s job: 182 dft_time: 0
+#2872620: cov: 27250 ft: 24383 corp: 4557 exec/s 252 oom/timeout/crash: 12/0/34 time: 13456s job: 183 dft_time: 0
+#2909353: cov: 27250 ft: 24389 corp: 4559 exec/s 198 oom/timeout/crash: 12/0/34 time: 13643s job: 184 dft_time: 0
+#2909353: cov: 27251 ft: 24389 corp: 4559 exec/s 0 oom/timeout/crash: 12/0/34 time: 13643s job: 185 dft_time: 0
+#2934482: cov: 27251 ft: 24389 corp: 4559 exec/s 133 oom/timeout/crash: 12/0/35 time: 13832s job: 186 dft_time: 0
+#2934482: cov: 27254 ft: 24390 corp: 4560 exec/s 0 oom/timeout/crash: 12/0/35 time: 13833s job: 187 dft_time: 0
+#2934482: cov: 27254 ft: 24390 corp: 4560 exec/s 0 oom/timeout/crash: 12/0/36 time: 13833s job: 188 dft_time: 0
+#2988491: cov: 27254 ft: 24390 corp: 4560 exec/s 284 oom/timeout/crash: 12/0/37 time: 14024s job: 189 dft_time: 0
+#3009936: cov: 27256 ft: 24403 corp: 4564 exec/s 112 oom/timeout/crash: 12/0/37 time: 14216s job: 190 dft_time: 0
+#3051028: cov: 27257 ft: 24405 corp: 4565 exec/s 214 oom/timeout/crash: 12/0/37 time: 14410s job: 191 dft_time: 0
+#3099498: cov: 27260 ft: 24415 corp: 4567 exec/s 251 oom/timeout/crash: 12/0/37 time: 14604s job: 192 dft_time: 0
+#3104286: cov: 27262 ft: 24420 corp: 4571 exec/s 24 oom/timeout/crash: 12/0/37 time: 14800s job: 193 dft_time: 0
+#3158826: cov: 27262 ft: 24421 corp: 4572 exec/s 279 oom/timeout/crash: 12/0/37 time: 14997s job: 194 dft_time: 0
+#3204761: cov: 27262 ft: 24430 corp: 4576 exec/s 234 oom/timeout/crash: 12/0/37 time: 15194s job: 195 dft_time: 0
+#3236656: cov: 27262 ft: 24434 corp: 4577 exec/s 161 oom/timeout/crash: 12/0/37 time: 15394s job: 196 dft_time: 0
+#3265111: cov: 27262 ft: 24434 corp: 4577 exec/s 157 oom/timeout/crash: 12/0/37 time: 15576s job: 197 dft_time: 0
+#3304364: cov: 27263 ft: 24434 corp: 4577 exec/s 197 oom/timeout/crash: 13/0/37 time: 15777s job: 198 dft_time: 0
+#3359077: cov: 27265 ft: 24436 corp: 4579 exec/s 273 oom/timeout/crash: 13/0/37 time: 15979s job: 199 dft_time: 0
+#3359077: cov: 27270 ft: 24445 corp: 4581 exec/s 0 oom/timeout/crash: 13/0/37 time: 15980s job: 200 dft_time: 0
+#3359077: cov: 27270 ft: 24445 corp: 4581 exec/s 0 oom/timeout/crash: 13/0/38 time: 15980s job: 201 dft_time: 0
+#3423776: cov: 27270 ft: 24445 corp: 4581 exec/s 318 oom/timeout/crash: 13/0/39 time: 16184s job: 202 dft_time: 0
+#3429388: cov: 27270 ft: 24449 corp: 4584 exec/s 151 oom/timeout/crash: 13/0/39 time: 16222s job: 203 dft_time: 0
+#3445456: cov: 27271 ft: 24450 corp: 4585 exec/s 139 oom/timeout/crash: 14/0/39 time: 16337s job: 204 dft_time: 0
+#3446243: cov: 27271 ft: 24451 corp: 4586 exec/s 60 oom/timeout/crash: 15/0/39 time: 16351s job: 205 dft_time: 0
+#3500970: cov: 27271 ft: 24451 corp: 4586 exec/s 264 oom/timeout/crash: 16/0/39 time: 16559s job: 206 dft_time: 0
+#3550864: cov: 27271 ft: 24453 corp: 4588 exec/s 239 oom/timeout/crash: 16/0/39 time: 16769s job: 207 dft_time: 0
+#3554657: cov: 27272 ft: 24464 corp: 4593 exec/s 18 oom/timeout/crash: 16/0/39 time: 16980s job: 208 dft_time: 0
+#3598818: cov: 27273 ft: 24464 corp: 4593 exec/s 210 oom/timeout/crash: 16/0/39 time: 17193s job: 209 dft_time: 0
+#3645318: cov: 27274 ft: 24466 corp: 4595 exec/s 220 oom/timeout/crash: 16/0/39 time: 17406s job: 210 dft_time: 0
+#3645318: cov: 27275 ft: 24470 corp: 4599 exec/s 0 oom/timeout/crash: 16/0/39 time: 17406s job: 211 dft_time: 0
+#3717240: cov: 27275 ft: 24470 corp: 4599 exec/s 337 oom/timeout/crash: 16/0/40 time: 17621s job: 212 dft_time: 0
+#3747555: cov: 27279 ft: 24487 corp: 4613 exec/s 180 oom/timeout/crash: 16/0/40 time: 17790s job: 213 dft_time: 0
+#3773247: cov: 27279 ft: 24496 corp: 4614 exec/s 119 oom/timeout/crash: 17/0/40 time: 18006s job: 214 dft_time: 0
+#3818374: cov: 27279 ft: 24499 corp: 4616 exec/s 208 oom/timeout/crash: 17/0/40 time: 18224s job: 215 dft_time: 0
+  NEW_FUNC: 0x562d45d34f60 in Gfx::opTextMove(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:3645
+#3873997: cov: 27282 ft: 24511 corp: 4618 exec/s 256 oom/timeout/crash: 17/0/40 time: 18442s job: 216 dft_time: 0
+#3943105: cov: 27283 ft: 24514 corp: 4621 exec/s 317 oom/timeout/crash: 17/0/40 time: 18662s job: 217 dft_time: 0
+#3985803: cov: 27284 ft: 24519 corp: 4626 exec/s 194 oom/timeout/crash: 17/0/40 time: 18883s job: 218 dft_time: 0
+#4044938: cov: 27284 ft: 24519 corp: 4626 exec/s 268 oom/timeout/crash: 17/0/40 time: 19105s job: 219 dft_time: 0
+#4068170: cov: 27287 ft: 24534 corp: 4631 exec/s 105 oom/timeout/crash: 17/0/40 time: 19329s job: 220 dft_time: 0
+#4098456: cov: 27288 ft: 24551 corp: 4639 exec/s 136 oom/timeout/crash: 17/0/40 time: 19555s job: 221 dft_time: 0
+#4098456: cov: 27288 ft: 24554 corp: 4641 exec/s 0 oom/timeout/crash: 17/0/40 time: 19555s job: 222 dft_time: 0
+#4148060: cov: 27288 ft: 24554 corp: 4641 exec/s 221 oom/timeout/crash: 17/0/41 time: 19781s job: 223 dft_time: 0
+#4180456: cov: 27289 ft: 24562 corp: 4645 exec/s 143 oom/timeout/crash: 17/0/41 time: 20009s job: 224 dft_time: 0
+#4226638: cov: 27289 ft: 24562 corp: 4645 exec/s 204 oom/timeout/crash: 17/0/41 time: 20236s job: 225 dft_time: 0
+#4232218: cov: 27289 ft: 24562 corp: 4645 exec/s 24 oom/timeout/crash: 17/0/41 time: 20467s job: 226 dft_time: 0
+#4257783: cov: 27289 ft: 24562 corp: 4645 exec/s 112 oom/timeout/crash: 17/0/41 time: 20697s job: 227 dft_time: 0
+#4312232: cov: 27289 ft: 24564 corp: 4647 exec/s 237 oom/timeout/crash: 17/0/41 time: 20929s job: 228 dft_time: 0
+#4378981: cov: 27293 ft: 24573 corp: 4651 exec/s 290 oom/timeout/crash: 17/0/41 time: 21161s job: 229 dft_time: 0
+#4462706: cov: 27294 ft: 24574 corp: 4652 exec/s 362 oom/timeout/crash: 17/0/41 time: 21394s job: 230 dft_time: 0
+#4498075: cov: 27294 ft: 24574 corp: 4652 exec/s 152 oom/timeout/crash: 17/0/41 time: 21628s job: 231 dft_time: 0
+#4533450: cov: 27294 ft: 24581 corp: 4657 exec/s 151 oom/timeout/crash: 17/0/41 time: 21863s job: 232 dft_time: 0
+#4582768: cov: 27294 ft: 24584 corp: 4659 exec/s 210 oom/timeout/crash: 17/0/41 time: 22098s job: 233 dft_time: 0
+#4626154: cov: 27296 ft: 24601 corp: 4664 exec/s 184 oom/timeout/crash: 17/0/41 time: 22335s job: 234 dft_time: 0
+#4682196: cov: 27296 ft: 24604 corp: 4666 exec/s 237 oom/timeout/crash: 17/0/41 time: 22573s job: 235 dft_time: 0
+#4699023: cov: 27296 ft: 24605 corp: 4667 exec/s 71 oom/timeout/crash: 17/0/41 time: 22811s job: 236 dft_time: 0
+#4737451: cov: 27296 ft: 24605 corp: 4667 exec/s 161 oom/timeout/crash: 17/0/41 time: 23051s job: 237 dft_time: 0
+#4801114: cov: 27296 ft: 24605 corp: 4667 exec/s 266 oom/timeout/crash: 17/0/41 time: 23291s job: 238 dft_time: 0
+#4846565: cov: 27296 ft: 24621 corp: 4673 exec/s 189 oom/timeout/crash: 17/0/41 time: 23533s job: 239 dft_time: 0
+#4876331: cov: 27296 ft: 24626 corp: 4674 exec/s 123 oom/timeout/crash: 17/0/41 time: 23775s job: 240 dft_time: 0
+#4903147: cov: 27296 ft: 24627 corp: 4675 exec/s 207 oom/timeout/crash: 17/0/41 time: 23906s job: 241 dft_time: 0
+#4950720: cov: 27297 ft: 24631 corp: 4678 exec/s 195 oom/timeout/crash: 18/0/41 time: 24151s job: 242 dft_time: 0
+#5003957: cov: 27298 ft: 24637 corp: 4682 exec/s 218 oom/timeout/crash: 18/0/41 time: 24397s job: 243 dft_time: 0
+#5056322: cov: 27299 ft: 24640 corp: 4685 exec/s 213 oom/timeout/crash: 18/0/41 time: 24644s job: 244 dft_time: 0
+#5105745: cov: 27299 ft: 24648 corp: 4692 exec/s 200 oom/timeout/crash: 18/0/41 time: 24893s job: 245 dft_time: 0
+#5167311: cov: 27300 ft: 24655 corp: 4698 exec/s 249 oom/timeout/crash: 18/0/41 time: 25142s job: 246 dft_time: 0
+#5222926: cov: 27300 ft: 24658 corp: 4701 exec/s 224 oom/timeout/crash: 18/0/41 time: 25393s job: 247 dft_time: 0
+#5267190: cov: 27300 ft: 24660 corp: 4702 exec/s 177 oom/timeout/crash: 18/0/41 time: 25645s job: 248 dft_time: 0
+#5323185: cov: 27300 ft: 24664 corp: 4705 exec/s 223 oom/timeout/crash: 18/0/41 time: 25897s job: 249 dft_time: 0
+#5330282: cov: 27301 ft: 24673 corp: 4711 exec/s 27 oom/timeout/crash: 18/0/41 time: 26152s job: 250 dft_time: 0
+#5348998: cov: 27301 ft: 24675 corp: 4712 exec/s 178 oom/timeout/crash: 18/0/41 time: 26258s job: 251 dft_time: 0
+#5348998: cov: 27301 ft: 24675 corp: 4712 exec/s 0 oom/timeout/crash: 19/0/41 time: 26258s job: 252 dft_time: 0
+#5434827: cov: 27301 ft: 24675 corp: 4712 exec/s 337 oom/timeout/crash: 19/0/42 time: 26513s job: 253 dft_time: 0
+  NEW_FUNC: 0x562d45d3a750 in Gfx::opSetFillGray(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:1335
+  NEW_FUNC: 0x562d45dbd500 in GfxState::setFillColorSpace(GfxColorSpace*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.cc:4392
+#5482917: cov: 27307 ft: 24681 corp: 4716 exec/s 188 oom/timeout/crash: 19/0/42 time: 26771s job: 254 dft_time: 0
+#5482917: cov: 27307 ft: 24681 corp: 4716 exec/s 0 oom/timeout/crash: 19/0/42 time: 26771s job: 255 dft_time: 0
+#5482917: cov: 27307 ft: 24681 corp: 4716 exec/s 0 oom/timeout/crash: 19/0/43 time: 26771s job: 256 dft_time: 0
+#5503104: cov: 27307 ft: 24681 corp: 4716 exec/s 78 oom/timeout/crash: 19/0/44 time: 27030s job: 257 dft_time: 0
+#5548013: cov: 27307 ft: 24681 corp: 4716 exec/s 172 oom/timeout/crash: 19/0/44 time: 27293s job: 258 dft_time: 0
+#5603362: cov: 27308 ft: 24683 corp: 4718 exec/s 212 oom/timeout/crash: 19/0/44 time: 27554s job: 259 dft_time: 0
+#5625425: cov: 27312 ft: 24689 corp: 4724 exec/s 141 oom/timeout/crash: 19/0/44 time: 27711s job: 260 dft_time: 0
+#5625425: cov: 27314 ft: 24693 corp: 4727 exec/s 0 oom/timeout/crash: 20/0/44 time: 27711s job: 261 dft_time: 0
+#5625425: cov: 27314 ft: 24693 corp: 4727 exec/s 0 oom/timeout/crash: 20/0/45 time: 27711s job: 262 dft_time: 0
+#5685788: cov: 27314 ft: 24693 corp: 4727 exec/s 228 oom/timeout/crash: 20/0/46 time: 27977s job: 263 dft_time: 0
+#5729770: cov: 27316 ft: 24695 corp: 4728 exec/s 165 oom/timeout/crash: 20/0/46 time: 28244s job: 264 dft_time: 0
+#5793325: cov: 27317 ft: 24697 corp: 4730 exec/s 238 oom/timeout/crash: 20/0/46 time: 28512s job: 265 dft_time: 0
+#5838426: cov: 27338 ft: 24724 corp: 4733 exec/s 168 oom/timeout/crash: 20/0/46 time: 28781s job: 266 dft_time: 0
+#5865747: cov: 27338 ft: 24727 corp: 4736 exec/s 101 oom/timeout/crash: 20/0/46 time: 29054s job: 267 dft_time: 0
+#5919916: cov: 27339 ft: 24728 corp: 4737 exec/s 201 oom/timeout/crash: 20/0/46 time: 29325s job: 268 dft_time: 0
+#5959658: cov: 27339 ft: 24728 corp: 4737 exec/s 194 oom/timeout/crash: 20/0/46 time: 29531s job: 269 dft_time: 0
+#5959658: cov: 27339 ft: 24729 corp: 4738 exec/s 0 oom/timeout/crash: 21/0/46 time: 29531s job: 270 dft_time: 0
+#5973735: cov: 27339 ft: 24729 corp: 4738 exec/s 125 oom/timeout/crash: 21/0/47 time: 29644s job: 271 dft_time: 0
+#5990870: cov: 27339 ft: 24730 corp: 4739 exec/s 176 oom/timeout/crash: 22/0/47 time: 29742s job: 272 dft_time: 0
+#6007590: cov: 27339 ft: 24731 corp: 4740 exec/s 61 oom/timeout/crash: 23/0/47 time: 30016s job: 273 dft_time: 0
+#6077532: cov: 27339 ft: 24731 corp: 4740 exec/s 254 oom/timeout/crash: 23/0/47 time: 30293s job: 274 dft_time: 0
+#6077532: cov: 27341 ft: 24734 corp: 4742 exec/s 0 oom/timeout/crash: 23/0/47 time: 30293s job: 275 dft_time: 0
+#6135576: cov: 27341 ft: 24734 corp: 4742 exec/s 209 oom/timeout/crash: 23/0/48 time: 30572s job: 276 dft_time: 0
+#6135950: cov: 27341 ft: 24735 corp: 4743 exec/s 93 oom/timeout/crash: 23/0/48 time: 30576s job: 277 dft_time: 0
+#6188903: cov: 27341 ft: 24735 corp: 4743 exec/s 189 oom/timeout/crash: 24/0/48 time: 30857s job: 278 dft_time: 0
+#6257051: cov: 27342 ft: 24737 corp: 4745 exec/s 243 oom/timeout/crash: 24/0/48 time: 31138s job: 279 dft_time: 0
+#6312808: cov: 27343 ft: 24747 corp: 4753 exec/s 198 oom/timeout/crash: 24/0/48 time: 31421s job: 280 dft_time: 0
+#6394405: cov: 27347 ft: 24757 corp: 4758 exec/s 289 oom/timeout/crash: 24/0/48 time: 31705s job: 281 dft_time: 0
+#6461947: cov: 27347 ft: 24760 corp: 4759 exec/s 238 oom/timeout/crash: 24/0/48 time: 31989s job: 282 dft_time: 0
+#6532515: cov: 27347 ft: 24764 corp: 4762 exec/s 248 oom/timeout/crash: 24/0/48 time: 32275s job: 283 dft_time: 0
+#6596415: cov: 27347 ft: 24768 corp: 4764 exec/s 224 oom/timeout/crash: 24/0/48 time: 32562s job: 284 dft_time: 0
+#6631225: cov: 27347 ft: 24792 corp: 4767 exec/s 145 oom/timeout/crash: 24/0/48 time: 32803s job: 285 dft_time: 0
+#6674705: cov: 27347 ft: 24793 corp: 4768 exec/s 151 oom/timeout/crash: 25/0/48 time: 33091s job: 286 dft_time: 0
+#6674705: cov: 27347 ft: 24795 corp: 4770 exec/s 0 oom/timeout/crash: 25/0/48 time: 33092s job: 287 dft_time: 0
+#6718743: cov: 27347 ft: 24795 corp: 4770 exec/s 152 oom/timeout/crash: 25/0/49 time: 33383s job: 288 dft_time: 0
+#6766366: cov: 27347 ft: 24796 corp: 4771 exec/s 164 oom/timeout/crash: 25/0/49 time: 33674s job: 289 dft_time: 0
+#6766366: cov: 27347 ft: 24799 corp: 4773 exec/s 0 oom/timeout/crash: 25/0/49 time: 33675s job: 290 dft_time: 0
+#6776550: cov: 27347 ft: 24799 corp: 4773 exec/s 34 oom/timeout/crash: 25/0/50 time: 33967s job: 291 dft_time: 0
+#6836243: cov: 27348 ft: 24804 corp: 4774 exec/s 203 oom/timeout/crash: 25/0/50 time: 34262s job: 292 dft_time: 0
+#6862640: cov: 27350 ft: 24811 corp: 4779 exec/s 89 oom/timeout/crash: 25/0/50 time: 34557s job: 293 dft_time: 0
+#6923681: cov: 27352 ft: 24816 corp: 4780 exec/s 206 oom/timeout/crash: 25/0/50 time: 34854s job: 294 dft_time: 0
+#6942566: cov: 27353 ft: 24827 corp: 4784 exec/s 63 oom/timeout/crash: 25/0/50 time: 35150s job: 295 dft_time: 0
+#6942566: cov: 27355 ft: 24827 corp: 4784 exec/s 0 oom/timeout/crash: 25/0/50 time: 35150s job: 296 dft_time: 0
+#7002237: cov: 27355 ft: 24827 corp: 4784 exec/s 200 oom/timeout/crash: 25/0/51 time: 35450s job: 297 dft_time: 0
+#7027918: cov: 27356 ft: 24828 corp: 4785 exec/s 85 oom/timeout/crash: 25/0/51 time: 35750s job: 298 dft_time: 0
+#7074918: cov: 27357 ft: 24843 corp: 4786 exec/s 156 oom/timeout/crash: 25/0/51 time: 36051s job: 299 dft_time: 0
+#7131714: cov: 27357 ft: 24846 corp: 4788 exec/s 188 oom/timeout/crash: 25/0/51 time: 36355s job: 300 dft_time: 0
+#7131714: cov: 27357 ft: 24849 corp: 4791 exec/s 0 oom/timeout/crash: 25/0/51 time: 36355s job: 301 dft_time: 0
+#7158512: cov: 27357 ft: 24849 corp: 4791 exec/s 89 oom/timeout/crash: 25/0/52 time: 36657s job: 302 dft_time: 0
+#7202619: cov: 27357 ft: 24850 corp: 4792 exec/s 146 oom/timeout/crash: 25/0/52 time: 36960s job: 303 dft_time: 0
+#7202619: cov: 27361 ft: 24853 corp: 4793 exec/s 0 oom/timeout/crash: 25/0/52 time: 36960s job: 304 dft_time: 0
+#7202619: cov: 27361 ft: 24853 corp: 4793 exec/s 0 oom/timeout/crash: 25/0/53 time: 36960s job: 305 dft_time: 0
+#7276736: cov: 27361 ft: 24853 corp: 4793 exec/s 246 oom/timeout/crash: 25/0/54 time: 37263s job: 306 dft_time: 0
+  NEW_FUNC: 0x562d45d2ae00 in Gfx::opMoveShowText(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:3706
+#7329856: cov: 27363 ft: 24859 corp: 4798 exec/s 176 oom/timeout/crash: 25/0/54 time: 37565s job: 307 dft_time: 0
+#7331209: cov: 27363 ft: 24863 corp: 4800 exec/s 79 oom/timeout/crash: 25/0/54 time: 37583s job: 308 dft_time: 0
+#7337201: cov: 27363 ft: 24863 corp: 4800 exec/s 77 oom/timeout/crash: 26/0/54 time: 37661s job: 309 dft_time: 0
+#7389077: cov: 27363 ft: 24865 corp: 4802 exec/s 172 oom/timeout/crash: 27/0/54 time: 37963s job: 310 dft_time: 0
+#7457390: cov: 27372 ft: 24903 corp: 4815 exec/s 226 oom/timeout/crash: 27/0/54 time: 38266s job: 311 dft_time: 0
+#7457390: cov: 27374 ft: 24910 corp: 4820 exec/s 0 oom/timeout/crash: 27/0/54 time: 38267s job: 312 dft_time: 0
+#7522638: cov: 27374 ft: 24910 corp: 4820 exec/s 216 oom/timeout/crash: 27/0/55 time: 38569s job: 313 dft_time: 0
+#7586128: cov: 27378 ft: 24931 corp: 4827 exec/s 210 oom/timeout/crash: 27/0/55 time: 38872s job: 314 dft_time: 0
+#7586128: cov: 27378 ft: 24943 corp: 4831 exec/s 0 oom/timeout/crash: 27/0/55 time: 38872s job: 315 dft_time: 0
+#7586128: cov: 27378 ft: 24943 corp: 4831 exec/s 0 oom/timeout/crash: 27/0/56 time: 38872s job: 316 dft_time: 0
+#7586128: cov: 27378 ft: 24943 corp: 4831 exec/s 0 oom/timeout/crash: 27/0/57 time: 38872s job: 317 dft_time: 0
+#7650046: cov: 27378 ft: 24943 corp: 4831 exec/s 212 oom/timeout/crash: 27/0/58 time: 39175s job: 318 dft_time: 0
+#7692593: cov: 27378 ft: 24949 corp: 4834 exec/s 154 oom/timeout/crash: 27/0/58 time: 39452s job: 319 dft_time: 0
+#7692593: cov: 27378 ft: 24949 corp: 4834 exec/s 0 oom/timeout/crash: 28/0/58 time: 39452s job: 320 dft_time: 0
+#7752326: cov: 27378 ft: 24949 corp: 4834 exec/s 198 oom/timeout/crash: 28/0/59 time: 39755s job: 321 dft_time: 0
+#7804209: cov: 27378 ft: 24952 corp: 4837 exec/s 172 oom/timeout/crash: 28/0/59 time: 40058s job: 322 dft_time: 0
+#7862669: cov: 27380 ft: 24998 corp: 4855 exec/s 194 oom/timeout/crash: 28/0/59 time: 40361s job: 323 dft_time: 0
+#7928289: cov: 27381 ft: 24998 corp: 4855 exec/s 218 oom/timeout/crash: 28/0/59 time: 40664s job: 324 dft_time: 0
+#7928289: cov: 27381 ft: 25005 corp: 4857 exec/s 0 oom/timeout/crash: 28/0/59 time: 40664s job: 325 dft_time: 0
+#7994536: cov: 27381 ft: 25005 corp: 4857 exec/s 220 oom/timeout/crash: 28/0/60 time: 40967s job: 326 dft_time: 0
+#7994536: cov: 27381 ft: 25016 corp: 4862 exec/s 0 oom/timeout/crash: 28/0/60 time: 40968s job: 327 dft_time: 0
+#7994536: cov: 27381 ft: 25016 corp: 4862 exec/s 0 oom/timeout/crash: 28/0/61 time: 40968s job: 328 dft_time: 0
+#8072401: cov: 27381 ft: 25016 corp: 4862 exec/s 258 oom/timeout/crash: 28/0/62 time: 41270s job: 329 dft_time: 0
+#8151707: cov: 27381 ft: 25035 corp: 4869 exec/s 263 oom/timeout/crash: 28/0/62 time: 41573s job: 330 dft_time: 0
+#8202150: cov: 27383 ft: 25061 corp: 4877 exec/s 167 oom/timeout/crash: 28/0/62 time: 41875s job: 331 dft_time: 0
+#8254079: cov: 27383 ft: 25067 corp: 4879 exec/s 172 oom/timeout/crash: 28/0/62 time: 42178s job: 332 dft_time: 0
+#8332668: cov: 27384 ft: 25075 corp: 4885 exec/s 261 oom/timeout/crash: 28/0/62 time: 42480s job: 333 dft_time: 0
+#8332668: cov: 27386 ft: 25080 corp: 4887 exec/s 0 oom/timeout/crash: 28/0/62 time: 42481s job: 334 dft_time: 0
+#8376035: cov: 27386 ft: 25080 corp: 4887 exec/s 144 oom/timeout/crash: 28/0/63 time: 42783s job: 335 dft_time: 0
+#8447002: cov: 27386 ft: 25080 corp: 4887 exec/s 235 oom/timeout/crash: 28/0/63 time: 43085s job: 336 dft_time: 0
+#8491173: cov: 27386 ft: 25084 corp: 4890 exec/s 146 oom/timeout/crash: 28/0/63 time: 43388s job: 337 dft_time: 0
+#8554621: cov: 27388 ft: 25086 corp: 4892 exec/s 210 oom/timeout/crash: 28/0/63 time: 43691s job: 338 dft_time: 0
+  NEW_FUNC: 0x562d45c97d00 in OutputDev::type3D0(GfxState*, double, double) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:232
+#8604968: cov: 27389 ft: 25090 corp: 4893 exec/s 167 oom/timeout/crash: 28/0/63 time: 43996s job: 339 dft_time: 0
+#8634740: cov: 27389 ft: 25090 corp: 4893 exec/s 98 oom/timeout/crash: 28/0/63 time: 44299s job: 340 dft_time: 0
+#8707498: cov: 27389 ft: 25092 corp: 4895 exec/s 241 oom/timeout/crash: 28/0/63 time: 44601s job: 341 dft_time: 0
+#8707498: cov: 27390 ft: 25097 corp: 4900 exec/s 0 oom/timeout/crash: 28/0/63 time: 44602s job: 342 dft_time: 0
+#8707498: cov: 27390 ft: 25097 corp: 4900 exec/s 0 oom/timeout/crash: 28/0/64 time: 44602s job: 343 dft_time: 0
+#8710923: cov: 27390 ft: 25097 corp: 4900 exec/s 11 oom/timeout/crash: 28/0/65 time: 44904s job: 344 dft_time: 0
+#8710923: cov: 27391 ft: 25101 corp: 4902 exec/s 0 oom/timeout/crash: 28/0/65 time: 44904s job: 345 dft_time: 0
+#8788547: cov: 27391 ft: 25101 corp: 4902 exec/s 257 oom/timeout/crash: 28/0/66 time: 45206s job: 346 dft_time: 0
+#8806733: cov: 27392 ft: 25102 corp: 4903 exec/s 60 oom/timeout/crash: 28/0/66 time: 45508s job: 347 dft_time: 0
+#8859961: cov: 27392 ft: 25102 corp: 4903 exec/s 176 oom/timeout/crash: 28/0/66 time: 45811s job: 348 dft_time: 0
+#8880131: cov: 27393 ft: 25111 corp: 4909 exec/s 144 oom/timeout/crash: 28/0/66 time: 45951s job: 349 dft_time: 0
+#8934329: cov: 27393 ft: 25111 corp: 4909 exec/s 180 oom/timeout/crash: 29/0/66 time: 46254s job: 350 dft_time: 0
+#9001924: cov: 27393 ft: 25122 corp: 4913 exec/s 224 oom/timeout/crash: 29/0/66 time: 46557s job: 351 dft_time: 0
+#9076224: cov: 27393 ft: 25125 corp: 4915 exec/s 246 oom/timeout/crash: 29/0/66 time: 46859s job: 352 dft_time: 0
+#9136063: cov: 27393 ft: 25141 corp: 4920 exec/s 198 oom/timeout/crash: 29/0/66 time: 47163s job: 353 dft_time: 0
+#9197891: cov: 27394 ft: 25145 corp: 4924 exec/s 205 oom/timeout/crash: 29/0/66 time: 47466s job: 354 dft_time: 0
+#9274436: cov: 27394 ft: 25148 corp: 4927 exec/s 254 oom/timeout/crash: 29/0/66 time: 47769s job: 355 dft_time: 0
+#9337075: cov: 27394 ft: 25154 corp: 4931 exec/s 208 oom/timeout/crash: 29/0/66 time: 48072s job: 356 dft_time: 0
+#9337075: cov: 27394 ft: 25154 corp: 4931 exec/s 0 oom/timeout/crash: 29/0/66 time: 48072s job: 357 dft_time: 0
+#9337075: cov: 27394 ft: 25154 corp: 4931 exec/s 0 oom/timeout/crash: 29/0/67 time: 48072s job: 358 dft_time: 0
+#9412601: cov: 27394 ft: 25154 corp: 4931 exec/s 250 oom/timeout/crash: 29/0/68 time: 48375s job: 359 dft_time: 0
+#9476705: cov: 27394 ft: 25154 corp: 4931 exec/s 212 oom/timeout/crash: 29/0/68 time: 48677s job: 360 dft_time: 0
+#9476705: cov: 27394 ft: 25166 corp: 4935 exec/s 0 oom/timeout/crash: 29/0/68 time: 48678s job: 361 dft_time: 0
+#9521147: cov: 27394 ft: 25166 corp: 4935 exec/s 147 oom/timeout/crash: 29/0/69 time: 48982s job: 362 dft_time: 0
+#9521147: cov: 27394 ft: 25168 corp: 4936 exec/s 0 oom/timeout/crash: 29/0/69 time: 48982s job: 363 dft_time: 0
+#9570506: cov: 27394 ft: 25168 corp: 4936 exec/s 163 oom/timeout/crash: 29/0/70 time: 49285s job: 364 dft_time: 0
+#9577403: cov: 27394 ft: 25173 corp: 4937 exec/s 39 oom/timeout/crash: 29/0/70 time: 49462s job: 365 dft_time: 0
+#9625277: cov: 27394 ft: 25173 corp: 4937 exec/s 159 oom/timeout/crash: 30/0/70 time: 49764s job: 366 dft_time: 0
+#9715076: cov: 27394 ft: 25176 corp: 4938 exec/s 298 oom/timeout/crash: 30/0/70 time: 50068s job: 367 dft_time: 0
+#9786458: cov: 27395 ft: 25180 corp: 4942 exec/s 237 oom/timeout/crash: 30/0/70 time: 50371s job: 368 dft_time: 0
+#9796874: cov: 27395 ft: 25180 corp: 4942 exec/s 95 oom/timeout/crash: 30/0/70 time: 50480s job: 369 dft_time: 0
+#9864576: cov: 27395 ft: 25180 corp: 4942 exec/s 224 oom/timeout/crash: 31/0/70 time: 50783s job: 370 dft_time: 0
+#9934727: cov: 27395 ft: 25182 corp: 4944 exec/s 233 oom/timeout/crash: 31/0/70 time: 51085s job: 371 dft_time: 0
+#10002448: cov: 27395 ft: 25185 corp: 4946 exec/s 224 oom/timeout/crash: 31/0/70 time: 51388s job: 372 dft_time: 0
+#10028582: cov: 27396 ft: 25185 corp: 4946 exec/s 86 oom/timeout/crash: 31/0/70 time: 51690s job: 373 dft_time: 0
+#10037338: cov: 27396 ft: 25185 corp: 4946 exec/s 28 oom/timeout/crash: 31/0/70 time: 51993s job: 374 dft_time: 0
+#10115701: cov: 27396 ft: 25185 corp: 4946 exec/s 260 oom/timeout/crash: 31/0/70 time: 52296s job: 375 dft_time: 0
+#10163053: cov: 27398 ft: 25185 corp: 4946 exec/s 157 oom/timeout/crash: 31/0/70 time: 52599s job: 376 dft_time: 0
+#10178894: cov: 27398 ft: 25191 corp: 4949 exec/s 112 oom/timeout/crash: 31/0/70 time: 52741s job: 377 dft_time: 0
+#10204480: cov: 27398 ft: 25191 corp: 4949 exec/s 136 oom/timeout/crash: 32/0/70 time: 52928s job: 378 dft_time: 0
+#10276375: cov: 27398 ft: 25206 corp: 4954 exec/s 238 oom/timeout/crash: 33/0/70 time: 53232s job: 379 dft_time: 0
+#10340153: cov: 27398 ft: 25210 corp: 4956 exec/s 211 oom/timeout/crash: 33/0/70 time: 53535s job: 380 dft_time: 0
+#10375328: cov: 27398 ft: 25212 corp: 4958 exec/s 116 oom/timeout/crash: 33/0/70 time: 53838s job: 381 dft_time: 0
+#10375328: cov: 27398 ft: 25212 corp: 4958 exec/s 0 oom/timeout/crash: 33/0/70 time: 53838s job: 382 dft_time: 0
+#10439586: cov: 27398 ft: 25212 corp: 4958 exec/s 213 oom/timeout/crash: 33/0/71 time: 54141s job: 383 dft_time: 0
+#10510808: cov: 27399 ft: 25214 corp: 4960 exec/s 236 oom/timeout/crash: 33/0/71 time: 54444s job: 384 dft_time: 0
+#10510808: cov: 27399 ft: 25220 corp: 4963 exec/s 0 oom/timeout/crash: 33/0/71 time: 54444s job: 385 dft_time: 0
+#10583205: cov: 27399 ft: 25220 corp: 4963 exec/s 240 oom/timeout/crash: 33/0/72 time: 54747s job: 386 dft_time: 0
+#10583205: cov: 27402 ft: 25222 corp: 4964 exec/s 0 oom/timeout/crash: 33/0/72 time: 54748s job: 387 dft_time: 0
+#10622279: cov: 27402 ft: 25222 corp: 4964 exec/s 140 oom/timeout/crash: 33/0/73 time: 55027s job: 388 dft_time: 0
+#10649721: cov: 27402 ft: 25224 corp: 4966 exec/s 90 oom/timeout/crash: 34/0/73 time: 55332s job: 389 dft_time: 0
+#10702688: cov: 27402 ft: 25224 corp: 4966 exec/s 175 oom/timeout/crash: 34/0/73 time: 55635s job: 390 dft_time: 0
+#10773444: cov: 27402 ft: 25225 corp: 4967 exec/s 235 oom/timeout/crash: 34/0/73 time: 55938s job: 391 dft_time: 0
+#10862596: cov: 27402 ft: 25229 corp: 4971 exec/s 296 oom/timeout/crash: 34/0/73 time: 56241s job: 392 dft_time: 0
+#10867125: cov: 27402 ft: 25233 corp: 4975 exec/s 14 oom/timeout/crash: 34/0/73 time: 56545s job: 393 dft_time: 0
+#10918879: cov: 27402 ft: 25233 corp: 4975 exec/s 171 oom/timeout/crash: 34/0/73 time: 56848s job: 394 dft_time: 0
+#10996900: cov: 27402 ft: 25233 corp: 4975 exec/s 259 oom/timeout/crash: 34/0/73 time: 57151s job: 395 dft_time: 0
+#11064372: cov: 27403 ft: 25238 corp: 4980 exec/s 224 oom/timeout/crash: 34/0/73 time: 57454s job: 396 dft_time: 0
+#11098473: cov: 27404 ft: 25243 corp: 4983 exec/s 113 oom/timeout/crash: 34/0/73 time: 57757s job: 397 dft_time: 0
+#11116963: cov: 27404 ft: 25243 corp: 4983 exec/s 61 oom/timeout/crash: 34/0/73 time: 58059s job: 398 dft_time: 0
+#11151042: cov: 27404 ft: 25244 corp: 4984 exec/s 113 oom/timeout/crash: 34/0/73 time: 58362s job: 399 dft_time: 0
+#11221641: cov: 27404 ft: 25246 corp: 4985 exec/s 234 oom/timeout/crash: 34/0/73 time: 58665s job: 400 dft_time: 0
+#11221641: cov: 27404 ft: 25246 corp: 4985 exec/s 0 oom/timeout/crash: 34/0/73 time: 58666s job: 401 dft_time: 0
+#11221641: cov: 27404 ft: 25246 corp: 4985 exec/s 0 oom/timeout/crash: 34/0/74 time: 58666s job: 402 dft_time: 0
+#11269147: cov: 27404 ft: 25246 corp: 4985 exec/s 157 oom/timeout/crash: 34/0/75 time: 58968s job: 403 dft_time: 0
+#11269147: cov: 27404 ft: 25248 corp: 4986 exec/s 0 oom/timeout/crash: 34/0/75 time: 58969s job: 404 dft_time: 0
+#11297074: cov: 27404 ft: 25248 corp: 4986 exec/s 91 oom/timeout/crash: 34/0/76 time: 59276s job: 405 dft_time: 0
+#11340651: cov: 27404 ft: 25248 corp: 4986 exec/s 144 oom/timeout/crash: 34/0/76 time: 59579s job: 406 dft_time: 0
+#11370931: cov: 27404 ft: 25266 corp: 4991 exec/s 126 oom/timeout/crash: 34/0/76 time: 59820s job: 407 dft_time: 0
+#11370931: cov: 27404 ft: 25266 corp: 4991 exec/s 0 oom/timeout/crash: 35/0/76 time: 59820s job: 408 dft_time: 0
+#11406214: cov: 27404 ft: 25266 corp: 4991 exec/s 117 oom/timeout/crash: 35/0/77 time: 60123s job: 409 dft_time: 0
+#11456651: cov: 27404 ft: 25266 corp: 4991 exec/s 167 oom/timeout/crash: 35/0/77 time: 60426s job: 410 dft_time: 0
+#11536605: cov: 27404 ft: 25267 corp: 4992 exec/s 265 oom/timeout/crash: 35/0/77 time: 60729s job: 411 dft_time: 0
+#11598832: cov: 27404 ft: 25268 corp: 4993 exec/s 206 oom/timeout/crash: 35/0/77 time: 61033s job: 412 dft_time: 0
+#11685424: cov: 27404 ft: 25268 corp: 4993 exec/s 287 oom/timeout/crash: 35/0/77 time: 61336s job: 413 dft_time: 0
+#11737783: cov: 27404 ft: 25268 corp: 4993 exec/s 173 oom/timeout/crash: 35/0/77 time: 61640s job: 414 dft_time: 0
+#11790193: cov: 27404 ft: 25273 corp: 4995 exec/s 174 oom/timeout/crash: 35/0/77 time: 61945s job: 415 dft_time: 0
+#11794357: cov: 27404 ft: 25276 corp: 4998 exec/s 13 oom/timeout/crash: 35/0/77 time: 62248s job: 416 dft_time: 0
+#11878852: cov: 27404 ft: 25278 corp: 4999 exec/s 280 oom/timeout/crash: 35/0/77 time: 62551s job: 417 dft_time: 0
+#11930391: cov: 27404 ft: 25283 corp: 5000 exec/s 171 oom/timeout/crash: 35/0/77 time: 62855s job: 418 dft_time: 0
+#11997542: cov: 27405 ft: 25286 corp: 5002 exec/s 223 oom/timeout/crash: 35/0/77 time: 63158s job: 419 dft_time: 0
+#12068345: cov: 27405 ft: 25287 corp: 5003 exec/s 235 oom/timeout/crash: 35/0/77 time: 63462s job: 420 dft_time: 0
+#12116884: cov: 27405 ft: 25287 corp: 5003 exec/s 161 oom/timeout/crash: 35/0/77 time: 63765s job: 421 dft_time: 0
+#12116884: cov: 27405 ft: 25287 corp: 5003 exec/s 0 oom/timeout/crash: 35/0/77 time: 63766s job: 422 dft_time: 0
+#12163438: cov: 27405 ft: 25287 corp: 5003 exec/s 154 oom/timeout/crash: 35/0/78 time: 64069s job: 423 dft_time: 0
+#12225673: cov: 27405 ft: 25289 corp: 5005 exec/s 206 oom/timeout/crash: 35/0/78 time: 64372s job: 424 dft_time: 0
+#12225673: cov: 27405 ft: 25292 corp: 5008 exec/s 0 oom/timeout/crash: 35/0/78 time: 64372s job: 425 dft_time: 0
+#12289019: cov: 27405 ft: 25292 corp: 5008 exec/s 210 oom/timeout/crash: 35/0/79 time: 64675s job: 426 dft_time: 0
+#12360440: cov: 27412 ft: 25303 corp: 5011 exec/s 237 oom/timeout/crash: 35/0/79 time: 64978s job: 427 dft_time: 0
+#12360440: cov: 27412 ft: 25303 corp: 5011 exec/s 0 oom/timeout/crash: 35/0/79 time: 64979s job: 428 dft_time: 0
+#12372598: cov: 27412 ft: 25303 corp: 5011 exec/s 39 oom/timeout/crash: 35/0/80 time: 65290s job: 429 dft_time: 0
+#12430248: cov: 27412 ft: 25303 corp: 5011 exec/s 191 oom/timeout/crash: 35/0/80 time: 65593s job: 430 dft_time: 0
+#12487840: cov: 27412 ft: 25303 corp: 5011 exec/s 191 oom/timeout/crash: 35/0/80 time: 65896s job: 431 dft_time: 0
+#12544436: cov: 27412 ft: 25303 corp: 5011 exec/s 188 oom/timeout/crash: 35/0/80 time: 66200s job: 432 dft_time: 0
+#12614800: cov: 27412 ft: 25303 corp: 5011 exec/s 233 oom/timeout/crash: 35/0/80 time: 66503s job: 433 dft_time: 0
+#12689001: cov: 27412 ft: 25306 corp: 5014 exec/s 246 oom/timeout/crash: 35/0/80 time: 66805s job: 434 dft_time: 0
+#12689001: cov: 27413 ft: 25307 corp: 5015 exec/s 0 oom/timeout/crash: 35/0/80 time: 66806s job: 435 dft_time: 0
+#12743340: cov: 27413 ft: 25307 corp: 5015 exec/s 180 oom/timeout/crash: 35/0/81 time: 67108s job: 436 dft_time: 0
+#12748651: cov: 27416 ft: 25321 corp: 5020 exec/s 17 oom/timeout/crash: 35/0/81 time: 67415s job: 437 dft_time: 0
+#12795030: cov: 27416 ft: 25321 corp: 5020 exec/s 154 oom/timeout/crash: 35/0/81 time: 67718s job: 438 dft_time: 0
+#12822657: cov: 27416 ft: 25322 corp: 5021 exec/s 165 oom/timeout/crash: 35/0/81 time: 67886s job: 439 dft_time: 0
+#12822657: cov: 27416 ft: 25322 corp: 5021 exec/s 0 oom/timeout/crash: 36/0/81 time: 67886s job: 440 dft_time: 0
+#12854735: cov: 27416 ft: 25322 corp: 5021 exec/s 106 oom/timeout/crash: 36/0/82 time: 68189s job: 441 dft_time: 0
+#12854735: cov: 27416 ft: 25322 corp: 5021 exec/s 0 oom/timeout/crash: 36/0/82 time: 68189s job: 442 dft_time: 0
+#12892345: cov: 27416 ft: 25322 corp: 5021 exec/s 124 oom/timeout/crash: 36/0/83 time: 68491s job: 443 dft_time: 0
+#12907676: cov: 27416 ft: 25322 corp: 5021 exec/s 166 oom/timeout/crash: 36/0/83 time: 68584s job: 444 dft_time: 0
+#12907676: cov: 27416 ft: 25323 corp: 5022 exec/s 0 oom/timeout/crash: 37/0/83 time: 68584s job: 445 dft_time: 0
+#12974386: cov: 27416 ft: 25323 corp: 5022 exec/s 221 oom/timeout/crash: 37/0/84 time: 68886s job: 446 dft_time: 0
+#13040821: cov: 27416 ft: 25323 corp: 5022 exec/s 220 oom/timeout/crash: 37/0/84 time: 69189s job: 447 dft_time: 0
+#13040821: cov: 27416 ft: 25323 corp: 5022 exec/s 0 oom/timeout/crash: 37/0/84 time: 69189s job: 448 dft_time: 0
+#13075405: cov: 27416 ft: 25323 corp: 5022 exec/s 114 oom/timeout/crash: 37/0/85 time: 69492s job: 449 dft_time: 0
+#13075405: cov: 27416 ft: 25324 corp: 5023 exec/s 0 oom/timeout/crash: 37/0/85 time: 69492s job: 450 dft_time: 0
+#13127365: cov: 27416 ft: 25324 corp: 5023 exec/s 172 oom/timeout/crash: 37/0/86 time: 69796s job: 451 dft_time: 0
+#13127365: cov: 27416 ft: 25328 corp: 5024 exec/s 0 oom/timeout/crash: 37/0/86 time: 69796s job: 452 dft_time: 0
+#13127365: cov: 27416 ft: 25328 corp: 5024 exec/s 0 oom/timeout/crash: 37/0/87 time: 69796s job: 453 dft_time: 0
+#13163080: cov: 27416 ft: 25328 corp: 5024 exec/s 118 oom/timeout/crash: 37/0/88 time: 70099s job: 454 dft_time: 0
+  NEW_FUNC: 0x562d45d441d0 in Gfx::opShFill(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:2354
+  NEW_FUNC: 0x562d45d474b0 in GfxResources::lookupShading(char const*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:442
+#13230857: cov: 27421 ft: 25333 corp: 5025 exec/s 225 oom/timeout/crash: 37/0/88 time: 70402s job: 455 dft_time: 0
+  NEW_FUNC: 0x562d45d3abb0 in Gfx::opSetExtGState(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:953
+#13230857: cov: 27426 ft: 25348 corp: 5027 exec/s 0 oom/timeout/crash: 37/0/88 time: 70402s job: 456 dft_time: 0
+#13274088: cov: 27426 ft: 25348 corp: 5027 exec/s 143 oom/timeout/crash: 37/0/89 time: 70705s job: 457 dft_time: 0
+#13295280: cov: 27426 ft: 25348 corp: 5027 exec/s 70 oom/timeout/crash: 37/0/89 time: 71007s job: 458 dft_time: 0
+#13379287: cov: 27426 ft: 25352 corp: 5028 exec/s 279 oom/timeout/crash: 37/0/89 time: 71310s job: 459 dft_time: 0
+#13431303: cov: 27426 ft: 25353 corp: 5029 exec/s 172 oom/timeout/crash: 37/0/89 time: 71613s job: 460 dft_time: 0
+#13431303: cov: 27428 ft: 25355 corp: 5030 exec/s 0 oom/timeout/crash: 37/0/89 time: 71613s job: 461 dft_time: 0
+#13435274: cov: 27428 ft: 25355 corp: 5030 exec/s 189 oom/timeout/crash: 37/0/90 time: 71634s job: 462 dft_time: 0
+#13477222: cov: 27428 ft: 25355 corp: 5030 exec/s 139 oom/timeout/crash: 38/0/90 time: 71938s job: 463 dft_time: 0
+#13477222: cov: 27428 ft: 25359 corp: 5032 exec/s 0 oom/timeout/crash: 38/0/90 time: 71938s job: 464 dft_time: 0
+#13549215: cov: 27428 ft: 25359 corp: 5032 exec/s 239 oom/timeout/crash: 38/0/91 time: 72241s job: 465 dft_time: 0
+#13603247: cov: 27428 ft: 25359 corp: 5032 exec/s 179 oom/timeout/crash: 38/0/91 time: 72544s job: 466 dft_time: 0
+#13663885: cov: 27428 ft: 25359 corp: 5032 exec/s 201 oom/timeout/crash: 38/0/91 time: 72846s job: 467 dft_time: 0
+#13737069: cov: 27428 ft: 25359 corp: 5032 exec/s 243 oom/timeout/crash: 38/0/91 time: 73149s job: 468 dft_time: 0
+#13798894: cov: 27428 ft: 25362 corp: 5033 exec/s 205 oom/timeout/crash: 38/0/91 time: 73453s job: 469 dft_time: 0
+#13847097: cov: 27428 ft: 25363 corp: 5034 exec/s 160 oom/timeout/crash: 38/0/91 time: 73756s job: 470 dft_time: 0
+#13898777: cov: 27428 ft: 25363 corp: 5034 exec/s 171 oom/timeout/crash: 38/0/91 time: 74059s job: 471 dft_time: 0
+  NEW_FUNC: 0x562d45d453f0 in Gfx::opCurveTo1(Object*, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/Gfx.cc:1685
+#13898777: cov: 27432 ft: 25367 corp: 5036 exec/s 0 oom/timeout/crash: 38/0/91 time: 74059s job: 472 dft_time: 0
+#13900567: cov: 27432 ft: 25367 corp: 5036 exec/s 74 oom/timeout/crash: 38/0/92 time: 74084s job: 473 dft_time: 0
+#13900567: cov: 27432 ft: 25367 corp: 5036 exec/s 0 oom/timeout/crash: 39/0/92 time: 74084s job: 474 dft_time: 0
+#13913059: cov: 27432 ft: 25367 corp: 5036 exec/s 72 oom/timeout/crash: 39/0/93 time: 74256s job: 475 dft_time: 0
+#13999033: cov: 27432 ft: 25367 corp: 5036 exec/s 285 oom/timeout/crash: 40/0/93 time: 74560s job: 476 dft_time: 0
+#14044045: cov: 27432 ft: 25372 corp: 5038 exec/s 149 oom/timeout/crash: 40/0/93 time: 74862s job: 477 dft_time: 0
+#14044045: cov: 27432 ft: 25372 corp: 5038 exec/s 0 oom/timeout/crash: 40/0/93 time: 74863s job: 478 dft_time: 0
+#14050938: cov: 27432 ft: 25372 corp: 5038 exec/s 22 oom/timeout/crash: 40/0/94 time: 75168s job: 479 dft_time: 0
+#14050938: cov: 27432 ft: 25372 corp: 5038 exec/s 0 oom/timeout/crash: 40/0/94 time: 75168s job: 480 dft_time: 0
+#14077636: cov: 27432 ft: 25372 corp: 5038 exec/s 88 oom/timeout/crash: 40/0/95 time: 75472s job: 481 dft_time: 0
+#14077636: cov: 27432 ft: 25372 corp: 5038 exec/s 0 oom/timeout/crash: 40/0/95 time: 75472s job: 482 dft_time: 0
+#14131213: cov: 27432 ft: 25372 corp: 5038 exec/s 177 oom/timeout/crash: 40/0/96 time: 75776s job: 483 dft_time: 0
+#14134930: cov: 27432 ft: 25378 corp: 5040 exec/s 12 oom/timeout/crash: 40/0/96 time: 76084s job: 484 dft_time: 0
+#14200952: cov: 27432 ft: 25380 corp: 5041 exec/s 219 oom/timeout/crash: 40/0/96 time: 76388s job: 485 dft_time: 0
+#14276720: cov: 27433 ft: 25388 corp: 5043 exec/s 251 oom/timeout/crash: 40/0/96 time: 76692s job: 486 dft_time: 0
+#14276720: cov: 27433 ft: 25388 corp: 5043 exec/s 0 oom/timeout/crash: 40/0/96 time: 76692s job: 487 dft_time: 0
+#14335172: cov: 27433 ft: 25388 corp: 5043 exec/s 194 oom/timeout/crash: 40/0/97 time: 76996s job: 488 dft_time: 0
+#14405676: cov: 27433 ft: 25388 corp: 5043 exec/s 234 oom/timeout/crash: 40/0/97 time: 77300s job: 489 dft_time: 0
+#14471133: cov: 27434 ft: 25391 corp: 5046 exec/s 217 oom/timeout/crash: 40/0/97 time: 77604s job: 490 dft_time: 0
+#14504483: cov: 27434 ft: 25391 corp: 5046 exec/s 110 oom/timeout/crash: 40/0/97 time: 77907s job: 491 dft_time: 0
+#14539680: cov: 27435 ft: 25392 corp: 5047 exec/s 132 oom/timeout/crash: 40/0/97 time: 78176s job: 492 dft_time: 0
+#14539680: cov: 27435 ft: 25396 corp: 5048 exec/s 0 oom/timeout/crash: 41/0/97 time: 78176s job: 493 dft_time: 0
+#14573093: cov: 27435 ft: 25396 corp: 5048 exec/s 265 oom/timeout/crash: 41/0/98 time: 78303s job: 494 dft_time: 0
+#14610218: cov: 27435 ft: 25398 corp: 5050 exec/s 123 oom/timeout/crash: 42/0/98 time: 78608s job: 495 dft_time: 0
+#14610218: cov: 27435 ft: 25398 corp: 5050 exec/s 0 oom/timeout/crash: 42/0/98 time: 78608s job: 496 dft_time: 0
+#14621541: cov: 27435 ft: 25398 corp: 5050 exec/s 37 oom/timeout/crash: 42/0/99 time: 78912s job: 497 dft_time: 0
+#14641310: cov: 27435 ft: 25401 corp: 5052 exec/s 65 oom/timeout/crash: 42/0/99 time: 79214s job: 498 dft_time: 0
+#14641310: cov: 27435 ft: 25401 corp: 5052 exec/s 0 oom/timeout/crash: 42/0/99 time: 79214s job: 499 dft_time: 0
+#14673779: cov: 27435 ft: 25401 corp: 5052 exec/s 138 oom/timeout/crash: 42/0/100 time: 79451s job: 500 dft_time: 0
+#14744199: cov: 27435 ft: 25401 corp: 5052 exec/s 233 oom/timeout/crash: 43/0/100 time: 79755s job: 501 dft_time: 0
+#14802061: cov: 27435 ft: 25404 corp: 5054 exec/s 192 oom/timeout/crash: 43/0/100 time: 80058s job: 502 dft_time: 0
+#14864718: cov: 27435 ft: 25404 corp: 5054 exec/s 208 oom/timeout/crash: 43/0/100 time: 80362s job: 503 dft_time: 0
+#14875060: cov: 27435 ft: 25404 corp: 5054 exec/s 34 oom/timeout/crash: 43/0/100 time: 80665s job: 504 dft_time: 0
+#14875060: cov: 27435 ft: 25404 corp: 5054 exec/s 0 oom/timeout/crash: 43/0/100 time: 80665s job: 505 dft_time: 0
+#14931150: cov: 27435 ft: 25404 corp: 5054 exec/s 186 oom/timeout/crash: 43/0/101 time: 80968s job: 506 dft_time: 0
+#14979951: cov: 27436 ft: 25405 corp: 5055 exec/s 162 oom/timeout/crash: 43/0/101 time: 81272s job: 507 dft_time: 0
+#14979951: cov: 27436 ft: 25405 corp: 5055 exec/s 0 oom/timeout/crash: 43/0/101 time: 81273s job: 508 dft_time: 0
+#15046237: cov: 27436 ft: 25405 corp: 5055 exec/s 220 oom/timeout/crash: 43/0/102 time: 81575s job: 509 dft_time: 0
+#15107624: cov: 27436 ft: 25407 corp: 5057 exec/s 203 oom/timeout/crash: 43/0/102 time: 81880s job: 510 dft_time: 0
+#15119107: cov: 27436 ft: 25410 corp: 5058 exec/s 153 oom/timeout/crash: 43/0/102 time: 81955s job: 511 dft_time: 0
+#15171237: cov: 27436 ft: 25410 corp: 5058 exec/s 173 oom/timeout/crash: 44/0/102 time: 82259s job: 512 dft_time: 0
+#15171237: cov: 27436 ft: 25410 corp: 5058 exec/s 0 oom/timeout/crash: 44/0/102 time: 82260s job: 513 dft_time: 0
+#15218718: cov: 27436 ft: 25410 corp: 5058 exec/s 157 oom/timeout/crash: 44/0/103 time: 82564s job: 514 dft_time: 0
+#15259038: cov: 27436 ft: 25411 corp: 5059 exec/s 133 oom/timeout/crash: 44/0/103 time: 82868s job: 515 dft_time: 0
+#15301646: cov: 27436 ft: 25413 corp: 5061 exec/s 141 oom/timeout/crash: 44/0/103 time: 83171s job: 516 dft_time: 0
+#15365239: cov: 27437 ft: 25422 corp: 5064 exec/s 211 oom/timeout/crash: 44/0/103 time: 83475s job: 517 dft_time: 0
+#15427249: cov: 27437 ft: 25422 corp: 5064 exec/s 206 oom/timeout/crash: 44/0/103 time: 83779s job: 518 dft_time: 0
+#15427249: cov: 27437 ft: 25422 corp: 5064 exec/s 0 oom/timeout/crash: 44/0/103 time: 83779s job: 519 dft_time: 0
+#15489165: cov: 27437 ft: 25422 corp: 5064 exec/s 205 oom/timeout/crash: 44/0/104 time: 84083s job: 520 dft_time: 0
+#15565578: cov: 27437 ft: 25424 corp: 5065 exec/s 253 oom/timeout/crash: 44/0/104 time: 84386s job: 521 dft_time: 0
+#15565578: cov: 27437 ft: 25454 corp: 5067 exec/s 0 oom/timeout/crash: 44/0/104 time: 84387s job: 522 dft_time: 0
+#15565578: cov: 27437 ft: 25454 corp: 5067 exec/s 0 oom/timeout/crash: 44/0/105 time: 84387s job: 523 dft_time: 0
+#15613661: cov: 27437 ft: 25454 corp: 5067 exec/s 159 oom/timeout/crash: 44/0/106 time: 84690s job: 524 dft_time: 0
+#15666746: cov: 27437 ft: 25458 corp: 5070 exec/s 176 oom/timeout/crash: 44/0/106 time: 84994s job: 525 dft_time: 0
+#15679567: cov: 27437 ft: 25467 corp: 5072 exec/s 93 oom/timeout/crash: 44/0/106 time: 85132s job: 526 dft_time: 0
+#15743919: cov: 27437 ft: 25467 corp: 5072 exec/s 213 oom/timeout/crash: 45/0/106 time: 85436s job: 527 dft_time: 0
+#15760742: cov: 27437 ft: 25467 corp: 5072 exec/s 92 oom/timeout/crash: 45/0/106 time: 85619s job: 528 dft_time: 0
+#15812699: cov: 27437 ft: 25467 corp: 5072 exec/s 172 oom/timeout/crash: 46/0/106 time: 85923s job: 529 dft_time: 0
+#15843747: cov: 27437 ft: 25469 corp: 5073 exec/s 103 oom/timeout/crash: 46/0/106 time: 86226s job: 530 dft_time: 0
+#15843747: cov: 27437 ft: 25469 corp: 5073 exec/s 0 oom/timeout/crash: 46/0/106 time: 86226s job: 531 dft_time: 0
+#15853035: cov: 27437 ft: 25469 corp: 5073 exec/s 30 oom/timeout/crash: 46/0/107 time: 86528s job: 532 dft_time: 0
+INFO: fuzzed for 86528 seconds, wrapping up soon
+INFO: exiting: 0 time: 86528s

@@ -1,0 +1,6 @@
+# Bulky / regenerable fuzzing artifacts — not committed.
+corpus/
+crashes/
+# The distilled run-summary/ and fuzzer.log ARE committed (the useful record).
+!run-summary/
+!fuzzer.log
