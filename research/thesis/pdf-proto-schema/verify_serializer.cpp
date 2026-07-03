@@ -3,6 +3,7 @@
 #include <string>
 #include <initializer_list>
 #include <unistd.h>
+#include <sys/wait.h>
 #include "pdf.pb.h"
 #include "serializer.h"
 
@@ -43,19 +44,54 @@ static int run_test(const char* name, pdf_proto::PdfDocument& doc,
     }
     close(fd);
 
+    // (2) Structural check -- qpdf --check validates xref offsets and object
+    // structure. Unlike pdfinfo/poppler (which silently reconstruct a broken xref
+    // and would hide exactly the bugs tests 9/12/15 target), qpdf reports xref/
+    // stream-boundary damage explicitly.
+    //
+    // Subtlety: qpdf --check ALSO tries to decode stream data, so an intentionally
+    // junk filtered payload (e.g. the fake JPEG in the DCT-image test, or a bogus
+    // CFF/TrueType program) makes qpdf warn (exit 3) even though the PDF *skeleton*
+    // is perfect. We must not fail on that -- embedding junk stream data is the
+    // whole point of the fuzzing serializer. Both broken-xref and junk-stream exit
+    // 3, so the exit code alone can't separate them; we key on qpdf's message.
+    // Structural-damage phrases ("damaged", "reconstruct", "expected endstream")
+    // never appear for a mere stream-decode warning.
     char cmd[256];
-    snprintf(cmd, sizeof(cmd), "pdfinfo %s 2>&1", path);
+    snprintf(cmd, sizeof(cmd), "qpdf --check %s 2>&1", path);
     FILE* f = popen(cmd, "r");
-    if (!f) { fprintf(stderr, "[%s] popen(pdfinfo) failed\n", name); unlink(path); return 1; }
-    char line[256];
-    int ok = 0;
+    if (!f) { fprintf(stderr, "[%s] popen(qpdf) failed\n", name); unlink(path); return 1; }
+    char line[512];
+    int structural_damage = 0;
     while (fgets(line, sizeof(line), f)) {
         fputs(line, stderr);
-        if (strstr(line, "Pages:")) ok = 1;
+        if (strstr(line, "damaged") || strstr(line, "reconstruct") ||
+            strstr(line, "expected endstream")) {
+            structural_damage = 1;
+        }
     }
-    pclose(f);
+    int status = pclose(f);
     unlink(path);
-    if (!ok) { fprintf(stderr, "[%s] FAIL: pdfinfo reported no page count\n", name); return 1; }
+
+    if (status == -1 || !WIFEXITED(status)) {
+        fprintf(stderr, "[%s] FAIL: qpdf did not run to completion\n", name);
+        return 1;
+    }
+    int code = WEXITSTATUS(status);
+    if (code == 127) {  // shell could not find qpdf -- environment gap, not a serializer bug
+        fprintf(stderr, "[%s] WARN: qpdf not found -- structural check skipped "
+                        "(content check passed)\n", name);
+        return 0;
+    }
+    if (code == 2) {    // qpdf hit an unrecoverable error
+        fprintf(stderr, "[%s] FAIL: qpdf --check errored (exit 2)\n", name);
+        return 1;
+    }
+    if (structural_damage) {  // xref / stream-boundary damage in the serializer skeleton
+        fprintf(stderr, "[%s] FAIL: qpdf reported xref/structure damage\n", name);
+        return 1;
+    }
+    // exit 0, or exit 3 whose only warnings are stream-content decode -> skeleton OK.
     fprintf(stderr, "[%s] PASS\n", name);
     return 0;
 }
