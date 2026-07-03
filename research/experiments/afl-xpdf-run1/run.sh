@@ -11,8 +11,8 @@
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT=/home/hoangnh8/master-thesis-research-logs/research
-AFL="$ROOT/AFLplusplus"
-PROTO="$ROOT/pdf-proto-schema"
+AFL="$ROOT/reference/AFLplusplus"
+PROTO="$ROOT/thesis/pdf-proto-schema"
 HARNESS="$PROTO/build-afl/afl_harness_xpdf"
 MUTATOR="$PROTO/afl_pdf_mutator.so"
 SEEDS="$SCRIPT_DIR/seeds"

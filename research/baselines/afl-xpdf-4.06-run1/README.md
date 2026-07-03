@@ -6,10 +6,16 @@
 |---|---|
 | Tool | AFL++ 4.41a |
 | Target | xpdf 4.06 `pdftotext` (instrumented build) |
-| Seed corpus | `research/pdf-seeds-cmin` (minimized with `afl-cmin`) |
-| Dictionary | `research/pdf.dict` |
+| Seed corpus | `research/seeds/cmin` (minimized with `afl-cmin`) |
+| Dictionary | `research/seeds/pdf.dict` |
 | Sanitizers | none (coverage-only build) |
-| Command | `afl-fuzz -i pdf-seeds-cmin -o afl-out -x pdf.dict -- pdftotext @@ /dev/null` |
+| Command | `afl-fuzz -i seeds/cmin -o experiments/afl-out -x seeds/pdf.dict -- pdftotext @@ /dev/null` |
+
+> **Note (post-reorg):** the reproduction command blocks below were written against the
+> pre-reorganization layout. Paths have since moved: `pdf-seeds-cmin` → `seeds/cmin`,
+> `pdf.dict` → `seeds/pdf.dict`, `AFLplusplus/` → `reference/AFLplusplus/`,
+> `xpdf-4.06/` → `thesis/xpdf-4.06/`, `afl-out` → `experiments/afl-out`. The verbatim
+> original command (with absolute paths) is preserved in `fuzzer_stats`.
 
 ## How to run in the background
 

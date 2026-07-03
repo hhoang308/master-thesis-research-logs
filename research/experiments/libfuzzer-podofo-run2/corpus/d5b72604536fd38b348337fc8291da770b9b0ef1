@@ -1,6 +1,0 @@
-pages {
-  content_stream {
-    filter: FLATE
-    raw_content: "egP"
-  }
-}

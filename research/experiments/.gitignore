@@ -1,0 +1,15 @@
+# Bulky / regenerable fuzzing artifacts across ALL runs — not committed.
+# One rule for every experiment run so tracking stays consistent.
+*/corpus/
+*/crashes/
+*/artifacts/
+*/out/
+*/seeds/
+*/afl-out/
+*.log
+*.pid
+
+# The distilled, human-authored records ARE committed.
+!*/README.md
+!*/run.sh
+!*/run-summary/

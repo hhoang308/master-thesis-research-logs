@@ -1,5 +1,0 @@
-pages {
-  content_streams {
-    filter: FLATE
-  }
-}
