@@ -358,6 +358,29 @@ int main() {
         failures += run_test("multipage-imagemask-xref", doc, {"/ImageMask"});
     }
 
+    // Test 16 (CFF wiring): EmbeddedFontFile via the structured CffFont oneof ->
+    // SerializeCff compiles a byte-valid CFF into the /FontFile3 stream (here with
+    // a self-referential callsubr, the CVE-2020-35376 shape). "FuzzFont" is the CFF
+    // Name INDEX entry (default font_name), so its presence proves the *compiled
+    // CFF bytes* -- not an opaque program blob -- are embedded in the stream.
+    {
+        pdf_proto::PdfDocument doc;
+        pdf_proto::Page* p = doc.add_pages();
+        p->set_width(612); p->set_height(792);
+        pdf_proto::Font* f = p->add_fonts();
+        f->set_base_font("CFFStructured");
+        pdf_proto::EmbeddedFontFile* ff = f->mutable_font_descriptor()->mutable_font_file();
+        ff->set_key(pdf_proto::EmbeddedFontFile::FONTFILE3);
+        ff->set_subtype("Type1C");
+        pdf_cff::CffFont* cff = ff->mutable_cff();
+        pdf_cff::Charstring* c = cff->add_charstrings();
+        c->add_ops()->set_call_local(0);
+        c->add_ops()->set_op(pdf_cff::ENDCHAR);
+        cff->add_local_subrs()->add_ops()->set_call_local(0);  // subr 0 -> subr 0
+        failures += run_test("fontfile3-structured-cff-selfsubr", doc,
+                             {"/FontFile3", "/Type1C", "FuzzFont"});
+    }
+
     google::protobuf::ShutdownProtobufLibrary();
     return failures;
 }

@@ -11,3 +11,5 @@ build-afl/
 verify_cff
 cff.pb.cc
 cff.pb.h
+pdf.pb.cc
+pdf.pb.h

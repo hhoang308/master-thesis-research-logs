@@ -105,7 +105,9 @@ endif()
 add_executable(pdf_fuzzer
   harness.cpp
   serializer.cpp
+  cff_serializer.cc
   pdf.pb.cc
+  cff.pb.cc
   $<TARGET_OBJECTS:xpdf_objs>
 )
 
@@ -124,7 +126,9 @@ if(PODOFO_FOUND)
   add_executable(pdf_fuzzer_podofo
     harness_podofo.cpp
     serializer.cpp
+    cff_serializer.cc
     pdf.pb.cc
+    cff.pb.cc
   )
   target_include_directories(pdf_fuzzer_podofo PRIVATE ${PODOFO_INCLUDE_DIRS})
   target_link_libraries(pdf_fuzzer_podofo
