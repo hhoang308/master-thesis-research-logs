@@ -1,0 +1,116 @@
+// cff.proto -- structured Compact Font Format (Type1C) for the /FontFile3 stream.
+//
+// Purpose: describe a CFF font at a level where the SERIALIZER ("CFF assembler")
+// computes every byte-level detail -- INDEX offsets, DICT operands, charstring
+// operand encodings, Private/Subr offsets -- from scratch, while the GRAMMAR
+// controls the structure. This is what lets us synthesize the specific
+// malformations plain byte mutation cannot: notably a self-referential callsubr,
+// the CVE-2020-35376 uncontrolled-recursion (CWE-674) trigger in cvtGlyph.
+//
+// Spec references (both in ../../documents/):
+//   * 5176.CFF.pdf   (TN#5176) -- the container: Header, Name INDEX, Top DICT
+//                     INDEX, String INDEX, Global Subr INDEX, CharStrings INDEX,
+//                     Private DICT, Local Subr INDEX; INDEX + DICT byte formats.
+//   * 5177.Type2.pdf (TN#5177) -- Type2 charstrings: the glyph bytecode,
+//                     including callsubr (0x0a) and callgsubr (0x1d).
+//
+// Target: xpdf's FoFiType1C. /FontFile3 -> FoFiIdentifier sniffs CFF ->
+// FoFiType1C::make -> parse -> cvtGlyph (the charstring interpreter that recurses
+// into local_subrs/global_subrs on callsubr/callgsubr with no depth guard in 4.02).
+//
+// Minimal CVE-2020-35376 trigger expressible here (a future step -- build the
+// VALID success case first):
+//   CffFont {
+//     charstrings: [ { ops: [ {call_local: 0}, {op: ENDCHAR} ] } ]  // glyph 0 calls subr 0
+//     local_subrs: [ { ops: [ {call_local: 0} ] } ]                 // subr 0 calls subr 0 -> loops
+//   }
+
+syntax = "proto2";
+
+package pdf_cff;
+
+// A minimal non-CID CFF font. The serializer turns this into a byte-valid CFF and
+// back-patches every offset. Layout it emits, in order (TN#5176 s.2):
+//   Header -> Name INDEX (font_name) -> Top DICT INDEX -> String INDEX ->
+//   Global Subr INDEX (global_subrs) -> CharStrings INDEX (charstrings) ->
+//   Private DICT -> Local Subr INDEX (local_subrs).
+//
+// Smallest valid font: a single glyph in `charstrings` whose program is just
+// ENDCHAR, and no subrs. The rendered glyph runs cvtGlyph on its charstring; an
+// unmapped character falls back to glyph 0 (.notdef), so charstrings[0] is what
+// the harness's driver stream most reliably executes.
+//
+// NOTE: CID-keyed CFF (ROS / FDArray / FDSelect, for /FontFile3 CIDFontType0C and
+// the Type0 targets, e.g. CVE-2022-41842/41843) is a deliberate future extension;
+// this scaffold covers the plain, non-CID case first.
+message CffFont {
+  // Font name -> the single Name INDEX entry. Default keeps the font valid.
+  optional string font_name = 1 [default = "FuzzFont"];
+
+  // CharStrings INDEX: one Type2 charstring per glyph. charstrings[0] = .notdef.
+  // If empty, the serializer emits a single default ".notdef" glyph ("endchar").
+  repeated Charstring charstrings = 2;
+
+  // Local Subr INDEX (referenced from the Private DICT via op 19 "Subrs"). The
+  // callsubr operator / Op.call_local index into this list, with the Type2 subr
+  // bias applied by the serializer.
+  repeated Charstring local_subrs = 3;
+
+  // Global Subr INDEX (top level). callgsubr / Op.call_global index into this.
+  repeated Charstring global_subrs = 4;
+}
+
+// A Type2 charstring = an ordered list of operations. The serializer encodes each
+// op to its Type2 byte form and concatenates them into the charstring bytes.
+message Charstring {
+  repeated Op ops = 1;
+}
+
+// One charstring operation. Exactly one variant is set (oneof).
+message Op {
+  oneof kind {
+    // Push a numeric operand. The serializer chooses the Type2 operand encoding
+    // (single-byte 32..246, two-byte 247..254, shortint 28, or 255 fixed).
+    // sint32 so negative operands (e.g. the -bias values) stay compact.
+    sint32 operand = 1;
+
+    // Emit a bare operator (see Operator below; its enum value IS the Type2 byte).
+    Operator op = 2;
+
+    // Call local_subrs[index]. The serializer emits (index - localSubrBias) as the
+    // operand, then the callsubr byte (0x0a). Naming the subr by its REAL index
+    // (not the biased value) is the key design choice: it makes "subr 0 calls
+    // subr 0" -- the -35376 trigger -- a trivially-mutatable small integer, instead
+    // of the needle -107 that raw `operand` + CALLSUBR would require. sint32 also
+    // lets the grammar express out-of-range indices (the "bad subroutine ref" path).
+    sint32 call_local = 3;
+
+    // Call global_subrs[index]; serializer emits (index - globalSubrBias) + callgsubr.
+    sint32 call_global = 4;
+
+    // Raw bytes injected verbatim into the charstring -- an escape hatch for
+    // two-byte escape operators (0x0c xx) and arbitrary byte-level malformation.
+    bytes raw = 5;
+  }
+}
+
+// Type2 charstring operators (TN#5177 Appendix A). The enum VALUE equals the
+// operator's one-byte opcode, so the serializer emits it directly (no lookup
+// table). Kept to the minimal single-byte set: enough to build a valid glyph
+// outline, plus the subroutine calls that drive cvtGlyph recursion. Two-byte
+// escape operators (0x0c xx) go through Op.raw for now.
+enum Operator {
+  HSTEM     = 1;   // 0x01
+  VSTEM     = 3;   // 0x03
+  VMOVETO   = 4;   // 0x04
+  RLINETO   = 5;   // 0x05
+  HLINETO   = 6;   // 0x06
+  VLINETO   = 7;   // 0x07
+  RRCURVETO = 8;   // 0x08
+  CALLSUBR  = 10;  // 0x0a -- raw form (needs a pre-biased operand); prefer Op.call_local
+  RETURN    = 11;  // 0x0b
+  ENDCHAR   = 14;  // 0x0e -- terminates the glyph
+  RMOVETO   = 21;  // 0x15
+  HMOVETO   = 22;  // 0x16
+  CALLGSUBR = 29;  // 0x1d -- raw form; prefer Op.call_global
+}
