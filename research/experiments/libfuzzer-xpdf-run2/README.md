@@ -6,8 +6,8 @@
 |---|---|
 | Target | xpdf 4.06 `pdftotext` (via `PDFDoc`) |
 | Fuzzer | libFuzzer + libprotobuf-mutator |
-| Schema | `pdf-proto-schema/pdf.proto` Stage 1+2 **+ 4 gap fixes** |
-| Binary | `pdf-proto-schema/build/pdf_fuzzer` |
+| Schema | `schema/pdf-proto/pdf.proto` Stage 1+2 **+ 4 gap fixes** |
+| Binary | `schema/pdf-proto/build/pdf_fuzzer` |
 | Sanitizer | ASan |
 | Max time | 86400s (24h) -- ran to completion |
 | Corpus seed | run1 final corpus (274 files) |

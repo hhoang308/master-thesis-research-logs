@@ -1,6 +1,8 @@
 syntax = "proto2";
 package pdf_proto;
 
+import "cff.proto";  // structured CFF grammar (pdf_cff.CffFont) for the /FontFile3 program
+
 message Catalog {
   required uint32 pages_ref = 1;
 }
@@ -37,9 +39,20 @@ message EmbeddedFontFile {
   }
   optional Key    key          = 1 [default = FONTFILE];
   optional string subtype      = 2;  // /Subtype for FontFile3 (Type1C / CIDFontType0C / OpenType)
-  optional bytes  program      = 3;  // raw font-program bytes -> FoFiIdentifier sniffs + dispatches
   optional sint32 length_delta = 4 [default = 0];  // /Length over/under-read on the program stream
+
+  // Program source. Either an opaque blob (legacy raw-bytes surface -- FoFiIdentifier
+  // sniffs + dispatches) OR a structured CFF the serializer compiles into byte-valid
+  // Type1C. The structured form is what lets the grammar synthesize the specific
+  // malformation opaque mutation cannot reach (self/cyclic callsubr).
+  oneof source {
+    bytes   program = 3;   // raw font-program bytes
+    pdf_cff.CffFont cff = 5;   // structured Type1C -> compiled CFF (FoFiType1C::cvtGlyph)
+  }
 }
+
+// (CffFont / Charstring / Op / Operator live in cff.proto, package pdf_cff, and are
+// referenced above via `import "cff.proto"`.)
 
 // P1.5: /FontDescriptor. Inline in the font dict (xpdf accepts inline or indirect).
 // Numeric fields are plain clean integers for now -- near-valid token injection is

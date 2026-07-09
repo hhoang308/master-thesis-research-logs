@@ -5,7 +5,7 @@
 # Run from anywhere -- all paths are absolute.
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-BINARY=/home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/build/pdf_fuzzer
+BINARY=/home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/build/pdf_fuzzer
 CORPUS="$SCRIPT_DIR/corpus"
 ARTIFACTS="$SCRIPT_DIR/artifacts"
 FUZZER_LOG="$SCRIPT_DIR/fuzzer.log"

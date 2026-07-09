@@ -10,9 +10,9 @@
 [submodule "references/pdfium"]
 	path = references/pdfium
 	url = https://pdfium.googlesource.com/pdfium
-[submodule "research/AFLplusplus"]
-	path = research/AFLplusplus
+[submodule "research/repos/AFLplusplus"]
+	path = research/repos/AFLplusplus
 	url = https://github.com/hhoang308/AFLplusplus.git
-[submodule "research/pdf-proto-schema/libprotobuf-mutator"]
-	path = research/pdf-proto-schema/libprotobuf-mutator
+[submodule "research/schema/pdf-proto/libprotobuf-mutator"]
+	path = research/schema/pdf-proto/libprotobuf-mutator
 	url = https://github.com/google/libprotobuf-mutator.git

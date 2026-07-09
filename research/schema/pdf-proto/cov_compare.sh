@@ -16,7 +16,7 @@
 set -u
 SELF_DIR="$(cd "$(dirname "$0")" && pwd)"
 COV_DRIVER="$SELF_DIR/build-cov/cov_driver"
-XPDF_SRC="$SELF_DIR/../xpdf-4.06/xpdf"
+XPDF_SRC="$SELF_DIR/../../targets/xpdf/4.06/source/xpdf"
 PROFDATA_TOOL=llvm-profdata-14
 COV_TOOL=llvm-cov-14
 
