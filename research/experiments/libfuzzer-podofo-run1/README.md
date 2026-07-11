@@ -6,8 +6,8 @@
 |---|---|
 | Target | PoDoFo 0.9.7 (`PdfMemDocument::LoadFromBuffer` + `GetPageCount`) |
 | Fuzzer | libFuzzer + libprotobuf-mutator |
-| Schema | `pdf-proto-schema/pdf.proto` Stage 1+2 (document skeleton + FlateDecode stream) |
-| Binary | `pdf-proto-schema/build/pdf_fuzzer_podofo` |
+| Schema | `schema/pdf-proto/pdf.proto` Stage 1+2 (document skeleton + FlateDecode stream) |
+| Binary | `schema/pdf-proto/build/pdf_fuzzer_podofo` |
 | Sanitizer | ASan |
 | Max time | 86400s (24h) configured; stopped early at ~15h |
 | Start | 2026-06-17 16:39 +07 |
@@ -67,7 +67,7 @@ pkg-config --modversion libpodofo
 ## Build pdf_fuzzer_podofo
 
 ```bash
-cd research/pdf-proto-schema
+cd research/schema/pdf-proto
 mkdir -p build && cd build
 cmake .. \
   -DCMAKE_CXX_COMPILER=clang++-14 \

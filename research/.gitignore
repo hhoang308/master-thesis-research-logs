@@ -1,0 +1,46 @@
+# Target/source builds and generated artifacts.
+targets/**/build*/
+targets/**/out/
+targets/**/*.o
+targets/**/*.a
+targets/**/*.so
+targets/**/*.dylib
+targets/**/*.exe
+
+# Harness builds.
+harnesses/**/build*/
+harnesses/**/out/
+harnesses/**/*.o
+harnesses/**/*.a
+harnesses/**/*.so
+harnesses/**/*.dylib
+harnesses/**/*.exe
+
+# PoC-local target copies and builds.
+pocs/**/build*/
+pocs/**/xpdf-*-build*/
+pocs/**/xpdf-*-src/
+
+# Fuzzing outputs. Keep human-authored records and repro scripts tracked.
+experiments/**/corpus/
+experiments/**/crashes/
+experiments/**/hangs/
+experiments/**/queue/
+experiments/**/artifacts/
+experiments/**/afl-out/
+experiments/**/out/
+experiments/**/*.log
+experiments/**/*.pid
+!experiments/**/README.md
+!experiments/**/metadata.md
+!experiments/**/repro.sh
+!experiments/**/run.sh
+!experiments/**/run-summary/
+
+# Crash buckets can contain large generated inputs; add metadata/repro files first.
+crashes/**/*.pdf
+crashes/**/*.bin
+crashes/**/*.proto
+!crashes/**/README.md
+!crashes/**/metadata.md
+!crashes/**/repro.sh

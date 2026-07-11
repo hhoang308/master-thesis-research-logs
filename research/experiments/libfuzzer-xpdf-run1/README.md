@@ -6,8 +6,8 @@
 |---|---|
 | Target | xpdf 4.06 `pdftotext` (via `PDFDoc`) |
 | Fuzzer | libFuzzer + libprotobuf-mutator |
-| Schema | `pdf-proto-schema/pdf.proto` Stage 1+2 (document skeleton + FlateDecode stream) |
-| Binary | `pdf-proto-schema/build/pdf_fuzzer` |
+| Schema | `schema/pdf-proto/pdf.proto` Stage 1+2 (document skeleton + FlateDecode stream) |
+| Binary | `schema/pdf-proto/build/pdf_fuzzer` |
 | Sanitizer | ASan |
 | Max time | 86400s (24h) configured; stopped early at ~17h |
 | Start | 2026-06-17 15:12 +07 |

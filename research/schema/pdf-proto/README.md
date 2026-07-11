@@ -1,4 +1,4 @@
-# pdf-proto-schema
+# PDF Proto Schema
 
 A libFuzzer + libprotobuf-mutator pipeline for fuzzing xpdf with structure-aware PDF inputs.
 
@@ -10,8 +10,9 @@ A libFuzzer + libprotobuf-mutator pipeline for fuzzing xpdf with structure-aware
 
 | File | Purpose |
 |------|---------|
-| `pdf.proto` | Protobuf schema defining the PDF structure (Catalog, PageTree, Page). libprotobuf-mutator uses this to generate and mutate valid `PdfDocument` messages. |
-| `pdf.pb.h` / `pdf.pb.cc` | C++ classes generated from `pdf.proto` by `protoc`. Do not edit manually. |
+| `pdf.proto` | Protobuf schema defining the PDF structure. libprotobuf-mutator uses this to generate and mutate valid `PdfDocument` messages. |
+| `cff.proto` | Structured CFF/Type1C grammar used by `/FontFile3` programs. |
+| `*.pb.h` / `*.pb.cc` | C++ classes generated into the CMake build directory by `protoc`. Do not edit or commit manually. |
 | `serializer.h` / `serializer.cpp` | Converts a `PdfDocument` proto message into raw PDF bytes. Assigns object numbers, computes xref offsets, and writes a valid `%%EOF` trailer. |
 | `harness.cpp` | libFuzzer entry point. Uses `DEFINE_PROTO_FUZZER` to receive a mutated `PdfDocument`, calls `SerializePdf`, writes to a temp file, and feeds it to xpdf's `PDFDoc`. |
 | `verify_serializer.cpp` | Standalone test binary (no fuzzer, no xpdf). Constructs a hardcoded 1-page document, serializes it, and dumps the PDF bytes to stdout for manual validation. |
@@ -155,22 +156,17 @@ target_link_libraries(pdf_fuzzer
 
 ## Build verify_serializer (serializer validation only)
 
-No fuzzer flags, no xpdf dependency -- just protobuf.
+Build from the CMake tree so protobuf sources are generated into `build/`.
 
 ```bash
-cd research/pdf-proto-schema
+cd research/schema/pdf-proto
+cmake -S . -B build \
+  -DCMAKE_CXX_COMPILER=clang++-14 \
+  -DCMAKE_C_COMPILER=clang-14 \
+  -DCMAKE_EXE_LINKER_FLAGS="-L/usr/lib/gcc/x86_64-linux-gnu/11"
+cmake --build build --target verify_serializer verify_cff
 
-# 1. Generate protobuf C++ sources
-protoc --cpp_out=. pdf.proto
-
-# 2. Compile
-g++ -std=c++17 -o verify_serializer \
-    verify_serializer.cpp serializer.cpp pdf.pb.cc \
-    $(pkg-config --cflags --libs protobuf) \
-    -Wl,-rpath,$(pkg-config --variable=libdir protobuf)
-
-# 3. Validate output
-./verify_serializer > /tmp/test.pdf
+./build/verify_serializer > /tmp/test.pdf
 pdfinfo /tmp/test.pdf
 pdftotext /tmp/test.pdf -
 ```
@@ -196,23 +192,23 @@ PDF version:     1.4
 
 ## Build the fuzzer (pdf_fuzzer)
 
-Requires clang-14, xpdf 4.06 source at `../xpdf-4.06`, and protobuf from miniconda.
+Requires clang-14, an xpdf source tree passed via `-DXPDF_SRC=...`, and protobuf from miniconda.
 
 ```bash
-cd research/pdf-proto-schema/build
-
-cmake .. \
+cd research/schema/pdf-proto
+cmake -S . -B build \
   -DCMAKE_CXX_COMPILER=clang++-14 \
   -DCMAKE_C_COMPILER=clang-14 \
+  -DXPDF_SRC=/path/to/xpdf-4.06 \
   -DCMAKE_EXE_LINKER_FLAGS="-L/usr/lib/gcc/x86_64-linux-gnu/11"
 
-cmake --build . -j$(nproc)
+cmake --build build -j$(nproc)
 ```
 
 ## Run the fuzzer
 
 ```bash
-cd research/pdf-proto-schema/build
+cd research/schema/pdf-proto/build
 
 # smoke test: 100 runs to confirm the pipeline works
 ./pdf_fuzzer -runs=100 -max_len=1024

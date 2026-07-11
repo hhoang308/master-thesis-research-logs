@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <zlib.h>
 #include "pdf.pb.h"
+#include "cff_serializer.h"  // SerializeCff: EmbeddedFontFile.cff -> byte-valid CFF
 
 struct XrefEntry {
   uint32_t offset;
@@ -453,7 +454,9 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
       if (fontfile_objs[i][k] < 0) continue;
       record_offset();
       const pdf_proto::EmbeddedFontFile& ff = doc.pages(i).fonts(k).font_descriptor().font_file();
-      const std::string& prog = ff.program();
+      // Program bytes come from the structured CFF (compiled here) when present,
+      // else from the opaque `program` blob. `cff` should pair with key=FONTFILE3.
+      std::string prog = ff.has_cff() ? SerializeCff(ff.cff()) : ff.program();
       long written_len = (long)prog.size() + ff.length_delta();
       out << fontfile_objs[i][k] << " 0 obj\n<< /Length " << written_len;
       if (ff.key() == pdf_proto::EmbeddedFontFile::FONTFILE3 && !ff.subtype().empty())

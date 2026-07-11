@@ -20,7 +20,7 @@ W0000 00:00:1781750585.408772  332254 text_format.cc:394] Warning parsing text-f
 W0000 00:00:1781750585.479578  332254 text_format.cc:394] Warning parsing text-format pdf_proto.PdfDocument: 60:18 (N = 1024): Message type "pdf_proto.Page" has no field named "content_stream".
 #277	INITED cov: 674 ft: 2677 corp: 114/28Kb exec/s: 0 rss: 120Mb
 	NEW_FUNC[1/5]: 0x652aae64bd60 in void std::vector<int, std::allocator<int> >::_M_realloc_insert<int>(__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, int&&) /usr/include/c++/11/bits/vector.tcc:434
-	NEW_FUNC[2/5]: 0x652aae64f1d0 in pdf_proto::ContentStream::~ContentStream() /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:901
+	NEW_FUNC[2/5]: 0x652aae64f1d0 in pdf_proto::ContentStream::~ContentStream() /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/pdf.pb.cc:901
 #278	NEW    cov: 715 ft: 2727 corp: 115/28Kb lim: 4096 exec/s: 0 rss: 120Mb L: 134/734 MS: 1 CustomCrossOver-
 #279	NEW    cov: 715 ft: 2728 corp: 116/28Kb lim: 4096 exec/s: 0 rss: 120Mb L: 103/734 MS: 1 CustomCrossOver-
 #281	NEW    cov: 717 ft: 2732 corp: 117/29Kb lim: 4096 exec/s: 0 rss: 120Mb L: 216/734 MS: 3 CustomCrossOver-InsertRepeatedBytes-Custom-

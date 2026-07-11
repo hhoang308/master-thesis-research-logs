@@ -7,10 +7,10 @@ INFO: -fork=1: fuzzing in separate process(s)
 INFO: -fork=1: 4400 seed inputs, starting to fuzz in /tmp/libFuzzerTemp.FuzzWithFork99567.dir
 #0: cov: 24034 ft: 24034 corp: 4400 exec/s 0 oom/timeout/crash: 0/0/0 time: 39s job: 1 dft_time: 0
 #837: cov: 24034 ft: 24034 corp: 4400 exec/s 279 oom/timeout/crash: 0/0/1 time: 42s job: 2 dft_time: 0
-  NEW_FUNC: 0x562d45c96fd0 in LLVMFuzzerTestOneInput /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/harness.cpp:48
-  NEW_FUNC: 0x562d45c97690 in FuzzOutputDev::upsideDown() /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/harness.cpp:24
-  NEW_FUNC: 0x562d45c976a0 in FuzzOutputDev::useDrawChar() /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/harness.cpp:25
-  NEW_FUNC: 0x562d45c976e0 in FuzzOutputDev::interpretType3Chars() /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/harness.cpp:26
+  NEW_FUNC: 0x562d45c96fd0 in LLVMFuzzerTestOneInput /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/harness.cpp:48
+  NEW_FUNC: 0x562d45c97690 in FuzzOutputDev::upsideDown() /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/harness.cpp:24
+  NEW_FUNC: 0x562d45c976a0 in FuzzOutputDev::useDrawChar() /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/harness.cpp:25
+  NEW_FUNC: 0x562d45c976e0 in FuzzOutputDev::interpretType3Chars() /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/harness.cpp:26
   NEW_FUNC: 0x562d45c976f0 in OutputDev::needNonText() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:78
   NEW_FUNC: 0x562d45c97710 in OutputDev::checkPageSlice(Page*, double, double, int, int, int, int, int, int, int, int, int (*)(void*), void*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:101
   NEW_FUNC: 0x562d45c97720 in OutputDev::startPage(int, GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:104
@@ -42,10 +42,10 @@ INFO: -fork=1: 4400 seed inputs, starting to fuzz in /tmp/libFuzzerTemp.FuzzWith
   NEW_FUNC: 0x562d45c97a00 in OutputDev::endStringOp(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:184
   NEW_FUNC: 0x562d45c97a40 in OutputDev::drawString(GfxState*, GString*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:191
   NEW_FUNC: 0x562d45c97a60 in OutputDev::endTextObject(GfxState*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/OutputDev.h:196
-  NEW_FUNC: 0x562d45c97e30 in SerializePdf[abi:cxx11](pdf_proto::PdfDocument const&) /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/serializer.cpp:118
-  NEW_FUNC: 0x562d45ca4800 in pdf_name_escape(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/serializer.cpp:76
-  NEW_FUNC: 0x562d45ca4f00 in SerializePdf[abi:cxx11](pdf_proto::PdfDocument const&)::$_3::operator()(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, pdf_proto::FontDescriptor const&, int) const /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/serializer.cpp:324
-  NEW_FUNC: 0x562d45ca57f0 in pdf_string_escape(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/serializer.cpp:96
+  NEW_FUNC: 0x562d45c97e30 in SerializePdf[abi:cxx11](pdf_proto::PdfDocument const&) /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/serializer.cpp:118
+  NEW_FUNC: 0x562d45ca4800 in pdf_name_escape(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/serializer.cpp:76
+  NEW_FUNC: 0x562d45ca4f00 in SerializePdf[abi:cxx11](pdf_proto::PdfDocument const&)::$_3::operator()(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, pdf_proto::FontDescriptor const&, int) const /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/serializer.cpp:324
+  NEW_FUNC: 0x562d45ca57f0 in pdf_string_escape(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/serializer.cpp:96
   NEW_FUNC: 0x562d45ca5f80 in google::protobuf::internal::RepeatedPtrFieldBase::element_at(int) /home/hoangnh8/miniconda3/include/google/protobuf/repeated_ptr_field.h:674
   NEW_FUNC: 0x562d45ca6180 in google::protobuf::internal::SooRep::size(bool) const /home/hoangnh8/miniconda3/include/google/protobuf/repeated_field.h:206
   NEW_FUNC: 0x562d45ca63c0 in google::protobuf::RepeatedField<int>::elements(bool) /home/hoangnh8/miniconda3/include/google/protobuf/repeated_field.h:622
@@ -53,32 +53,32 @@ INFO: -fork=1: 4400 seed inputs, starting to fuzz in /tmp/libFuzzerTemp.FuzzWith
   NEW_FUNC: 0x562d45ca6a60 in void std::vector<int, std::allocator<int> >::_M_realloc_insert<int>(__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, int&&) /usr/include/c++/11/bits/vector.tcc:434
   NEW_FUNC: 0x562d45ca6da0 in std::vector<int, std::allocator<int> >::_M_fill_assign(unsigned long, int const&) /usr/include/c++/11/bits/vector.tcc:259
   NEW_FUNC: 0x562d45ca7260 in void std::vector<int, std::allocator<int> >::_M_realloc_insert<int const&>(__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, int const&) /usr/include/c++/11/bits/vector.tcc:434
-  NEW_FUNC: 0x562d45ca8060 in pdf_proto::Catalog::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:812
-  NEW_FUNC: 0x562d45ca90e0 in pdf_proto::PageTree::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:1087
-  NEW_FUNC: 0x562d45caa850 in pdf_proto::ContentStream::~ContentStream() /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:1313
-  NEW_FUNC: 0x562d45cab000 in pdf_proto::ContentStream::PlacementNew_(void const*, void*, google::protobuf::Arena*) /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:1330
-  NEW_FUNC: 0x562d45cab110 in pdf_proto::ContentStream::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:1365
-  NEW_FUNC: 0x562d45cac740 in pdf_proto::EmbeddedFontFile::SharedDtor(google::protobuf::MessageLite&) /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:1667
-  NEW_FUNC: 0x562d45cacf30 in pdf_proto::EmbeddedFontFile::PlacementNew_(void const*, void*, google::protobuf::Arena*) /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:1681
-  NEW_FUNC: 0x562d45cad070 in pdf_proto::EmbeddedFontFile::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:1716
-  NEW_FUNC: 0x562d45caeb90 in pdf_proto::FontDescriptor::SharedDtor(google::protobuf::MessageLite&) /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:2034
-  NEW_FUNC: 0x562d45caf990 in pdf_proto::FontDescriptor::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:2094
-  NEW_FUNC: 0x562d45cb4e60 in pdf_proto::Font_CidFont::PlacementNew_(void const*, void*, google::protobuf::Arena*) /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:2868
-  NEW_FUNC: 0x562d45cb6fd0 in pdf_proto::Font::Font(google::protobuf::Arena*) /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:3313
-  NEW_FUNC: 0x562d45cb86d0 in pdf_proto::Font::PlacementNew_(void const*, void*, google::protobuf::Arena*) /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:3397
-  NEW_FUNC: 0x562d45cb8710 in pdf_proto::Font::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:3448
-  NEW_FUNC: 0x562d45cbafd0 in pdf_proto::ImageXObject::~ImageXObject() /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:3954
-  NEW_FUNC: 0x562d45cbb250 in pdf_proto::ImageXObject::~ImageXObject() /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:3954
-  NEW_FUNC: 0x562d45cbdbf0 in pdf_proto::Page::~Page() /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:4391
-  NEW_FUNC: 0x562d45cbde90 in pdf_proto::Page::~Page() /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:4391
-  NEW_FUNC: 0x562d45cbe520 in pdf_proto::Page::PlacementNew_(void const*, void*, google::protobuf::Arena*) /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:4407
-  NEW_FUNC: 0x562d45cbe6d0 in pdf_proto::Page::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:4462
-  NEW_FUNC: 0x562d45cc19d0 in pdf_proto::IndirectObject::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:4977
-  NEW_FUNC: 0x562d45cc3050 in pdf_proto::PdfDocument::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:5367
-  NEW_FUNC: 0x562d45cc3070 in pdf_proto::PdfDocument::Clear() /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.cc:5408
+  NEW_FUNC: 0x562d45ca8060 in pdf_proto::Catalog::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/pdf.pb.cc:812
+  NEW_FUNC: 0x562d45ca90e0 in pdf_proto::PageTree::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/pdf.pb.cc:1087
+  NEW_FUNC: 0x562d45caa850 in pdf_proto::ContentStream::~ContentStream() /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/pdf.pb.cc:1313
+  NEW_FUNC: 0x562d45cab000 in pdf_proto::ContentStream::PlacementNew_(void const*, void*, google::protobuf::Arena*) /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/pdf.pb.cc:1330
+  NEW_FUNC: 0x562d45cab110 in pdf_proto::ContentStream::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/pdf.pb.cc:1365
+  NEW_FUNC: 0x562d45cac740 in pdf_proto::EmbeddedFontFile::SharedDtor(google::protobuf::MessageLite&) /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/pdf.pb.cc:1667
+  NEW_FUNC: 0x562d45cacf30 in pdf_proto::EmbeddedFontFile::PlacementNew_(void const*, void*, google::protobuf::Arena*) /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/pdf.pb.cc:1681
+  NEW_FUNC: 0x562d45cad070 in pdf_proto::EmbeddedFontFile::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/pdf.pb.cc:1716
+  NEW_FUNC: 0x562d45caeb90 in pdf_proto::FontDescriptor::SharedDtor(google::protobuf::MessageLite&) /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/pdf.pb.cc:2034
+  NEW_FUNC: 0x562d45caf990 in pdf_proto::FontDescriptor::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/pdf.pb.cc:2094
+  NEW_FUNC: 0x562d45cb4e60 in pdf_proto::Font_CidFont::PlacementNew_(void const*, void*, google::protobuf::Arena*) /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/pdf.pb.cc:2868
+  NEW_FUNC: 0x562d45cb6fd0 in pdf_proto::Font::Font(google::protobuf::Arena*) /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/pdf.pb.cc:3313
+  NEW_FUNC: 0x562d45cb86d0 in pdf_proto::Font::PlacementNew_(void const*, void*, google::protobuf::Arena*) /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/pdf.pb.cc:3397
+  NEW_FUNC: 0x562d45cb8710 in pdf_proto::Font::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/pdf.pb.cc:3448
+  NEW_FUNC: 0x562d45cbafd0 in pdf_proto::ImageXObject::~ImageXObject() /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/pdf.pb.cc:3954
+  NEW_FUNC: 0x562d45cbb250 in pdf_proto::ImageXObject::~ImageXObject() /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/pdf.pb.cc:3954
+  NEW_FUNC: 0x562d45cbdbf0 in pdf_proto::Page::~Page() /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/pdf.pb.cc:4391
+  NEW_FUNC: 0x562d45cbde90 in pdf_proto::Page::~Page() /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/pdf.pb.cc:4391
+  NEW_FUNC: 0x562d45cbe520 in pdf_proto::Page::PlacementNew_(void const*, void*, google::protobuf::Arena*) /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/pdf.pb.cc:4407
+  NEW_FUNC: 0x562d45cbe6d0 in pdf_proto::Page::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/pdf.pb.cc:4462
+  NEW_FUNC: 0x562d45cc19d0 in pdf_proto::IndirectObject::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/pdf.pb.cc:4977
+  NEW_FUNC: 0x562d45cc3050 in pdf_proto::PdfDocument::GetClassData() const /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/pdf.pb.cc:5367
+  NEW_FUNC: 0x562d45cc3070 in pdf_proto::PdfDocument::Clear() /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/pdf.pb.cc:5408
   NEW_FUNC: 0x562d45cc7a50 in google::protobuf::RepeatedField<int>::AnnotateSize(int, int) const /home/hoangnh8/miniconda3/include/google/protobuf/repeated_field.h:584
   NEW_FUNC: 0x562d45cc9600 in void google::protobuf::RepeatedField<int>::InternalDeallocate<true>() /home/hoangnh8/miniconda3/include/google/protobuf/repeated_field.h:651
-  NEW_FUNC: 0x562d45cca2c0 in pdf_proto::Page::Impl_::~Impl_() /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/pdf.pb.h:3145
+  NEW_FUNC: 0x562d45cca2c0 in pdf_proto::Page::Impl_::~Impl_() /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/pdf.pb.h:3145
   NEW_FUNC: 0x562d45ccb880 in AcroForm::load(PDFDoc*, Catalog*, Object*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/AcroForm.cc:82
   NEW_FUNC: 0x562d45ccdcc0 in AcroForm::~AcroForm() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/AcroForm.cc:193
   NEW_FUNC: 0x562d45cce060 in AcroForm::~AcroForm() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/AcroForm.cc:193
@@ -400,7 +400,7 @@ INFO: -fork=1: 4400 seed inputs, starting to fuzz in /tmp/libFuzzerTemp.FuzzWith
   NEW_FUNC: 0x562d45f79470 in FoFiBase::getU32LE(int, int*) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiBase.cc:143
   NEW_FUNC: 0x562d45f797d0 in FoFiBase::checkRegion(int, int) /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/fofi/FoFiBase.cc:172
 #17807: cov: 26616 ft: 24039 corp: 4404 exec/s 406 oom/timeout/crash: 0/0/1 time: 93s job: 9 dft_time: 0
-  NEW_FUNC: 0x562d45c97aa0 in FuzzOutputDev::drawImageMask(GfxState*, Object*, Stream*, int, int, int, int, int) /home/hoangnh8/master-thesis-research-logs/research/pdf-proto-schema/harness.cpp:35
+  NEW_FUNC: 0x562d45c97aa0 in FuzzOutputDev::drawImageMask(GfxState*, Object*, Stream*, int, int, int, int, int) /home/hoangnh8/master-thesis-research-logs/research/schema/pdf-proto/harness.cpp:35
 #17807: cov: 26632 ft: 24039 corp: 4404 exec/s 0 oom/timeout/crash: 0/0/1 time: 93s job: 10 dft_time: 0
 #23701: cov: 26632 ft: 24039 corp: 4404 exec/s 491 oom/timeout/crash: 0/0/2 time: 105s job: 11 dft_time: 0
   NEW_FUNC: 0x562d45dbfbd0 in GfxDeviceGrayColorSpace::getNComps() /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.02/xpdf/GfxState.h:237

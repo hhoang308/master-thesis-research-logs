@@ -6,8 +6,8 @@
 |---|---|
 | Target | PoDoFo 0.9.7 `PdfMemDocument::LoadFromBuffer` (in-memory parse) |
 | Fuzzer | libFuzzer + libprotobuf-mutator |
-| Schema | `pdf-proto-schema/pdf.proto` Stage 1+2 **+ 4 gap fixes** (shared with xpdf) |
-| Binary | `pdf-proto-schema/build/pdf_fuzzer_podofo` |
+| Schema | `schema/pdf-proto/pdf.proto` Stage 1+2 **+ 4 gap fixes** (shared with xpdf) |
+| Binary | `schema/pdf-proto/build/pdf_fuzzer_podofo` |
 | Sanitizer | ASan |
 | Max time | 86400s (24h) -- ran to completion |
 | Corpus seed | run1 final corpus (52 files) |

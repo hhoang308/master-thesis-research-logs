@@ -46,4 +46,4 @@ testcache_evict   : 2176457
 afl_banner        : /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.06/build-instrumented/xpdf/pdftotext
 afl_version       : ++4.41a
 target_mode       : shmem_testcase default
-command_line      : /home/hoangnh8/master-thesis-research-logs/research/AFLplusplus/afl-fuzz -i /home/hoangnh8/master-thesis-research-logs/research/pdf-seeds-cmin -o /home/hoangnh8/master-thesis-research-logs/research/afl-out -x /home/hoangnh8/master-thesis-research-logs/research/pdf.dict -- /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.06/build-instrumented/xpdf/pdftotext @@ /dev/null
+command_line      : /home/hoangnh8/master-thesis-research-logs/research/repos/AFLplusplus/afl-fuzz -i /home/hoangnh8/master-thesis-research-logs/research/seeds/cmin -o /home/hoangnh8/master-thesis-research-logs/research/afl-out -x /home/hoangnh8/master-thesis-research-logs/research/seeds/dicts/pdf.dict -- /home/hoangnh8/master-thesis-research-logs/research/xpdf-4.06/build-instrumented/xpdf/pdftotext @@ /dev/null

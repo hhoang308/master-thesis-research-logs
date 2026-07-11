@@ -1,4 +1,5 @@
 build/
+build*/
 build-cov/
 cov-work/
 measure_valid_rate
@@ -8,3 +9,8 @@ generate_example
 afl-seeds-clean/
 afl_pdf_mutator.so
 build-afl/
+verify_cff
+cff.pb.cc
+cff.pb.h
+pdf.pb.cc
+pdf.pb.h

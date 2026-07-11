@@ -1,30 +1,97 @@
 #include <cstdio>
 #include <cstring>
+#include <string>
+#include <initializer_list>
 #include <unistd.h>
+#include <sys/wait.h>
 #include "pdf.pb.h"
 #include "serializer.h"
 
-static int run_test(const char* name, pdf_proto::PdfDocument& doc) {
+// Run one serializer test case.
+//   expect: substrings that MUST appear in the serialized PDF -- the feature this
+//   test is named for (e.g. "/FontFile", "/DCTDecode"). This guards against a
+//   serializer bug that silently DROPS a feature: the pdfinfo "Pages:" check alone
+//   would still pass in that case, because a reader can render a valid page while
+//   the embedded font / image / CMap is missing. The content check re-reads the
+//   raw output bytes (it does not modify them) and fails if a marker is absent.
+static int run_test(const char* name, pdf_proto::PdfDocument& doc,
+                    std::initializer_list<const char*> expect = {}) {
     std::string bytes = SerializePdf(doc);
+    fprintf(stderr, "\n=== %s ===\n", name);
+
+    // (1) Content check -- every expected marker must be present in the output.
+    for (const char* marker : expect) {
+        if (bytes.find(marker) == std::string::npos) {
+            fprintf(stderr, "[%s] FAIL: expected marker \"%s\" not found in serialized output\n",
+                    name, marker);
+            return 1;
+        }
+    }
+
+    // (2) Structural check -- the PDF must open in a reader.
     char path[] = "/tmp/verify_pdf_XXXXXX";
     int fd = mkstemp(path);
     if (fd < 0) { fprintf(stderr, "[%s] mkstemp failed\n", name); return 1; }
-    write(fd, bytes.data(), bytes.size());
+    // write() may short-write; loop until the whole buffer is on disk.
+    size_t off = 0;
+    while (off < bytes.size()) {
+        ssize_t w = write(fd, bytes.data() + off, bytes.size() - off);
+        if (w <= 0) {
+            fprintf(stderr, "[%s] FAIL: short write to temp file\n", name);
+            close(fd); unlink(path); return 1;
+        }
+        off += (size_t)w;
+    }
     close(fd);
 
+    // (2) Structural check -- qpdf --check validates xref offsets and object
+    // structure. Unlike pdfinfo/poppler (which silently reconstruct a broken xref
+    // and would hide exactly the bugs tests 9/12/15 target), qpdf reports xref/
+    // stream-boundary damage explicitly.
+    //
+    // Subtlety: qpdf --check ALSO tries to decode stream data, so an intentionally
+    // junk filtered payload (e.g. the fake JPEG in the DCT-image test, or a bogus
+    // CFF/TrueType program) makes qpdf warn (exit 3) even though the PDF *skeleton*
+    // is perfect. We must not fail on that -- embedding junk stream data is the
+    // whole point of the fuzzing serializer. Both broken-xref and junk-stream exit
+    // 3, so the exit code alone can't separate them; we key on qpdf's message.
+    // Structural-damage phrases ("damaged", "reconstruct", "expected endstream")
+    // never appear for a mere stream-decode warning.
     char cmd[256];
-    snprintf(cmd, sizeof(cmd), "pdfinfo %s 2>&1", path);
-    fprintf(stderr, "\n=== %s ===\n", name);
+    snprintf(cmd, sizeof(cmd), "qpdf --check %s 2>&1", path);
     FILE* f = popen(cmd, "r");
-    char line[256];
-    int ok = 0;
+    if (!f) { fprintf(stderr, "[%s] popen(qpdf) failed\n", name); unlink(path); return 1; }
+    char line[512];
+    int structural_damage = 0;
     while (fgets(line, sizeof(line), f)) {
         fputs(line, stderr);
-        if (strstr(line, "Pages:")) ok = 1;
+        if (strstr(line, "damaged") || strstr(line, "reconstruct") ||
+            strstr(line, "expected endstream")) {
+            structural_damage = 1;
+        }
     }
-    pclose(f);
+    int status = pclose(f);
     unlink(path);
-    if (!ok) { fprintf(stderr, "[%s] FAIL\n", name); return 1; }
+
+    if (status == -1 || !WIFEXITED(status)) {
+        fprintf(stderr, "[%s] FAIL: qpdf did not run to completion\n", name);
+        return 1;
+    }
+    int code = WEXITSTATUS(status);
+    if (code == 127) {  // shell could not find qpdf -- environment gap, not a serializer bug
+        fprintf(stderr, "[%s] WARN: qpdf not found -- structural check skipped "
+                        "(content check passed)\n", name);
+        return 0;
+    }
+    if (code == 2) {    // qpdf hit an unrecoverable error
+        fprintf(stderr, "[%s] FAIL: qpdf --check errored (exit 2)\n", name);
+        return 1;
+    }
+    if (structural_damage) {  // xref / stream-boundary damage in the serializer skeleton
+        fprintf(stderr, "[%s] FAIL: qpdf reported xref/structure damage\n", name);
+        return 1;
+    }
+    // exit 0, or exit 3 whose only warnings are stream-content decode -> skeleton OK.
     fprintf(stderr, "[%s] PASS\n", name);
     return 0;
 }
@@ -38,7 +105,7 @@ int main() {
         pdf_proto::PdfDocument doc;
         pdf_proto::Page* p = doc.add_pages();
         p->set_width(612); p->set_height(792);
-        failures += run_test("plain-page-no-stream", doc);
+        failures += run_test("plain-page-no-stream", doc, {"/Type /Page"});
     }
 
     // Test 2: page with raw (NONE) content stream
@@ -49,7 +116,8 @@ int main() {
         pdf_proto::ContentStream* cs = p->add_content_streams();
         cs->set_filter(pdf_proto::ContentStream::NONE);
         cs->set_raw_content("BT /F1 12 Tf 100 700 Td (hello) Tj ET");
-        failures += run_test("raw-content-stream-NONE-filter", doc);
+        // NONE filter -> raw_content is written verbatim, so the text appears.
+        failures += run_test("raw-content-stream-NONE-filter", doc, {"hello"});
     }
 
     // Test 3: page with FlateDecode content stream
@@ -60,7 +128,7 @@ int main() {
         pdf_proto::ContentStream* cs = p->add_content_streams();
         cs->set_filter(pdf_proto::ContentStream::FLATE);
         cs->set_raw_content("BT /F1 12 Tf 100 700 Td (flate test) Tj ET");
-        failures += run_test("content-stream-FlateDecode", doc);
+        failures += run_test("content-stream-FlateDecode", doc, {"/FlateDecode"});
     }
 
     // Test 4: two pages, second with FlateDecode
@@ -72,7 +140,7 @@ int main() {
         pdf_proto::ContentStream* cs = p2->add_content_streams();
         cs->set_filter(pdf_proto::ContentStream::FLATE);
         cs->set_raw_content("q 1 0 0 1 0 0 cm Q");
-        failures += run_test("two-pages-second-FlateDecode", doc);
+        failures += run_test("two-pages-second-FlateDecode", doc, {"/FlateDecode"});
     }
 
     // Test 5 (P1): page with two fonts -- driver stream must force makeFont,
@@ -87,7 +155,8 @@ int main() {
         pdf_proto::Font* f1 = p->add_fonts();
         f1->set_subtype(pdf_proto::Font::TRUETYPE);
         f1->set_base_font("Arial");
-        failures += run_test("page-with-two-fonts", doc);
+        // both fonts must be emitted -> both base names present.
+        failures += run_test("page-with-two-fonts", doc, {"Helvetica", "Arial"});
     }
 
     // Test 6 (P1): font dict malformations + page also has a fuzzer stream.
@@ -101,7 +170,10 @@ int main() {
         f0->set_omit_type(true);
         f0->set_omit_subtype(true);
         f0->set_base_font("weird name/with()delims");  // exercises name escaping
-        failures += run_test("font-malformed-dict-with-stream", doc);
+        // The driver/content stream must survive; the dict malformation itself
+        // (missing /Type /Font, /Subtype) is an absence -- a "must NOT contain"
+        // check is the natural next step (the (b)-side weakness-injection test).
+        failures += run_test("font-malformed-dict-with-stream", doc, {"q Q"});
     }
 
     // Test 7 (P1.5): font with /FontDescriptor + embedded Type1 (/FontFile) program.
@@ -122,7 +194,7 @@ int main() {
         // Minimal Type1 PFA header -- FoFiIdentifier matches "%!" -> FoFiType1.
         ff->set_program("%!PS-AdobeFont-1.0: MyEmbeddedFont 001.001\n"
                         "/FontType 1 def\n/FontMatrix [0.001 0 0 0.001 0 0] def\n");
-        failures += run_test("font-FontFile-Type1-embedded", doc);
+        failures += run_test("font-FontFile-Type1-embedded", doc, {"/FontFile"});
     }
 
     // Test 8 (P1.5): FontFile3 (CFF) with /Subtype, plus FontFile2 (TrueType) on a
@@ -145,7 +217,8 @@ int main() {
             f1->mutable_font_descriptor()->mutable_font_file();
         ff1->set_key(pdf_proto::EmbeddedFontFile::FONTFILE2);
         ff1->set_program(std::string("\x00\x01\x00\x00", 4) + "tabledata");  // TrueType sfnt magic
-        failures += run_test("font-FontFile3-CFF-and-FontFile2-TrueType", doc);
+        failures += run_test("font-FontFile3-CFF-and-FontFile2-TrueType", doc,
+                             {"/FontFile3", "/FontFile2", "/Type1C"});
     }
 
     // Test 9 (P1.5): MULTI-PAGE with embedded fonts -- regression for the xref
@@ -164,7 +237,9 @@ int main() {
             ff->set_key(pdf_proto::EmbeddedFontFile::FONTFILE);
             ff->set_program("%!PS-AdobeFont-1.0: PageFont\n");
         }
-        failures += run_test("multipage-embedded-fonts-xref", doc);
+        // NB: content check confirms the fonts are emitted; it does NOT validate
+        // xref offsets -- that needs a strict checker (qpdf --check), a future step.
+        failures += run_test("multipage-embedded-fonts-xref", doc, {"/FontFile"});
     }
 
     // Test 10 (Step A): 8-bit font with /Encoding+/Differences, /Widths, /ToUnicode.
@@ -186,7 +261,8 @@ int main() {
         f->set_to_unicode("/CIDInit /ProcSet findresource begin\n"
                           "1 begincodespacerange <00> <ff> endcodespacerange\n"
                           "1 beginbfchar <41> <0041> endbfchar\nend\n");
-        failures += run_test("font-encoding-differences-widths-tounicode", doc);
+        failures += run_test("font-encoding-differences-widths-tounicode", doc,
+                             {"/Differences", "/ToUnicode", "WinAnsiEncoding"});
     }
 
     // Test 11 (Step B): Type0/CID font, /CIDToGIDMap = /Identity name, /W array.
@@ -204,7 +280,8 @@ int main() {
         cid->set_dw(1000);
         pdf_proto::FontDescriptor* fd = cid->mutable_descendant_descriptor();
         fd->set_flags(4);
-        failures += run_test("cidfont-identity-cidtogid-with-W", doc);
+        failures += run_test("cidfont-identity-cidtogid-with-W", doc,
+                             {"/CIDToGIDMap", "/W "});
     }
 
     // Test 12 (Step B): Type0/CID font with /CIDToGIDMap as a stream + ToUnicode;
@@ -225,7 +302,8 @@ int main() {
             cid->set_cid_to_gid_map_stream(std::string("\x00\x00\x00\x01\x00\x02", 6));
             cid->add_w(0); cid->add_w(1); cid->add_w(500);
         }
-        failures += run_test("cidfont-stream-cidtogid-multipage", doc);
+        failures += run_test("cidfont-stream-cidtogid-multipage", doc,
+                             {"/CIDToGIDMap", "/ToUnicode"});
     }
 
     // Test 13 (P3): page with a DCTDecode image XObject. Must stay a valid PDF
@@ -240,7 +318,7 @@ int main() {
         im->set_filter(pdf_proto::ImageXObject::DCT);
         im->set_color_space(pdf_proto::ImageXObject::DEVICE_RGB);
         im->set_data(std::string("\xFF\xD8\xFF\xE0", 4) + "junkjpeg");  // JPEG SOI-ish
-        failures += run_test("image-dct-xobject", doc);
+        failures += run_test("image-dct-xobject", doc, {"/Subtype /Image", "/DCTDecode"});
     }
 
     // Test 14 (P3): font + image on the same page -> /Resources has both /Font and
@@ -257,7 +335,8 @@ int main() {
         im->set_color_space(pdf_proto::ImageXObject::DEVICE_GRAY);
         im->set_bits_per_component(8);
         im->set_data(std::string("\x80", 1));  // 1 gray sample
-        failures += run_test("font-and-image-same-page", doc);
+        // both resource kinds present: /XObject (image) and the font base name.
+        failures += run_test("font-and-image-same-page", doc, {"/XObject", "Helvetica"});
     }
 
     // Test 15 (P3): multi-page with images + an ImageMask -> xref-order regression
@@ -276,7 +355,30 @@ int main() {
             im->set_filter(pdf_proto::ImageXObject::RAW);
             im->set_data(std::string(8, '\xAA'));  // 8x8 1bpc = 8 bytes
         }
-        failures += run_test("multipage-imagemask-xref", doc);
+        failures += run_test("multipage-imagemask-xref", doc, {"/ImageMask"});
+    }
+
+    // Test 16 (CFF wiring): EmbeddedFontFile via the structured CffFont oneof ->
+    // SerializeCff compiles a byte-valid CFF into the /FontFile3 stream (here with
+    // a self-referential callsubr, the CVE-2020-35376 shape). "FuzzFont" is the CFF
+    // Name INDEX entry (default font_name), so its presence proves the *compiled
+    // CFF bytes* -- not an opaque program blob -- are embedded in the stream.
+    {
+        pdf_proto::PdfDocument doc;
+        pdf_proto::Page* p = doc.add_pages();
+        p->set_width(612); p->set_height(792);
+        pdf_proto::Font* f = p->add_fonts();
+        f->set_base_font("CFFStructured");
+        pdf_proto::EmbeddedFontFile* ff = f->mutable_font_descriptor()->mutable_font_file();
+        ff->set_key(pdf_proto::EmbeddedFontFile::FONTFILE3);
+        ff->set_subtype("Type1C");
+        pdf_cff::CffFont* cff = ff->mutable_cff();
+        pdf_cff::Charstring* c = cff->add_charstrings();
+        c->add_ops()->set_call_local(0);
+        c->add_ops()->set_op(pdf_cff::ENDCHAR);
+        cff->add_local_subrs()->add_ops()->set_call_local(0);  // subr 0 -> subr 0
+        failures += run_test("fontfile3-structured-cff-selfsubr", doc,
+                             {"/FontFile3", "/Type1C", "FuzzFont"});
     }
 
     google::protobuf::ShutdownProtobufLibrary();

@@ -6,10 +6,10 @@
 |---|---|
 | Tool | AFL++ 4.41a |
 | Target | xpdf 4.06 `pdftotext` (instrumented build) |
-| Seed corpus | `research/pdf-seeds-cmin` (minimized with `afl-cmin`) |
-| Dictionary | `research/pdf.dict` |
+| Seed corpus | `research/seeds/cmin` (minimized with `afl-cmin`) |
+| Dictionary | `research/seeds/dicts/pdf.dict` |
 | Sanitizers | none (coverage-only build) |
-| Command | `afl-fuzz -i pdf-seeds-cmin -o afl-out -x pdf.dict -- pdftotext @@ /dev/null` |
+| Command | `afl-fuzz -i seeds/cmin -o afl-out -x seeds/dicts/pdf.dict -- pdftotext @@ /dev/null` |
 
 ## How to run in the background
 
@@ -21,10 +21,10 @@ shared server without keeping a terminal open, use one of these two methods:
 ```bash
 cd research
 
-nohup /home/hoangnh8/master-thesis-research-logs/research/AFLplusplus/afl-fuzz \
-    -i pdf-seeds-cmin \
+nohup /home/hoangnh8/master-thesis-research-logs/research/repos/AFLplusplus/afl-fuzz \
+    -i seeds/cmin \
     -o afl-out \
-    -x pdf.dict \
+    -x seeds/dicts/pdf.dict \
     -- xpdf-4.06/build-instrumented/xpdf/pdftotext @@ /dev/null \
     > afl-fuzz.log 2>&1 &
 
@@ -45,10 +45,10 @@ tmux new-session -d -s fuzzing
 tmux send-keys -t fuzzing "
 cd /home/hoangnh8/master-thesis-research-logs/research && \
 AFL_SKIP_CPUFREQ=1 \
-/home/hoangnh8/master-thesis-research-logs/research/AFLplusplus/afl-fuzz \
-    -i pdf-seeds-cmin \
+/home/hoangnh8/master-thesis-research-logs/research/repos/AFLplusplus/afl-fuzz \
+    -i seeds/cmin \
     -o afl-out \
-    -x pdf.dict \
+    -x seeds/dicts/pdf.dict \
     -- xpdf-4.06/build-instrumented/xpdf/pdftotext @@ /dev/null
 " ENTER
 ```
