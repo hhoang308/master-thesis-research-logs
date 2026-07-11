@@ -1,4 +1,6 @@
 # Target/source builds and generated artifacts.
+targets/**/source/
+targets/**/distfiles/
 targets/**/build*/
 targets/**/out/
 targets/**/*.o

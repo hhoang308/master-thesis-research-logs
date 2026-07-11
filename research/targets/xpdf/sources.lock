@@ -1,0 +1,4 @@
+# target|version|url|filename|sha256|archive_root
+xpdf|4.02|https://dl.xpdfreader.com/old/xpdf-4.02.tar.gz|xpdf-4.02.tar.gz|52d51dc943b9614b8da66e8662b3031a3c82dc25bfc792eac6b438aa36d549a4|xpdf-4.02
+xpdf|4.03|https://dl.xpdfreader.com/old/xpdf-4.03.tar.gz|xpdf-4.03.tar.gz|0fe4274374c330feaadcebb7bd7700cb91203e153b26aa95952f02bf130be846|xpdf-4.03
+xpdf|4.06|https://dl.xpdfreader.com/xpdf-4.06.tar.gz|xpdf-4.06.tar.gz|1c38f527c46caee0f712386d42a885b96a31ed9ce11904e872559859894d137e|xpdf-4.06
