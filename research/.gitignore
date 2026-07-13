@@ -22,6 +22,10 @@ harnesses/**/*.exe
 pocs/**/build*/
 pocs/**/xpdf-*-build*/
 pocs/**/xpdf-*-src/
+pocs/**/__pycache__/
+pocs/**/*.pyc
+pocs/**/*.pyo
+pocs/cve-2020-25725/*.ps
 
 # Fuzzing outputs. Keep human-authored records and repro scripts tracked.
 experiments/**/corpus/
