@@ -19,8 +19,8 @@
 #include <string>
 #include <vector>
 #include <unistd.h>
-#include "cff.pb.h"
-#include "cff_serializer.h"
+#include "modules/cff/cff.pb.h"
+#include "modules/cff/cff_serializer.h"
 
 using std::string;
 

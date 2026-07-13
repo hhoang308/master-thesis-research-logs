@@ -2,7 +2,7 @@
 #define CFF_SERIALIZER_H
 
 #include <string>
-#include "cff.pb.h"
+#include "modules/cff/cff.pb.h"
 
 // Compile a structured CffFont into a byte-valid CFF (Type1C) font program --
 // the bytes that go into a PDF /FontFile3 stream. Every INDEX/DICT offset is

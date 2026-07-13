@@ -15,8 +15,9 @@
 # (see README) before running this.
 set -u
 SELF_DIR="$(cd "$(dirname "$0")" && pwd)"
-COV_DRIVER="$SELF_DIR/build-cov/cov_driver"
-XPDF_SRC="$SELF_DIR/../../targets/xpdf/4.06/source/xpdf"
+ROOT_DIR="$(cd "$SELF_DIR/.." && pwd)"
+COV_DRIVER="$ROOT_DIR/build-cov/cov_driver"
+XPDF_SRC="$ROOT_DIR/../../targets/xpdf/4.06/source/xpdf"
 PROFDATA_TOOL=llvm-profdata-14
 COV_TOOL=llvm-cov-14
 
@@ -24,7 +25,7 @@ LABEL="${1:?usage: cov_compare.sh <label> <pdf_dir> [max]}"
 PDF_DIR="${2:?usage: cov_compare.sh <label> <pdf_dir> [max]}"
 MAX="${3:-0}"   # 0 = all
 
-WORK="$SELF_DIR/cov-work/$LABEL"
+WORK="$ROOT_DIR/cov-work/$LABEL"
 rm -rf "$WORK"; mkdir -p "$WORK/raw"
 
 echo "[$LABEL] running cov_driver over PDFs in $PDF_DIR ..."

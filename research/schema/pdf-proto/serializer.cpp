@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <zlib.h>
 #include "pdf.pb.h"
-#include "cff_serializer.h"  // SerializeCff: EmbeddedFontFile.cff -> byte-valid CFF
+#include "modules/cff/cff_serializer.h"  // EmbeddedFontFile.cff -> byte-valid CFF
 
 struct XrefEntry {
   uint32_t offset;

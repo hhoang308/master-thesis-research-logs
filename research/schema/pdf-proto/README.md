@@ -11,11 +11,15 @@ A libFuzzer + libprotobuf-mutator pipeline for fuzzing xpdf with structure-aware
 | File | Purpose |
 |------|---------|
 | `pdf.proto` | Protobuf schema defining the PDF structure. libprotobuf-mutator uses this to generate and mutate valid `PdfDocument` messages. |
-| `cff.proto` | Structured CFF/Type1C grammar used by `/FontFile3` programs. |
+| `modules/cff/` | Structured CFF/Type1C grammar, serializer, verifier, and CVE-specific seed/inspection tools used by `/FontFile3` programs. |
+| `tools/` | Generic corpus, conversion, and validation tools. |
+| `afl/` | AFL++ harness and custom-mutator build script. |
+| `coverage/` | Coverage driver and comparison script. |
+| `tests/` | Standalone serializer verification programs. |
 | `*.pb.h` / `*.pb.cc` | C++ classes generated into the CMake build directory by `protoc`. Do not edit or commit manually. |
 | `serializer.h` / `serializer.cpp` | Converts a `PdfDocument` proto message into raw PDF bytes. Assigns object numbers, computes xref offsets, and writes a valid `%%EOF` trailer. |
 | `harness.cpp` | libFuzzer entry point. Uses `DEFINE_PROTO_FUZZER` to receive a mutated `PdfDocument`, calls `SerializePdf`, writes to a temp file, and feeds it to xpdf's `PDFDoc`. |
-| `verify_serializer.cpp` | Standalone test binary (no fuzzer, no xpdf). Constructs a hardcoded 1-page document, serializes it, and dumps the PDF bytes to stdout for manual validation. |
+| `tests/verify_serializer.cpp` | Standalone test binary (no fuzzer, no xpdf). Constructs hardcoded documents and validates serializer output. |
 | `CMakeLists.txt` | Build config for the fuzzer binary. Requires Clang, links xpdf as an object library, and compiles with `-fsanitize=fuzzer,address`. |
 | `libprotobuf-mutator/` | Git submodule -- google/libprotobuf-mutator. Provides `DEFINE_PROTO_FUZZER` and the libprotobuf-mutator integration with libFuzzer. |
 
@@ -169,6 +173,18 @@ cmake --build build --target verify_serializer verify_cff
 ./build/verify_serializer > /tmp/test.pdf
 pdfinfo /tmp/test.pdf
 pdftotext /tmp/test.pdf -
+```
+
+Useful diagnostic targets:
+
+```bash
+cmake --build build --target \
+  gen_corpus proto2pdf check_serializer measure_valid_rate \
+  gen_cve_2020_35376_seed inspect_cff_seed
+
+./build/gen_cve_2020_35376_seed /tmp/cve-2020-35376.txtpb
+./build/inspect_cff_seed /tmp/cve-2020-35376.txtpb
+./build/proto2pdf /tmp/cve-2020-35376.txtpb /tmp/cve-2020-35376.pdf
 ```
 
 **Expected result:**

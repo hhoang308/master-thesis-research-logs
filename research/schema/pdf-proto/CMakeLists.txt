@@ -9,12 +9,30 @@ if(NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   set(ENABLE_FUZZER_TARGETS OFF)
 endif()
 
-# clang-14 auto-selects GCC 12 but only GCC 11 headers are installed on this machine.
-# Explicitly point to GCC 11 C++ headers and clang-14 sanitizer headers (needed by abseil).
-set(GCC11_INCLUDES
-  -I/usr/include/c++/11
-  -I/usr/include/x86_64-linux-gnu/c++/11
-  -I/usr/lib/llvm-14/lib/clang/14.0.0/include)
+# Abseil (via protobuf) includes sanitizer headers when building with sanitizers.
+# Use the selected Clang's resource dir instead of hardcoding an LLVM version.
+set(CLANG_RUNTIME_INCLUDES "")
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  execute_process(
+    COMMAND ${CMAKE_CXX_COMPILER} -print-resource-dir
+    OUTPUT_VARIABLE CLANG_RESOURCE_DIR
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+  )
+  if(CLANG_RESOURCE_DIR)
+    list(APPEND CLANG_RUNTIME_INCLUDES -I${CLANG_RESOURCE_DIR}/include)
+  endif()
+endif()
+
+execute_process(
+  COMMAND ${CMAKE_CXX_COMPILER} -print-file-name=libstdc++.so
+  OUTPUT_VARIABLE LIBSTDCXX_PATH
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+  ERROR_QUIET
+)
+if(LIBSTDCXX_PATH AND EXISTS "${LIBSTDCXX_PATH}")
+  get_filename_component(LIBSTDCXX_DIR "${LIBSTDCXX_PATH}" DIRECTORY)
+endif()
 
 # COV_BUILD=ON: build a coverage-instrumented cov_driver (LLVM source coverage, no
 # fuzzer/ASan) for the fair AFL++-vs-libFuzzer comparison. Default OFF: the normal
@@ -31,37 +49,63 @@ if((COV_BUILD OR AFL_BUILD) AND NOT ENABLE_FUZZER_TARGETS)
 endif()
 
 if(COV_BUILD)
-  add_compile_options(-fprofile-instr-generate -fcoverage-mapping -g -O1 ${GCC11_INCLUDES})
-  add_link_options(-fprofile-instr-generate -fcoverage-mapping
-    -L/usr/lib/gcc/x86_64-linux-gnu/11)
+  add_compile_options(-fprofile-instr-generate -fcoverage-mapping -g -O1 ${CLANG_RUNTIME_INCLUDES})
+  add_link_options(-fprofile-instr-generate -fcoverage-mapping)
+  if(LIBSTDCXX_DIR)
+    add_link_options(-L${LIBSTDCXX_DIR})
+  endif()
 elseif(AFL_BUILD)
   add_compile_options(-O2 -g)
 elseif(ENABLE_FUZZER_TARGETS)
   # Sanitizer flags propagate into the xpdf subdirectory too.
-  add_compile_options(-fsanitize=fuzzer-no-link,address -g -O1 ${GCC11_INCLUDES})
-  add_link_options(-fsanitize=address
-    -L/usr/lib/gcc/x86_64-linux-gnu/11)
+  add_compile_options(-fsanitize=fuzzer-no-link,address -g -O1 ${CLANG_RUNTIME_INCLUDES})
+  add_link_options(-fsanitize=address)
+  if(LIBSTDCXX_DIR)
+    add_link_options(-L${LIBSTDCXX_DIR})
+  endif()
 endif()
 
 # ── Protobuf ──────────────────────────────────────────────────────────────────
-# CONFIG mode pulls in transitive abseil deps (required for protobuf >= v22)
-find_package(Protobuf REQUIRED CONFIG)
+# Prefer CONFIG mode when available (protobuf >= v22 often carries transitive
+# abseil deps there), but Ubuntu's libprotobuf-dev 3.21 ships only module/pkg-config
+# metadata. Fall back to CMake's FindProtobuf module for that environment.
+find_package(Protobuf CONFIG QUIET)
+if(NOT Protobuf_FOUND)
+  find_package(Protobuf REQUIRED)
+endif()
+
+if(TARGET protobuf::protoc)
+  set(PROTOC_EXE protobuf::protoc)
+else()
+  set(PROTOC_EXE ${Protobuf_PROTOC_EXECUTABLE})
+endif()
+
+if(TARGET protobuf::libprotobuf)
+  set(PROTOBUF_LIB_TARGET protobuf::libprotobuf)
+else()
+  set(PROTOBUF_LIB_TARGET ${Protobuf_LIBRARIES})
+endif()
+
+set(CFF_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/modules/cff)
+set(CFF_SERIALIZER_SRC ${CFF_MODULE_DIR}/cff_serializer.cc)
 
 set(PROTO_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/pdf.proto
-  ${CMAKE_CURRENT_SOURCE_DIR}/cff.proto
+  ${CFF_MODULE_DIR}/cff.proto
 )
 set(PROTO_SRCS
   ${CMAKE_CURRENT_BINARY_DIR}/pdf.pb.cc
-  ${CMAKE_CURRENT_BINARY_DIR}/cff.pb.cc
+  ${CMAKE_CURRENT_BINARY_DIR}/modules/cff/cff.pb.cc
 )
 set(PROTO_HDRS
   ${CMAKE_CURRENT_BINARY_DIR}/pdf.pb.h
-  ${CMAKE_CURRENT_BINARY_DIR}/cff.pb.h
+  ${CMAKE_CURRENT_BINARY_DIR}/modules/cff/cff.pb.h
 )
 add_custom_command(
   OUTPUT ${PROTO_SRCS} ${PROTO_HDRS}
-  COMMAND protobuf::protoc
+  COMMAND ${CMAKE_COMMAND} -E make_directory
+          ${CMAKE_CURRENT_BINARY_DIR}/modules/cff
+  COMMAND ${PROTOC_EXE}
           --proto_path=${CMAKE_CURRENT_SOURCE_DIR}
           --cpp_out=${CMAKE_CURRENT_BINARY_DIR}
           ${PROTO_FILES}
@@ -113,10 +157,10 @@ pkg_check_modules(PODOFO libpodofo)
 # ── Coverage driver target (COV_BUILD) ───────────────────────────────────────
 if(COV_BUILD)
   add_executable(cov_driver
-    cov_driver.cpp
+    coverage/cov_driver.cpp
     $<TARGET_OBJECTS:xpdf_objs>
   )
-  target_link_libraries(cov_driver goo fofi z pthread)
+  target_link_libraries(cov_driver goo fofi z pthread ${FONTCONFIG_LIBRARY})
   message(STATUS "COV_BUILD: building cov_driver (LLVM source coverage)")
   return()  # skip the fuzzer targets in coverage mode
 endif()
@@ -127,11 +171,11 @@ endif()
 # fork server. No protobuf/serializer/LPM here (the mutator .so handles those).
 if(AFL_BUILD)
   add_executable(afl_harness_xpdf
-    afl_harness_xpdf.cpp
+    afl/afl_harness_xpdf.cpp
     $<TARGET_OBJECTS:xpdf_objs>
   )
   # xpdf has its own FlateDecode -> no system zlib needed (conda linker can't find -lz anyway).
-  target_link_libraries(afl_harness_xpdf goo fofi pthread)
+  target_link_libraries(afl_harness_xpdf goo fofi pthread ${FONTCONFIG_LIBRARY})
   message(STATUS "AFL_BUILD: building afl_harness_xpdf (afl-clang-fast instrumented)")
   return()  # skip the libFuzzer targets in AFL mode
 endif()
@@ -140,7 +184,7 @@ endif()
 add_executable(pdf_fuzzer
   harness.cpp
   serializer.cpp
-  cff_serializer.cc
+  ${CFF_SERIALIZER_SRC}
   ${PROTO_SRCS}
   $<TARGET_OBJECTS:xpdf_objs>
 )
@@ -151,9 +195,10 @@ target_link_libraries(pdf_fuzzer
   protobuf-mutator
   goo
   fofi
-  protobuf::libprotobuf
+  ${PROTOBUF_LIB_TARGET}
   z
   pthread
+  ${FONTCONFIG_LIBRARY}
 )
 
 # ── PoDoFo fuzzer target ──────────────────────────────────────────────────────
@@ -161,7 +206,7 @@ if(PODOFO_FOUND)
   add_executable(pdf_fuzzer_podofo
     harness_podofo.cpp
     serializer.cpp
-    cff_serializer.cc
+    ${CFF_SERIALIZER_SRC}
     ${PROTO_SRCS}
   )
   target_link_options(pdf_fuzzer_podofo PRIVATE -fsanitize=fuzzer,address)
@@ -169,7 +214,7 @@ if(PODOFO_FOUND)
   target_link_libraries(pdf_fuzzer_podofo
     protobuf-mutator-libfuzzer
     protobuf-mutator
-    protobuf::libprotobuf
+    ${PROTOBUF_LIB_TARGET}
     ${PODOFO_LIBRARIES}
     z
     pthread
@@ -181,16 +226,58 @@ endif()
 endif()
 
 add_executable(verify_serializer
-  verify_serializer.cpp
+  tests/verify_serializer.cpp
   serializer.cpp
-  cff_serializer.cc
+  ${CFF_SERIALIZER_SRC}
   ${PROTO_SRCS}
 )
-target_link_libraries(verify_serializer protobuf::libprotobuf z)
+target_link_libraries(verify_serializer ${PROTOBUF_LIB_TARGET} z)
 
 add_executable(verify_cff
-  verify_cff.cc
-  cff_serializer.cc
+  modules/cff/verify_cff.cc
+  ${CFF_SERIALIZER_SRC}
   ${PROTO_SRCS}
 )
-target_link_libraries(verify_cff protobuf::libprotobuf)
+target_link_libraries(verify_cff ${PROTOBUF_LIB_TARGET})
+
+add_executable(gen_corpus
+  tools/gen_corpus.cpp
+  ${PROTO_SRCS}
+)
+target_link_libraries(gen_corpus ${PROTOBUF_LIB_TARGET})
+
+add_executable(proto2pdf
+  tools/proto2pdf.cpp
+  serializer.cpp
+  ${CFF_SERIALIZER_SRC}
+  ${PROTO_SRCS}
+)
+target_link_libraries(proto2pdf ${PROTOBUF_LIB_TARGET} z)
+
+add_executable(check_serializer
+  tools/check_serializer.cpp
+  serializer.cpp
+  ${CFF_SERIALIZER_SRC}
+  ${PROTO_SRCS}
+)
+target_link_libraries(check_serializer ${PROTOBUF_LIB_TARGET} z)
+
+add_executable(measure_valid_rate
+  tools/measure_valid_rate.cpp
+  serializer.cpp
+  ${CFF_SERIALIZER_SRC}
+  ${PROTO_SRCS}
+)
+target_link_libraries(measure_valid_rate ${PROTOBUF_LIB_TARGET} z)
+
+add_executable(gen_cve_2020_35376_seed
+  modules/cff/seeds/gen_cve_2020_35376_seed.cpp
+  ${PROTO_SRCS}
+)
+target_link_libraries(gen_cve_2020_35376_seed ${PROTOBUF_LIB_TARGET})
+
+add_executable(inspect_cff_seed
+  modules/cff/tools/inspect_cff_seed.cpp
+  ${PROTO_SRCS}
+)
+target_link_libraries(inspect_cff_seed ${PROTOBUF_LIB_TARGET})

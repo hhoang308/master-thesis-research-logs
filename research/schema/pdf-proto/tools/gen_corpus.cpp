@@ -20,6 +20,7 @@ using namespace pdf_proto;
 static std::mt19937 rng;
 static bool g_clean = false;   // --clean: sane values, no malformations (proper AFL seeds)
 static bool g_binary = false;  // --binary: emit binary-serialized .pb (for AFL++ mutator) vs text .txtpb
+static bool g_with_cve_seeds = false;  // --with-cve-seeds: inject known recursive CFF seeds
 static int  ri(int a, int b) { return std::uniform_int_distribution<int>(a, b)(rng); }
 static bool rb(double p)     { return std::uniform_real_distribution<double>(0,1)(rng) < p; }
 
@@ -49,10 +50,31 @@ static std::string rname() {
 // Diversity counters.
 struct Stats {
     long docs=0, multipage=0, withFont=0, withImage=0, withCS=0, cid=0, embFontFile=0,
-         encDiff=0, toUnicode=0, malformed=0, imageMask=0, hugeBpc=0;
+         encDiff=0, toUnicode=0, malformed=0, imageMask=0, hugeBpc=0,
+         cffStructured=0, cffCallSubr=0, cveSeeds=0;
     long fsub[4]={0,0,0,0};        // TYPE1,TRUETYPE,TYPE3,TYPE0
     long ifilt[7]={0,0,0,0,0,0,0}; // RAW..RUNLENGTH
 } st;
+
+static void fill_cff(pdf_cff::CffFont* cff, bool recursive) {
+    cff->set_font_name(recursive ? "CVE202035376" : "SeedCFF");
+
+    auto* notdef = cff->add_charstrings();
+    notdef->add_ops()->set_op(pdf_cff::ENDCHAR);
+
+    auto* glyph = cff->add_charstrings();
+    glyph->add_ops()->set_call_local(0);
+    glyph->add_ops()->set_op(pdf_cff::ENDCHAR);
+
+    auto* subr = cff->add_local_subrs();
+    if (recursive) {
+        subr->add_ops()->set_call_local(0);
+    } else {
+        subr->add_ops()->set_op(pdf_cff::ENDCHAR);
+    }
+    st.cffStructured++;
+    st.cffCallSubr++;
+}
 
 static void fill_descriptor(FontDescriptor* fd, bool with_file) {
     fd->set_flags(boundary_or(4));
@@ -65,11 +87,47 @@ static void fill_descriptor(FontDescriptor* fd, bool with_file) {
         auto* ff = fd->mutable_font_file();
         ff->set_key((EmbeddedFontFile::Key)ri(0,2));
         if (ff->key()==EmbeddedFontFile::FONTFILE3) ff->set_subtype(ri(0,1)?"Type1C":"OpenType");
-        ff->set_program(rb(0.3) ? std::string("%!PS-AdobeFont-1.0: G\n")
-                                 : rbytes(ri(4,64)));
+        if (ff->key()==EmbeddedFontFile::FONTFILE3 && rb(0.45)) {
+            ff->set_subtype("Type1C");
+            fill_cff(ff->mutable_cff(), false);
+        } else {
+            ff->set_program(rb(0.3) ? std::string("%!PS-AdobeFont-1.0: G\n")
+                                     : rbytes(ri(4,64)));
+        }
         if (!g_clean && rb(0.3)) ff->set_length_delta(boundary_or(0));
         st.embFontFile++;
     }
+}
+
+static void make_cve_2020_35376_doc(PdfDocument* doc) {
+    Page* pg = doc->add_pages();
+    pg->set_width(612.0f);
+    pg->set_height(792.0f);
+    pg->add_content_streams()->set_raw_content("BT /F0 24 Tf 72 720 Td ( ) Tj ET");
+
+    Font* f = pg->add_fonts();
+    f->set_subtype(Font::TYPE1);
+    f->set_base_font("CVE202035376");
+    f->set_base_encoding(Font::WINANSI);
+    f->set_first_char(32);
+    f->add_widths(500);
+
+    auto* d = f->add_differences();
+    d->set_code(32);
+    d->set_name("space");
+
+    FontDescriptor* fd = f->mutable_font_descriptor();
+    fd->set_flags(4);
+    fd->set_ascent(700);
+    fd->set_descent(-200);
+    fd->set_stem_v(80);
+    EmbeddedFontFile* ff = fd->mutable_font_file();
+    ff->set_key(EmbeddedFontFile::FONTFILE3);
+    ff->set_subtype("Type1C");
+    fill_cff(ff->mutable_cff(), true);
+    st.embFontFile++;
+    st.encDiff++;
+    st.cveSeeds++;
 }
 
 static void fill_font(Font* f) {
@@ -129,8 +187,18 @@ int main(int argc, char** argv) {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
     std::vector<std::string> pos;
     for (int i=1;i<argc;i++){ std::string a=argv[i];
-        if(a=="--clean") g_clean=true; else if(a=="--binary") g_binary=true; else pos.push_back(a); }
-    if (pos.empty()) { fprintf(stderr,"usage: %s <out_dir> [count=2000] [seed=12345] [--clean] [--binary]\n",argv[0]); return 1; }
+        if(a=="--clean") g_clean=true;
+        else if(a=="--binary") g_binary=true;
+        else if(a=="--with-cve-seeds") g_with_cve_seeds=true;
+        else pos.push_back(a);
+    }
+    if (pos.empty()) {
+        fprintf(stderr,
+                "usage: %s <out_dir> [count=2000] [seed=12345] "
+                "[--clean] [--binary] [--with-cve-seeds]\n",
+                argv[0]);
+        return 1;
+    }
     std::string dir = pos[0];
     long count = (pos.size()>=2)?atol(pos[1].c_str()):2000;
     unsigned seed = (pos.size()>=3)?(unsigned)atol(pos[2].c_str()):12345u;
@@ -139,18 +207,24 @@ int main(int argc, char** argv) {
 
     for (long i=0;i<count;i++) {
         PdfDocument doc;
-        int npages = ri(1,3); if (i%50==0) npages = ri(1,4);
         bool hasF=false,hasI=false,hasC=false;
-        for (int p=0;p<npages;p++) {
-            Page* pg = doc.add_pages();
-            pg->set_width((float)boundary_or(612));
-            pg->set_height((float)boundary_or(792));
-            int ncs=ri(0,2); for(int k=0;k<ncs;k++){ fill_cs(pg->add_content_streams()); hasC=true; }
-            int nf=ri(0,2);  for(int k=0;k<nf;k++){ fill_font(pg->add_fonts()); hasF=true; }
-            int ni=ri(0,2);  for(int k=0;k<ni;k++){ fill_image(pg->add_images()); hasI=true; }
+        if (g_with_cve_seeds && i % 100 == 0) {
+            make_cve_2020_35376_doc(&doc);
+            hasF = true;
+            hasC = true;
+        } else {
+            int npages = ri(1,3); if (i%50==0) npages = ri(1,4);
+            for (int p=0;p<npages;p++) {
+                Page* pg = doc.add_pages();
+                pg->set_width((float)boundary_or(612));
+                pg->set_height((float)boundary_or(792));
+                int ncs=ri(0,2); for(int k=0;k<ncs;k++){ fill_cs(pg->add_content_streams()); hasC=true; }
+                int nf=ri(0,2);  for(int k=0;k<nf;k++){ fill_font(pg->add_fonts()); hasF=true; }
+                int ni=ri(0,2);  for(int k=0;k<ni;k++){ fill_image(pg->add_images()); hasI=true; }
+            }
         }
         st.docs++;
-        if (npages>1) st.multipage++;
+        if (doc.pages_size() > 1) st.multipage++;
         if (hasF) st.withFont++; if (hasI) st.withImage++; if (hasC) st.withCS++;
 
         std::string out; char fn[1024];   // long absolute paths overflowed a 64B buffer
@@ -173,6 +247,8 @@ int main(int argc, char** argv) {
            st.withFont,100.0*st.withFont/count, st.fsub[0],st.fsub[1],st.fsub[2],st.fsub[3]);
     printf("  CID(Type0) docs:   %ld   embedded FontFile: %ld   enc/diff: %ld   ToUnicode: %ld\n",
            st.cid, st.embFontFile, st.encDiff, st.toUnicode);
+    printf("  structured CFF:    %ld   CFF callsubr seeds: %ld   CVE seeds: %ld\n",
+           st.cffStructured, st.cffCallSubr, st.cveSeeds);
     printf("with image:          %ld (%.0f%%)   [RAW=%ld FLATE=%ld DCT=%ld JPX=%ld CCITT=%ld LZW=%ld RL=%ld]\n",
            st.withImage,100.0*st.withImage/count,
            st.ifilt[0],st.ifilt[1],st.ifilt[2],st.ifilt[3],st.ifilt[4],st.ifilt[5],st.ifilt[6]);

@@ -5,6 +5,11 @@ cov-work/
 measure_valid_rate
 cov_driver
 verify_serializer
+check_serializer
+gen_corpus
+gen_cve_2020_35376_seed
+inspect_cff_seed
+proto2pdf
 generate_example
 afl-seeds-clean/
 afl_pdf_mutator.so

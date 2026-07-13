@@ -1,7 +1,7 @@
 syntax = "proto2";
 package pdf_proto;
 
-import "cff.proto";  // structured CFF grammar (pdf_cff.CffFont) for the /FontFile3 program
+import "modules/cff/cff.proto";  // structured CFF grammar for /FontFile3
 
 message Catalog {
   required uint32 pages_ref = 1;
@@ -51,8 +51,8 @@ message EmbeddedFontFile {
   }
 }
 
-// (CffFont / Charstring / Op / Operator live in cff.proto, package pdf_cff, and are
-// referenced above via `import "cff.proto"`.)
+// (CffFont / Charstring / Op / Operator live in modules/cff/cff.proto,
+// package pdf_cff, and are referenced above via that import.)
 
 // P1.5: /FontDescriptor. Inline in the font dict (xpdf accepts inline or indirect).
 // Numeric fields are plain clean integers for now -- near-valid token injection is
