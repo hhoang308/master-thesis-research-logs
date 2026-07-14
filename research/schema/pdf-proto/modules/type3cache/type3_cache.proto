@@ -1,0 +1,32 @@
+syntax = "proto2";
+
+package pdf_type3cache;
+
+// A narrow grammar for Type 3 font-cache lifecycle bugs inspired by
+// CVE-2020-25725. This intentionally models the behavior pattern, not a full PDF.
+message Type3CacheDocument {
+  enum MatrixMode {
+    EXACT_REUSE = 0;  // tune nested Tf so xpdf 4.02 reuses the outer T3FontCache
+    NEAR_REUSE  = 1;  // visually similar, but likely fails exact double matching
+    DIFFERENT   = 2;  // clearly different cache matrix
+  }
+
+  enum GlyphProgramStyle {
+    RECT_FILL     = 0;
+    EMPTY_GLYPH   = 1;
+    REPEATED_TEXT = 2;
+  }
+
+  optional uint32 filler_fonts = 1 [default = 8];
+  optional uint32 nested_depth = 2 [default = 1];
+  optional MatrixMode matrix_mode = 3 [default = EXACT_REUSE];
+
+  optional bool outer_uses_d1 = 4 [default = true];
+  optional bool inner_uses_d1 = 5 [default = true];
+  optional bool fillers_use_d1 = 6 [default = true];
+  optional bool render_fillers_after_nested = 7 [default = true];
+
+  optional GlyphProgramStyle glyph_program_style = 8 [default = RECT_FILL];
+  optional uint32 page_font_size = 9 [default = 72];
+  optional uint32 glyph_size = 10 [default = 1000];
+}

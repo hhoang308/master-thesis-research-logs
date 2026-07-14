@@ -88,23 +88,29 @@ endif()
 
 set(CFF_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/modules/cff)
 set(CFF_SERIALIZER_SRC ${CFF_MODULE_DIR}/cff_serializer.cc)
+set(TYPE3CACHE_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/modules/type3cache)
+set(TYPE3CACHE_SERIALIZER_SRC ${TYPE3CACHE_MODULE_DIR}/type3_cache_serializer.cc)
 
 set(PROTO_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/pdf.proto
   ${CFF_MODULE_DIR}/cff.proto
+  ${TYPE3CACHE_MODULE_DIR}/type3_cache.proto
 )
 set(PROTO_SRCS
   ${CMAKE_CURRENT_BINARY_DIR}/pdf.pb.cc
   ${CMAKE_CURRENT_BINARY_DIR}/modules/cff/cff.pb.cc
+  ${CMAKE_CURRENT_BINARY_DIR}/modules/type3cache/type3_cache.pb.cc
 )
 set(PROTO_HDRS
   ${CMAKE_CURRENT_BINARY_DIR}/pdf.pb.h
   ${CMAKE_CURRENT_BINARY_DIR}/modules/cff/cff.pb.h
+  ${CMAKE_CURRENT_BINARY_DIR}/modules/type3cache/type3_cache.pb.h
 )
 add_custom_command(
   OUTPUT ${PROTO_SRCS} ${PROTO_HDRS}
   COMMAND ${CMAKE_COMMAND} -E make_directory
           ${CMAKE_CURRENT_BINARY_DIR}/modules/cff
+          ${CMAKE_CURRENT_BINARY_DIR}/modules/type3cache
   COMMAND ${PROTOC_EXE}
           --proto_path=${CMAKE_CURRENT_SOURCE_DIR}
           --cpp_out=${CMAKE_CURRENT_BINARY_DIR}
@@ -269,6 +275,26 @@ add_executable(measure_valid_rate
   ${PROTO_SRCS}
 )
 target_link_libraries(measure_valid_rate ${PROTOBUF_LIB_TARGET} z)
+
+add_executable(type3cache2pdf
+  modules/type3cache/tools/type3cache2pdf.cpp
+  ${TYPE3CACHE_SERIALIZER_SRC}
+  ${PROTO_SRCS}
+)
+target_link_libraries(type3cache2pdf ${PROTOBUF_LIB_TARGET})
+
+add_executable(gen_type3cache_corpus
+  modules/type3cache/tools/gen_type3cache_corpus.cpp
+  ${PROTO_SRCS}
+)
+target_link_libraries(gen_type3cache_corpus ${PROTOBUF_LIB_TARGET})
+
+add_executable(check_type3cache_corpus
+  modules/type3cache/tools/check_type3cache_corpus.cpp
+  ${TYPE3CACHE_SERIALIZER_SRC}
+  ${PROTO_SRCS}
+)
+target_link_libraries(check_type3cache_corpus ${PROTOBUF_LIB_TARGET})
 
 add_executable(gen_cve_2020_35376_seed
   modules/cff/seeds/gen_cve_2020_35376_seed.cpp
