@@ -11,7 +11,7 @@ A libFuzzer + libprotobuf-mutator pipeline for fuzzing xpdf with structure-aware
 | File | Purpose |
 |------|---------|
 | `pdf.proto` | Protobuf schema defining the PDF structure. libprotobuf-mutator uses this to generate and mutate valid `PdfDocument` messages. |
-| `modules/cff/` | Structured CFF/Type1C grammar, serializer, verifier, and CVE-specific seed/inspection tools used by `/FontFile3` programs. |
+| `modules/` | CVE-specific structured grammar, serializer, verifier, and .pb seed. |
 | `tools/` | Generic corpus, conversion, and validation tools. |
 | `afl/` | AFL++ harness and custom-mutator build script. |
 | `coverage/` | Coverage driver and comparison script. |
