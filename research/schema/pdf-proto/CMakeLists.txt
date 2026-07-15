@@ -152,6 +152,7 @@ include_directories(
   ${XPDF_SRC}/goo
   ${XPDF_SRC}/xpdf
   ${XPDF_SRC}/fofi
+  ${XPDF_SRC}/splash
   ${Protobuf_INCLUDE_DIRS}
 )
 
@@ -191,6 +192,7 @@ add_executable(pdf_fuzzer
   harness.cpp
   serializer.cpp
   ${CFF_SERIALIZER_SRC}
+  ${TYPE3CACHE_SERIALIZER_SRC}
   ${PROTO_SRCS}
   $<TARGET_OBJECTS:xpdf_objs>
 )
@@ -207,12 +209,49 @@ target_link_libraries(pdf_fuzzer
   ${FONTCONFIG_LIBRARY}
 )
 
+if(TARGET splash)
+set(XPDF_SPLASH_OPTIONAL_LIBS "")
+foreach(optional_lib
+    PAPER_LIBRARY
+    FREETYPE_LIBRARY
+    FREETYPE_OTHER_LIBS
+    DTYPE_LIBRARY
+    LCMS_LIBRARY
+    FONTCONFIG_LIBRARY)
+  if(${optional_lib})
+    list(APPEND XPDF_SPLASH_OPTIONAL_LIBS ${${optional_lib}})
+  endif()
+endforeach()
+add_executable(pdf_fuzzer_splash
+  harness_splash.cpp
+  serializer.cpp
+  ${CFF_SERIALIZER_SRC}
+  ${TYPE3CACHE_SERIALIZER_SRC}
+  ${PROTO_SRCS}
+  $<TARGET_OBJECTS:xpdf_objs>
+  ${XPDF_SRC}/xpdf/SplashOutputDev.cc
+)
+target_link_options(pdf_fuzzer_splash PRIVATE -fsanitize=fuzzer,address)
+target_link_libraries(pdf_fuzzer_splash
+  protobuf-mutator-libfuzzer
+  protobuf-mutator
+  goo
+  fofi
+  splash
+  ${PROTOBUF_LIB_TARGET}
+  z
+  pthread
+  ${XPDF_SPLASH_OPTIONAL_LIBS}
+)
+endif()
+
 # ── PoDoFo fuzzer target ──────────────────────────────────────────────────────
 if(PODOFO_FOUND)
   add_executable(pdf_fuzzer_podofo
     harness_podofo.cpp
     serializer.cpp
     ${CFF_SERIALIZER_SRC}
+    ${TYPE3CACHE_SERIALIZER_SRC}
     ${PROTO_SRCS}
   )
   target_link_options(pdf_fuzzer_podofo PRIVATE -fsanitize=fuzzer,address)
@@ -235,6 +274,7 @@ add_executable(verify_serializer
   tests/verify_serializer.cpp
   serializer.cpp
   ${CFF_SERIALIZER_SRC}
+  ${TYPE3CACHE_SERIALIZER_SRC}
   ${PROTO_SRCS}
 )
 target_link_libraries(verify_serializer ${PROTOBUF_LIB_TARGET} z)
@@ -256,6 +296,7 @@ add_executable(proto2pdf
   tools/proto2pdf.cpp
   serializer.cpp
   ${CFF_SERIALIZER_SRC}
+  ${TYPE3CACHE_SERIALIZER_SRC}
   ${PROTO_SRCS}
 )
 target_link_libraries(proto2pdf ${PROTOBUF_LIB_TARGET} z)
@@ -264,6 +305,7 @@ add_executable(check_serializer
   tools/check_serializer.cpp
   serializer.cpp
   ${CFF_SERIALIZER_SRC}
+  ${TYPE3CACHE_SERIALIZER_SRC}
   ${PROTO_SRCS}
 )
 target_link_libraries(check_serializer ${PROTOBUF_LIB_TARGET} z)
@@ -272,6 +314,7 @@ add_executable(measure_valid_rate
   tools/measure_valid_rate.cpp
   serializer.cpp
   ${CFF_SERIALIZER_SRC}
+  ${TYPE3CACHE_SERIALIZER_SRC}
   ${PROTO_SRCS}
 )
 target_link_libraries(measure_valid_rate ${PROTOBUF_LIB_TARGET} z)

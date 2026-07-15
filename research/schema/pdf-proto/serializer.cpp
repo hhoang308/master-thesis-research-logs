@@ -5,6 +5,7 @@
 #include <zlib.h>
 #include "pdf.pb.h"
 #include "modules/cff/cff_serializer.h"  // EmbeddedFontFile.cff -> byte-valid CFF
+#include "modules/type3cache/type3_cache_serializer.h"
 
 struct XrefEntry {
   uint32_t offset;
@@ -117,6 +118,10 @@ static std::string zlib_compress(const std::string& src) {
 }
 
 std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
+  if (doc.type3_cache_programs_size() > 0) {
+    return SerializeType3CachePdf(doc.type3_cache_programs(0));
+  }
+
   std::ostringstream out;
   std::vector<XrefEntry> xref;
 

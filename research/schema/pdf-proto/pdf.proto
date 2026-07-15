@@ -2,6 +2,7 @@ syntax = "proto2";
 package pdf_proto;
 
 import "modules/cff/cff.proto";  // structured CFF grammar for /FontFile3
+import "modules/type3cache/type3_cache.proto";  // Type 3 cache lifecycle grammar
 
 message Catalog {
   required uint32 pages_ref = 1;
@@ -180,4 +181,5 @@ message IndirectObject {
 
 message PdfDocument {
   repeated Page pages = 1;
+  repeated pdf_type3cache.Type3CacheDocument type3_cache_programs = 2;
 }

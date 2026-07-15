@@ -60,8 +60,13 @@ int main() {
             if (n > 10) n = 10;                  // bound per-input work
             if (n >= 1) {
                 FuzzOutputDev dev;
+#ifdef XPDF_LEGACY_DISPLAYPAGES
+                doc->displayPages(&dev, 1, n, 72, 72, 0,
+                                  gFalse, gTrue, gFalse);  // useMediaBox, crop, printing
+#else
                 doc->displayPages(&dev, NULL, 1, n, 72, 72, 0,
                                   gFalse, gTrue, gFalse);  // useMediaBox, crop, printing
+#endif
             }
         }
         delete doc;                              // also frees str
