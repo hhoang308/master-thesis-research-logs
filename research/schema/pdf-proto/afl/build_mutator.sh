@@ -20,8 +20,17 @@ fi
 CLANG_RESOURCE_DIR="$($CXX_BIN -print-resource-dir)"
 ABSL=$(ls "$PB_LIB"/libabsl_*.so 2>/dev/null | sed 's|.*/lib\(absl_[a-z0-9_]*\)\.so|-l\1|' | tr '\n' ' ')
 
+# Host-specific overrides (default empty; do nothing on other machines):
+#   EXTRA_CXXFLAGS -- extra include/compile flags (e.g. libstdc++ headers when clang picks a
+#                     GCC whose -dev headers aren't installed: "-I/usr/include/c++/11 ...")
+#   EXTRA_LDFLAGS  -- extra linker search paths (e.g. "-L/usr/lib/gcc/x86_64-linux-gnu/11")
+#   EXTRA_LIBS     -- extra libs (protobuf 6.x split utf8 out: "-lutf8_range -lutf8_validity")
+EXTRA_CXXFLAGS="${EXTRA_CXXFLAGS:-}"
+EXTRA_LDFLAGS="${EXTRA_LDFLAGS:-}"
+EXTRA_LIBS="${EXTRA_LIBS:-}"
+
 "$CXX_BIN" -std=c++17 -fPIC -shared -O1 -g \
-    -I"$CLANG_RESOURCE_DIR/include" \
+    -I"$CLANG_RESOURCE_DIR/include" $EXTRA_CXXFLAGS \
     -I"$ROOT_DIR" -I"$BUILD_DIR" -I"$ROOT_DIR/libprotobuf-mutator" -I"$PB_INCLUDE" \
     "$SELF_DIR/afl_mutator.cpp" "$ROOT_DIR/serializer.cpp" \
     "$ROOT_DIR/modules/cff/cff_serializer.cc" \
@@ -32,8 +41,8 @@ ABSL=$(ls "$PB_LIB"/libabsl_*.so 2>/dev/null | sed 's|.*/lib\(absl_[a-z0-9_]*\)\
     "$ROOT_DIR/libprotobuf-mutator/src/binary_format.cc" \
     "$ROOT_DIR/libprotobuf-mutator/src/text_format.cc" \
     "$ROOT_DIR/libprotobuf-mutator/src/utf8_fix.cc" \
-    -L"$PB_LIB" \
-    -Wl,--start-group -lprotobuf $ABSL -Wl,--end-group -lz -lpthread \
+    -L"$PB_LIB" $EXTRA_LDFLAGS \
+    -Wl,--start-group -lprotobuf $ABSL $EXTRA_LIBS -Wl,--end-group -lz -lpthread \
     -Wl,-rpath,"$PB_LIB" \
     -o "$SELF_DIR/afl_pdf_mutator.so"
 
