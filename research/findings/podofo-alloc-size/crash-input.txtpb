@@ -1,0 +1,16 @@
+pages {
+  images {
+    width: 4
+    height: 4
+    bits_per_component: 8
+    filter: LZW
+    data: "\200\013`lzwdata"
+  }
+  images {
+    width: 4
+    height: 4
+    bits_per_component: 4177526792
+    filter: LZW
+    data: "\200\013`lzwdata"
+  }
+}
