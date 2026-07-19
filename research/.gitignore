@@ -35,13 +35,35 @@ experiments/**/queue/
 experiments/**/artifacts/
 experiments/**/afl-out/
 experiments/**/out/
+experiments/**/seeds/
 experiments/**/*.log
 experiments/**/*.pid
+experiments/**/*.bin
+experiments/**/reached-funcs.txt
 !experiments/**/README.md
 !experiments/**/metadata.md
 !experiments/**/repro.sh
 !experiments/**/run.sh
 !experiments/**/run-summary/
+
+# Fuzzing baselines: same regenerable outputs as experiments/.
+baselines/**/corpus/
+baselines/**/crashes/
+baselines/**/hangs/
+baselines/**/queue/
+baselines/**/artifacts/
+baselines/**/afl-out/
+baselines/**/out/
+baselines/**/seeds/
+baselines/**/*.log
+baselines/**/*.pid
+baselines/**/*.bin
+baselines/**/reached-funcs.txt
+!baselines/**/README.md
+!baselines/**/metadata.md
+!baselines/**/repro.sh
+!baselines/**/run.sh
+!baselines/**/run-summary/
 
 # Crash buckets can contain large generated inputs; add metadata/repro files first.
 crashes/**/*.pdf
@@ -50,3 +72,7 @@ crashes/**/*.proto
 !crashes/**/README.md
 !crashes/**/metadata.md
 !crashes/**/repro.sh
+
+# Thesis working tree is a machine-local scratch area (vendored xpdf source +
+# schema build trees); it is not committed from any machine.
+thesis/
