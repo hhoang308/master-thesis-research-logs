@@ -43,6 +43,10 @@ option(COV_BUILD "Build cov_driver with LLVM source coverage instead of the fuzz
 # conda-forge clang 18, which finds its own C++ headers -- so NO GCC11 include hacks
 # and NO sanitizer/fuzzer flags (afl-clang-fast injects its own instrumentation).
 option(AFL_BUILD "Build the AFL++ target harness with afl-clang-fast instrumentation" OFF)
+# AFL_SPLASH_ASAN=ON (with AFL_BUILD): render via SplashOutputDev + ASan so the harness runs
+# Type 3 char procs and reaches SplashOutputDev::endType3Char (CVE-2020-25725 heap-UAF). Needs
+# the afl-clang-fast backend's ASan runtime (conda compiler-rt for clang 18).
+option(AFL_SPLASH_ASAN "AFL harness: SplashOutputDev + ASan (Type 3 cache / CVE-2020-25725)" OFF)
 
 if((COV_BUILD OR AFL_BUILD) AND NOT ENABLE_FUZZER_TARGETS)
   message(FATAL_ERROR "COV_BUILD/AFL_BUILD require Clang")
@@ -56,6 +60,13 @@ if(COV_BUILD)
   endif()
 elseif(AFL_BUILD)
   add_compile_options(-O2 -g)
+  if(AFL_SPLASH_ASAN)
+    # ASan must reach xpdf too (the Type 3 cache UAF lives in xpdf/SplashOutputDev). These
+    # propagate into the xpdf subdirectory (added below). afl-clang-fast injects its own
+    # coverage instrumentation on top.
+    add_compile_options(-fsanitize=address)
+    add_link_options(-fsanitize=address)
+  endif()
 elseif(ENABLE_FUZZER_TARGETS)
   # Sanitizer flags propagate into the xpdf subdirectory too.
   add_compile_options(-fsanitize=fuzzer-no-link,address -g -O1 ${CLANG_RUNTIME_INCLUDES})
@@ -177,13 +188,43 @@ endif()
 # instrumented by afl-clang-fast; the harness gets the persistent-mode runtime +
 # fork server. No protobuf/serializer/LPM here (the mutator .so handles those).
 if(AFL_BUILD)
-  add_executable(afl_harness_xpdf
-    afl/afl_harness_xpdf.cpp
-    $<TARGET_OBJECTS:xpdf_objs>
-  )
-  # xpdf has its own FlateDecode -> no system zlib needed (conda linker can't find -lz anyway).
-  target_link_libraries(afl_harness_xpdf goo fofi pthread ${FONTCONFIG_LIBRARY})
-  message(STATUS "AFL_BUILD: building afl_harness_xpdf (afl-clang-fast instrumented)")
+  if(AFL_SPLASH_ASAN)
+    if(NOT TARGET splash)
+      message(FATAL_ERROR "AFL_SPLASH_ASAN requires the xpdf 'splash' library target (check XPDF_SRC)")
+    endif()
+    # Only the splash optional libs that were actually found (freetype/paper/lcms/fontconfig...).
+    set(AFL_SPLASH_LIBS "")
+    foreach(optional_lib PAPER_LIBRARY FREETYPE_LIBRARY FREETYPE_OTHER_LIBS
+                         DTYPE_LIBRARY LCMS_LIBRARY FONTCONFIG_LIBRARY)
+      if(${optional_lib})
+        list(APPEND AFL_SPLASH_LIBS ${${optional_lib}})
+      endif()
+    endforeach()
+    add_executable(afl_harness_xpdf
+      afl/afl_harness_xpdf.cpp
+      $<TARGET_OBJECTS:xpdf_objs>
+      ${XPDF_SRC}/xpdf/SplashOutputDev.cc
+    )
+    target_compile_definitions(afl_harness_xpdf PRIVATE AFL_SPLASH_ASAN)
+    target_link_libraries(afl_harness_xpdf goo fofi splash pthread ${AFL_SPLASH_LIBS})
+    # System libfreetype.so pulls libpng/harfbuzz/brotli/... transitively; the conda linker
+    # won't resolve those here. Defer them to runtime -- libfreetype's DT_NEEDED loads them.
+    target_link_options(afl_harness_xpdf PRIVATE -Wl,--allow-shlib-undefined)
+    message(STATUS "AFL_BUILD + AFL_SPLASH_ASAN: afl_harness_xpdf (SplashOutputDev + ASan)")
+  else()
+    add_executable(afl_harness_xpdf
+      afl/afl_harness_xpdf.cpp
+      $<TARGET_OBJECTS:xpdf_objs>
+    )
+    # xpdf has its own FlateDecode -> no system zlib needed (conda linker can't find -lz anyway).
+    target_link_libraries(afl_harness_xpdf goo fofi pthread)
+    # fontconfig is optional: on hosts without libfontconfig-dev, xpdf is built with
+    # HAVE_FONTCONFIG=0 and FONTCONFIG_LIBRARY is NOTFOUND -> don't pass it to the linker.
+    if(FONTCONFIG_LIBRARY)
+      target_link_libraries(afl_harness_xpdf ${FONTCONFIG_LIBRARY})
+    endif()
+    message(STATUS "AFL_BUILD: building afl_harness_xpdf (afl-clang-fast instrumented)")
+  endif()
   return()  # skip the libFuzzer targets in AFL mode
 endif()
 
