@@ -26,7 +26,9 @@ DURATION="${1:-86400}"
 if [ ! -x "$PDFTOPS" ]; then
     echo "ERROR: AFL+ASan pdftops not built ($PDFTOPS)"; echo "  -> see README.md §1 (cmake with afl-clang-fast + -fsanitize=address)"; exit 1
 fi
-if ! nm "$PDFTOPS" 2>/dev/null | grep -q __afl; then
+# grep -c (not grep -q): under `set -o pipefail`, grep -q closes the pipe early and nm
+# racily exits with SIGPIPE, tripping a false "not instrumented". grep -c drains nm fully.
+if [ "$(nm "$PDFTOPS" 2>/dev/null | grep -c __afl)" -eq 0 ]; then
     echo "ERROR: $PDFTOPS is NOT AFL-instrumented (no __afl symbols) -- coverage-blind. Rebuild with afl-clang-fast."; exit 1
 fi
 [ -f "$MUTATOR" ] || { echo "ERROR: mutator .so missing ($MUTATOR) -- run afl/build_mutator.sh"; exit 1; }
