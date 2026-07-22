@@ -49,7 +49,9 @@ ASAN_OPTIONS=detect_leaks=0 "$ASAN" crash.pdf /dev/null
 - **Bắt ở bước dry-run/calibrate seed** — tức **chính seed `poc.pdf`** (PoC của
   CVE-2020-35376) đã kích hoạt, KHÔNG phải mutation do fuzzer khám phá. Đây là một
   crash *khác* với CVE mà seed đó nhắm.
-- Không có campaign nào nhắm CFF riêng; `FoFiType1C` mới chỉ được cover ngẫu nhiên.
+- **Xác nhận lại** bởi campaign CFF chuyên biệt `experiments/afl-xpdf402-cff-run1`
+  (structure-aware, mutator CFF → `pdftops`): **483 / 489** crash gom về đúng bug này.
+  Campaign đó cũng tìm thêm một bug CFF *khác*: `findings/xpdf402-cff-type1cop-toint-divzero`.
 
 ## TODO
 
