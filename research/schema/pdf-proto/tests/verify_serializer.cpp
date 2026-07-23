@@ -15,15 +15,19 @@
 //   the embedded font / image / CMap is missing. The content check re-reads the
 //   raw output bytes (it does not modify them) and fails if a marker is absent.
 static int run_test(const char* name, pdf_proto::PdfDocument& doc,
-                    std::initializer_list<const char*> expect = {}) {
+                    std::initializer_list<std::string> expect = {}) {
     std::string bytes = SerializePdf(doc);
     fprintf(stderr, "\n=== %s ===\n", name);
 
     // (1) Content check -- every expected marker must be present in the output.
-    for (const char* marker : expect) {
+    for (const std::string& marker : expect) {
         if (bytes.find(marker) == std::string::npos) {
-            fprintf(stderr, "[%s] FAIL: expected marker \"%s\" not found in serialized output\n",
-                    name, marker);
+            fprintf(stderr, "[%s] FAIL: expected marker not found in serialized output: ", name);
+            for (unsigned char ch : marker) {
+                if (ch >= 0x20 && ch <= 0x7e) fputc(ch, stderr);
+                else fprintf(stderr, "\\x%02x", ch);
+            }
+            fputc('\n', stderr);
             return 1;
         }
     }
@@ -379,6 +383,51 @@ int main() {
         cff->add_local_subrs()->add_ops()->set_call_local(0);  // subr 0 -> subr 0
         failures += run_test("fontfile3-structured-cff-selfsubr", doc,
                              {"/FontFile3", "/Type1C", "FuzzFont"});
+    }
+
+    // Test 17 (CFF operators): structured CFF emits extended Type2 operators as
+    // real binary charstring bytes inside a /FontFile3 /Subtype /Type1C stream.
+    {
+        pdf_proto::PdfDocument doc;
+        pdf_proto::Page* p = doc.add_pages();
+        p->set_width(612); p->set_height(792);
+        p->add_content_streams()->set_raw_content("BT /F0 24 Tf 72 720 Td ( ) Tj ET");
+
+        pdf_proto::Font* f = p->add_fonts();
+        f->set_subtype(pdf_proto::Font::TYPE1);
+        f->set_base_font("CFFOps");
+        f->set_base_encoding(pdf_proto::Font::WINANSI);
+        f->set_first_char(32);
+        f->add_widths(500);
+        auto* d = f->add_differences();
+        d->set_code(32);
+        d->set_name("space");
+
+        pdf_proto::FontDescriptor* fd = f->mutable_font_descriptor();
+        fd->set_flags(4);
+        fd->set_ascent(700);
+        fd->set_descent(-200);
+        fd->set_stem_v(80);
+        pdf_proto::EmbeddedFontFile* ff = fd->mutable_font_file();
+        ff->set_key(pdf_proto::EmbeddedFontFile::FONTFILE3);
+        ff->set_subtype("Type1C");
+
+        pdf_cff::CffFont* cff = ff->mutable_cff();
+        cff->set_font_name("CFFOps");
+        pdf_cff::Charstring* c = cff->add_charstrings();
+        c->add_ops()->set_operand(1);
+        c->add_ops()->set_operand(0);
+        c->add_ops()->set_op(pdf_cff::DIV);
+        c->add_ops()->set_op(pdf_cff::HINTMASK);
+        c->add_ops()->set_raw(std::string(1, '\x00'));
+        c->add_ops()->set_op(pdf_cff::CNTRMASK);
+        c->add_ops()->set_op(pdf_cff::ENDCHAR);
+
+        failures += run_test("fontfile3-structured-cff-extended-ops", doc,
+                             {"/FontFile3", "/Type1C", "CFFOps",
+                              std::string("\x0c\x0c", 2),
+                              std::string("\x13", 1),
+                              std::string("\x14", 1)});
     }
 
     google::protobuf::ShutdownProtobufLibrary();

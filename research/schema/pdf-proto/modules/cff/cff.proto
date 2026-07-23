@@ -94,11 +94,9 @@ message Op {
   }
 }
 
-// Type2 charstring operators (TN#5177 Appendix A). The enum VALUE equals the
-// operator's one-byte opcode, so the serializer emits it directly (no lookup
-// table). Kept to the minimal single-byte set: enough to build a valid glyph
-// outline, plus the subroutine calls that drive cvtGlyph recursion. Two-byte
-// escape operators (0x0c xx) go through Op.raw for now.
+// Type2 charstring operators (TN#5177 Appendix A). For one-byte operators, the
+// enum VALUE equals the opcode byte. For two-byte escape operators, the enum
+// VALUE is 0x0c00 + the second byte, so the serializer emits 0x0c, value&0xff.
 enum Operator {
   HSTEM     = 1;   // 0x01
   VSTEM     = 3;   // 0x03
@@ -110,7 +108,19 @@ enum Operator {
   CALLSUBR  = 10;  // 0x0a -- raw form (needs a pre-biased operand); prefer Op.call_local
   RETURN    = 11;  // 0x0b
   ENDCHAR   = 14;  // 0x0e -- terminates the glyph
+  HINTMASK  = 19;  // 0x13 -- mask bytes can follow via Op.raw
+  CNTRMASK  = 20;  // 0x14 -- mask bytes can follow via Op.raw
   RMOVETO   = 21;  // 0x15
   HMOVETO   = 22;  // 0x16
   CALLGSUBR = 29;  // 0x1d -- raw form; prefer Op.call_global
+
+  ABS       = 3081; // 0x0c 0x09
+  ADD       = 3082; // 0x0c 0x0a
+  SUB       = 3083; // 0x0c 0x0b
+  DIV       = 3084; // 0x0c 0x0c
+  NEG       = 3086; // 0x0c 0x0e
+  DROP      = 3090; // 0x0c 0x12
+  MUL       = 3096; // 0x0c 0x18
+  DUP       = 3099; // 0x0c 0x1b
+  EXCH      = 3100; // 0x0c 0x1c
 }

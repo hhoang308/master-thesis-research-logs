@@ -81,9 +81,16 @@ string encodeCharstring(const pdf_cff::Charstring& cs, size_t nLocal, size_t nGl
         case pdf_cff::Op::kOperand:
             csInt(out, op.operand());
             break;
-        case pdf_cff::Op::kOp:
-            out.push_back((char)op.op());            // enum value == Type2 opcode byte
+        case pdf_cff::Op::kOp: {
+            int code = op.op();
+            if (code >= 0 && code < 256) {
+                out.push_back((char)code);           // enum value == Type2 opcode byte
+            } else if (code >= 0x0c00 && code <= 0x0cff) {
+                out.push_back((char)0x0c);           // Type2 escape operator
+                out.push_back((char)(code & 0xff));
+            }
             break;
+        }
         case pdf_cff::Op::kCallLocal:                // real index -> biased operand + callsubr
             csInt(out, op.call_local() - subrBias(nLocal));
             out.push_back((char)10);

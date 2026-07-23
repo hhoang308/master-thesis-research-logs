@@ -16,6 +16,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <initializer_list>
 #include <string>
 #include <vector>
 #include <unistd.h>
@@ -232,6 +233,35 @@ static void check_weakness(const char* name, const pdf_cff::CffFont& font, int e
     else fails++;
 }
 
+static string bytes(std::initializer_list<int> vals) {
+    string s;
+    for (int v : vals) s.push_back((char)v);
+    return s;
+}
+
+static void check_glyph0_markers(const char* name, const pdf_cff::CffFont& font,
+                                 const std::vector<string>& markers) {
+    string cff = SerializeCff(font);
+    Parsed p = reparse(cff);
+    fprintf(stderr, "=== %s (%zu bytes) [CHARSTRING BYTES] ===\n", name, cff.size());
+    int ok = 1;
+    if (!p.ok) {
+        fprintf(stderr, "  FAIL: container did not parse\n");
+        fails++;
+        return;
+    }
+    for (const auto& marker : markers) {
+        if (p.glyph0.find(marker) == string::npos) {
+            fprintf(stderr, "  FAIL: glyph0 missing byte marker");
+            for (unsigned char ch : marker) fprintf(stderr, " %02x", ch);
+            fprintf(stderr, "\n");
+            ok = 0;
+        }
+    }
+    if (ok) fprintf(stderr, "  PASS: valid CFF container includes expected malformed/extended charstring bytes\n");
+    else fails++;
+}
+
 int main() {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -295,6 +325,57 @@ int main() {
         c->add_ops()->set_op(pdf_cff::ENDCHAR);
         f.add_local_subrs()->add_ops()->set_call_local(0);  // subr 0 -> subr 0 (itself)
         check_weakness("weakness-self-callsubr", f, /*expTarget=*/0);
+    }
+
+    // 7. Extended Type2 escape operators: serializer emits 0x0c <escape-op>.
+    {
+        pdf_cff::CffFont f;
+        auto* c = f.add_charstrings();
+        c->add_ops()->set_operand(1);
+        c->add_ops()->set_operand(0);
+        c->add_ops()->set_op(pdf_cff::DIV);
+        c->add_ops()->set_op(pdf_cff::ADD);
+        c->add_ops()->set_op(pdf_cff::SUB);
+        c->add_ops()->set_op(pdf_cff::MUL);
+        c->add_ops()->set_op(pdf_cff::ABS);
+        c->add_ops()->set_op(pdf_cff::NEG);
+        c->add_ops()->set_op(pdf_cff::DROP);
+        c->add_ops()->set_op(pdf_cff::DUP);
+        c->add_ops()->set_op(pdf_cff::EXCH);
+        c->add_ops()->set_op(pdf_cff::ENDCHAR);
+        check_glyph0_markers("escape-operators-byte-encoding", f,
+                             {bytes({0x0c, 0x0c}), bytes({0x0c, 0x0a}),
+                              bytes({0x0c, 0x0b}), bytes({0x0c, 0x18}),
+                              bytes({0x0c, 0x09}), bytes({0x0c, 0x0e}),
+                              bytes({0x0c, 0x12}), bytes({0x0c, 0x1b}),
+                              bytes({0x0c, 0x1c})});
+    }
+
+    // 8. Hint mask opcodes are first-class; mask payload bytes remain Op.raw.
+    {
+        pdf_cff::CffFont f;
+        auto* c = f.add_charstrings();
+        c->add_ops()->set_operand(10);
+        c->add_ops()->set_operand(20);
+        c->add_ops()->set_op(pdf_cff::HSTEM);
+        c->add_ops()->set_op(pdf_cff::HINTMASK);
+        c->add_ops()->set_raw(string(1, '\x00'));
+        c->add_ops()->set_op(pdf_cff::CNTRMASK);
+        c->add_ops()->set_op(pdf_cff::ENDCHAR);
+        check_glyph0_markers("hintmask-cntrmask-encoding", f,
+                             {bytes({0x13}), bytes({0x14})});
+    }
+
+    // 9. Wrong arity / underflow charstrings should still be expressible while
+    // keeping the outer CFF container structurally valid.
+    {
+        pdf_cff::CffFont f;
+        auto* c = f.add_charstrings();
+        c->add_ops()->set_op(pdf_cff::DIV);       // no operands
+        c->add_ops()->set_op(pdf_cff::RLINETO);   // no operands
+        c->add_ops()->set_op(pdf_cff::ENDCHAR);
+        check_glyph0_markers("wrong-arity-underflow-valid-container", f,
+                             {bytes({0x0c, 0x0c}), bytes({0x05})});
     }
 
     if (g_pyPath) unlink(g_pyPath);
