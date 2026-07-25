@@ -6,7 +6,7 @@ usage() {
 Usage: scripts/run_fuzz_phase.sh smoke|short|long
 
 Environment overrides:
-  BUILD_DIR       CMake build directory (default: build if present, otherwise build-env-check-clang18)
+  BUILD_DIR       CMake build directory (default: build; must be a clang libFuzzer+ASan build)
   FUZZER          Fuzzer binary path (default: $BUILD_DIR/pdf_fuzzer)
   CORPUS_DIR      Corpus directory for short/long (default: fuzz-corpus/main)
   RUN_ROOT        Directory for run logs (default: fuzz-runs)
@@ -15,6 +15,8 @@ Environment overrides:
   LONG_SECONDS    long fuzz duration (default: 28800)
   MAX_LEN         libFuzzer max_len (smoke default: 1024, short/long default: 65536)
   ASAN_OPTIONS    sanitizer options
+  DISABLE_ASLR    0/1 to force; default auto = disable ASLR (setarch -R) only for clang < 18
+                  (dodges the clang<18 ASan startup SIGSEGV; clang>=18 keeps ASLR on)
 USAGE
 }
 
@@ -34,8 +36,45 @@ if [[ -n "${BUILD_DIR:-}" ]]; then
 elif [[ -d build ]]; then
   build_dir="build"
 else
-  build_dir="build-env-check-clang18"
+  echo "No build directory found." >&2
+  echo "Expected ./build (README: cmake -S . -B build -DCMAKE_CXX_COMPILER=clang++ ...)," >&2
+  echo "or set BUILD_DIR to an existing clang libFuzzer+ASan build tree." >&2
+  echo "Existing build dirs: $(ls -d build*/ 2>/dev/null | tr '\n' ' ')" >&2
+  exit 2
 fi
+
+if [[ ! -d "$build_dir" ]]; then
+  echo "Build dir '$build_dir' does not exist." >&2
+  echo "Existing build dirs: $(ls -d build*/ 2>/dev/null | tr '\n' ' ')" >&2
+  exit 2
+fi
+
+# pdf_fuzzer requires clang (-fsanitize=fuzzer,address); a gcc build tree cannot
+# build it. Warn early instead of failing later with a confusing linker error.
+build_cc="$(sed -n 's/^CMAKE_CXX_COMPILER:[^=]*=//p' "$build_dir/CMakeCache.txt" 2>/dev/null | head -1 || true)"
+if [[ -n "$build_cc" && "$build_cc" != *clang* ]]; then
+  echo "Warning: build dir '$build_dir' uses compiler '$build_cc' (not clang);" >&2
+  echo "         the pdf_fuzzer target needs clang for -fsanitize=fuzzer,address." >&2
+fi
+build_cc_version="$([[ -n "$build_cc" ]] && "$build_cc" --version 2>/dev/null | head -1 || echo unknown)"
+
+# clang < 18's statically-linked ASan runtime intermittently SIGSEGVs during its
+# own init (AsanInitInternal -> mmap) on kernels with high ASLR entropy
+# (vm.mmap_rnd_bits) -- it hits EVERY ASan binary here (verify_cff,
+# verify_serializer, pdf_fuzzer). clang >= 18's ASan tolerates it (verified: 0 vs
+# clang-14's ~30% startup SIGSEGV on a trivial program). So keep ASLR on for
+# clang >= 18, and otherwise re-exec the whole process tree once under `setarch -R`
+# (ASLR off). DISABLE_ASLR=0/1 overrides the auto choice.
+cc_major="$(printf '%s\n' "$build_cc_version" | grep -oE 'clang version [0-9]+' | grep -oE '[0-9]+' | head -1 || true)"
+disable_aslr="${DISABLE_ASLR:-auto}"
+if [[ "$disable_aslr" == "auto" ]]; then
+  if [[ -n "$cc_major" && "$cc_major" -ge 18 ]]; then disable_aslr=0; else disable_aslr=1; fi
+fi
+if [[ "$disable_aslr" == "1" && -z "${_FUZZ_PHASE_NORANDOM:-}" ]] && command -v setarch >/dev/null 2>&1; then
+  export _FUZZ_PHASE_NORANDOM=1
+  exec setarch -R "$0" "$@"
+fi
+
 fuzzer="${FUZZER:-./$build_dir/pdf_fuzzer}"
 corpus_dir="${CORPUS_DIR:-fuzz-corpus/main}"
 run_root="${RUN_ROOT:-fuzz-runs}"
@@ -65,10 +104,14 @@ metadata="$run_dir/metadata.txt"
   echo "project_dir=$project_dir"
   echo "commit=$(git rev-parse HEAD)"
   echo "build_dir=$build_dir"
+  echo "build_cc=${build_cc:-unknown}"
+  echo "build_cc_version=$build_cc_version"
   echo "fuzzer=$fuzzer"
   echo "corpus_dir=$corpus_dir"
   echo "max_len=$max_len"
   echo "asan_options=$asan_options"
+  echo "disable_aslr=$disable_aslr"
+  echo "no_randomize=${_FUZZ_PHASE_NORANDOM:-0}"
   echo "git_status_short:"
   git status --short
 } > "$metadata"
@@ -85,7 +128,12 @@ run_logged_env() {
   env ASAN_OPTIONS="$asan_options" "$@"
 }
 
+# Disable errexit for the parent so a non-zero pipeline (e.g. the fuzzer exiting
+# after finding a crash) does not abort before crash detection below. The group
+# re-enables errexit for itself so build/verify steps still fail fast.
+set +e
 {
+  set -e
   echo "== fuzz phase: $phase =="
   cat "$metadata"
 
@@ -105,21 +153,36 @@ run_logged_env() {
     run_logged_env "$fuzzer" "-max_total_time=$long_seconds" "-max_len=$max_len" "$corpus_dir"
   fi
 } 2>&1 | tee "$log"
+run_status=${PIPESTATUS[0]}
+set -e
 
-if grep -E "CRASH|ERROR: AddressSanitizer|runtime error:" "$log" >/dev/null; then
+# Detect crashes/sanitizer reports regardless of exit status, so a real crash is
+# always annotated (not swallowed when the fuzzer exits non-zero on a finding).
+if grep -Eq "CRASH|ERROR: AddressSanitizer|runtime error:" "$log"; then
   echo "Finding: sanitizer/crash marker found in $log" >&2
   exit 1
 fi
 
+if [[ "$run_status" -ne 0 ]]; then
+  echo "Finding: build/verify/fuzzer command exited $run_status (see $log)" >&2
+  exit "$run_status"
+fi
+
 if [[ "$phase" == "smoke" ]]; then
-  grep -q "ALL PASS (0 failures)" "$log"
-  grep -q "escape-operators-byte-encoding" "$log"
-  grep -q "hintmask-cntrmask-encoding" "$log"
-  grep -q "wrong-arity-underflow-valid-container" "$log"
-  grep -q "fontfile3-structured-cff-extended-ops" "$log"
-  grep -q "found LLVMFuzzerCustomMutator" "$log"
-  grep -q "INITED" "$log"
-  grep -q "DONE" "$log"
+  require_marker() {
+    grep -q "$1" "$log" || {
+      echo "smoke: missing expected marker: $1 (see $log)" >&2
+      exit 1
+    }
+  }
+  require_marker "ALL PASS (0 failures)"
+  require_marker "escape-operators-byte-encoding"
+  require_marker "hintmask-cntrmask-encoding"
+  require_marker "wrong-arity-underflow-valid-container"
+  require_marker "fontfile3-structured-cff-extended-ops"
+  require_marker "found LLVMFuzzerCustomMutator"
+  require_marker "INITED"
+  require_marker "DONE"
 fi
 
 echo "Run log: $log"

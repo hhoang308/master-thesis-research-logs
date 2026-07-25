@@ -83,6 +83,15 @@ add_compile_options(
   -I/usr/include/x86_64-linux-gnu/c++/11)
 ```
 
+If `CMakeLists.txt` does not carry this (e.g. a checkout where it was reverted),
+the same fix works from the configure command -- symptom is `fatal error:
+'cstdio'/'string'/'limits' file not found`:
+
+```bash
+-DCMAKE_CXX_FLAGS="-isystem /usr/include/c++/11 -isystem /usr/include/x86_64-linux-gnu/c++/11" \
+-DCMAKE_C_FLAGS="-isystem /usr/include/c++/11 -isystem /usr/include/x86_64-linux-gnu/c++/11"
+```
+
 ### Issue 4 -- abseil (from miniconda protobuf) cannot find `sanitizer/common_interface_defs.h`
 
 Protobuf v22+ depends on abseil. Abseil's `dynamic_annotations.h` includes
@@ -156,6 +165,139 @@ target_link_libraries(pdf_fuzzer
 )
 ```
 
+### Issue 8 -- CMake >= 4.0 refuses xpdf-4.02's `cmake_minimum_required`
+
+Newer CMake (observed with 4.3.0) removed compatibility with policies from
+CMake < 3.5. The xpdf-4.02 tree declares `cmake_minimum_required(VERSION 2.x/3.x)`,
+so configuring the fuzzer (which does `add_subdirectory(${XPDF_SRC})`) fails:
+
+```
+CMake Error ... xpdf-4.02/CMakeLists.txt:11 (cmake_minimum_required):
+  Compatibility with CMake < 3.5 has been removed from CMake.
+```
+
+**Fix:** tell CMake to assume a 3.5-era policy baseline for the old subtree:
+
+```bash
+-DCMAKE_POLICY_VERSION_MINIMUM=3.5
+```
+
+### Issue 9 -- `fontconfig/fontconfig.h` not found while building xpdf
+
+The runtime `libfontconfig.so.1` is present but the `-dev` package (headers +
+the `libfontconfig.so` symlink) is not installed. Two failure modes appear:
+
+- Top-level generate error: `FONTCONFIG_LIBRARY ... set to NOTFOUND` (the
+  `pdf_fuzzer` target links `${FONTCONFIG_LIBRARY}` unconditionally).
+- If you then pass `FONTCONFIG_LIBRARY` by hand, xpdf's own
+  `find_library(FONTCONFIG_LIBRARY ...)` reuses that cached value, sets
+  `HAVE_FONTCONFIG=1`, and `GlobalParams.cc` fails on the missing header.
+
+**Fix:** disable fontconfig in the xpdf subtree *and* give the top-level link a
+concrete library path (harmless -- xpdf is then built with `HAVE_FONTCONFIG=0`):
+
+```bash
+-DNO_FONTCONFIG=ON \
+-DFONTCONFIG_LIBRARY=/usr/lib/x86_64-linux-gnu/libfontconfig.so.1
+```
+
+(Alternatively install `libfontconfig-dev` and drop both flags.)
+
+### Issue 10 -- ASan binaries intermittently SIGSEGV at startup (high ASLR entropy)
+
+Every ASan-instrumented binary here (`verify_cff`, `verify_serializer`,
+`pdf_fuzzer`) sometimes dies with a bare `Segmentation fault (core dumped)` **at
+startup, before printing anything** -- and sometimes runs fine. Observed rate
+~15-25%. It is *not* a bug in the target: a backtrace (captured with gdb, keeping
+ASLR on via `set disable-randomization off`, looping until it faults) shows the
+crash inside ASan's own init:
+
+```
+#0 __sanitizer::internal_mmap
+#2 __sanitizer::ReservedAddressRange::Init
+#3 SizeClassAllocator64<__asan::AP64>::Init
+#4 __asan::Allocator::InitLinkerInitialized
+#5 __asan::AsanInitInternal          <-- ASan reserving its allocator/shadow range
+#6 ld-linux.so                        <-- at load time
+```
+
+clang-14's ASan reserves a large fixed address range at startup; newer kernels
+raised `vm.mmap_rnd_bits` (to 32), so that reservation intermittently lands on an
+unmappable address. It is entirely in the ASan runtime, confirmed with a trivial
+`int main(void){return 0;}`:
+
+```text
+clang-14  -fsanitize=address, ASLR on: 12/40 startup SIGSEGV
+clang-18  -fsanitize=address, ASLR on:  0/40
+```
+
+(So rebuilding *protobuf* with ASan does **not** help -- the crash is before any
+app code runs.)
+
+Fixes, best first (the first two keep ASLR on -- ASLR is a security mitigation,
+not a bug detector, but there is no reason to give it up if avoidable):
+
+1. **Build with clang-18 and keep ASLR on (recommended).** clang-18.1.8 is already
+   present (`clang-18` / miniconda); its ASan tolerates high-entropy ASLR -- the
+   real binaries verified 0/25 (`pdf_fuzzer`) and 0/25 (`verify_cff`) with ASLR on,
+   and the smoke gate 0/20. See the clang-18 build command below. The runner then
+   keeps ASLR on automatically (`disable_aslr` auto detects clang >= 18).
+2. **Lower ASLR entropy system-wide (needs root):** `sudo sysctl -w vm.mmap_rnd_bits=28`,
+   then `DISABLE_ASLR=0`.
+3. **Stopgap (no root, no rebuild) -- what the runner does by default on clang < 18:**
+   `scripts/run_fuzz_phase.sh` re-execs itself under `setarch -R` (ASLR off for the
+   whole process tree) -- verified 0/20. This disables ASLR only for the run; it
+   does not weaken ASan detection (layout-independent) and in fact makes crashes
+   more reproducible. Manual runs:
+
+```bash
+setarch -R ./build/pdf_fuzzer -runs=100 -max_len=1024
+setarch -R ./build/verify_cff
+```
+
+The runner picks 1 vs 3 automatically from the build compiler (`DISABLE_ASLR` env
+forces either way). Each run's `metadata.txt` records `build_cc`, `build_cc_version`,
+`disable_aslr`, and `no_randomize`.
+
+### Verified working command (clang-18 -> `build/`, keeps ASLR on) -- RECOMMENDED
+
+This is the canonical build on this machine: `build/` built with clang-18, ASLR
+stays on, and the runner needs no `LD_LIBRARY_PATH`.
+
+clang-18 comes from miniconda/conda-forge, so it uses conda's own toolchain
+(gcc-15 headers + sysroot) -- drop the clang-14 GCC-11 `-isystem` flags, but add
+three link/rpath settings for the conda toolchain:
+
+- `-L<miniconda>/lib` -- conda's linker to find conda's `libz`.
+- `-Wl,-rpath-link,/usr/lib/...` -- resolve the system `libfontconfig.so.1`'s
+  transitive deps at link time (fontconfig is `HAVE_FONTCONFIG=0`/unused, only
+  linked to satisfy `pdf_fuzzer`'s unconditional `${FONTCONFIG_LIBRARY}`).
+- `-DCMAKE_BUILD_RPATH=<miniconda>/lib` -- **required**: because `pdf_fuzzer` links
+  the system `libfontconfig.so.1` by absolute path, CMake auto-adds
+  `/usr/lib/x86_64-linux-gnu` to the binary's `DT_RPATH`, which is searched *before*
+  `LD_LIBRARY_PATH` and would load the system (gcc-11) `libstdc++.so.6` -> runtime
+  `GLIBCXX_3.4.32 not found`. Prepending conda's lib dir to the rpath fixes it and
+  makes the binaries self-contained.
+
+```bash
+cd research/schema/pdf-proto
+cmake -S . -B build \
+  -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+  -DCMAKE_CXX_COMPILER=clang++-18 -DCMAKE_C_COMPILER=clang-18 \
+  -DXPDF_SRC="$(git rev-parse --show-toplevel)/research/thesis/xpdf-4.02" \
+  -DXPDF_LEGACY_DISPLAYPAGES=ON -DNO_FONTCONFIG=ON \
+  -DFONTCONFIG_LIBRARY=/usr/lib/x86_64-linux-gnu/libfontconfig.so.1 \
+  -DCMAKE_PREFIX_PATH=/home/hoangnh8/miniconda3 \
+  -DCMAKE_BUILD_RPATH=/home/hoangnh8/miniconda3/lib \
+  -DCMAKE_EXE_LINKER_FLAGS="-L/home/hoangnh8/miniconda3/lib -Wl,-rpath-link,/usr/lib/x86_64-linux-gnu -Wl,-rpath-link,/lib/x86_64-linux-gnu"
+
+cmake --build build --target verify_serializer verify_cff pdf_fuzzer -j"$(nproc)"
+./scripts/run_fuzz_phase.sh smoke   # default build/, ASLR stays on (clang >= 18)
+```
+
+The clang-14 recipe under **Build the fuzzer** below is a fallback for hosts
+without clang-18; the runner then auto-disables ASLR (`setarch -R`) instead.
+
 ---
 
 ## Build verify_serializer (serializer validation only)
@@ -208,7 +350,18 @@ PDF version:     1.4
 
 ## Build the fuzzer (pdf_fuzzer)
 
-Requires clang-14, an xpdf source tree passed via `-DXPDF_SRC=...`, and protobuf from miniconda.
+Requires clang, an xpdf source tree passed via `-DXPDF_SRC=...`, and protobuf from miniconda.
+
+**Recommended: build with clang-18** -- see *Issue 10 -> Verified working command
+(clang-18 -> `build/`, keeps ASLR on)*. That is the canonical `build/` on this
+machine: ASLR stays on and the runner needs no `LD_LIBRARY_PATH`. The clang-14
+recipe below is a **fallback** for hosts without clang-18; with it the runner
+auto-disables ASLR via `setarch -R` (see Issue 10).
+
+The minimal command below assumes a clean toolchain. On the current dev machine
+(Ubuntu, CMake 4.3, clang-14, no `libfontconfig-dev`, GCC 11 headers only) several
+extra flags are needed -- see the **clang-14 fallback command** further down and
+Issues 3, 8, 9 for the reasons.
 
 ```bash
 cd research/schema/pdf-proto
@@ -219,6 +372,43 @@ cmake -S . -B build \
   -DCMAKE_EXE_LINKER_FLAGS="-L/usr/lib/gcc/x86_64-linux-gnu/11"
 
 cmake --build build -j$(nproc)
+```
+
+### clang-14 fallback command (no clang-18 available)
+
+Use this only when clang-18 is unavailable. It builds `build/` with clang-14, which
+triggers the intermittent ASan startup SIGSEGV (Issue 10) -- the runner then
+auto-disables ASLR via `setarch -R`. Uses the local `xpdf-4.02` tree
+(`XPDF_LEGACY_DISPLAYPAGES=ON` because `PDFDoc::displayPages()` predates the
+`LocalParams*` arg in <= 4.02):
+
+```bash
+cd research/schema/pdf-proto
+cmake -S . -B build \
+  -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+  -DCMAKE_CXX_COMPILER=clang++-14 -DCMAKE_C_COMPILER=clang-14 \
+  -DXPDF_SRC="$(git rev-parse --show-toplevel)/research/thesis/xpdf-4.02" \
+  -DXPDF_LEGACY_DISPLAYPAGES=ON \
+  -DNO_FONTCONFIG=ON \
+  -DFONTCONFIG_LIBRARY=/usr/lib/x86_64-linux-gnu/libfontconfig.so.1 \
+  -DCMAKE_PREFIX_PATH=/home/hoangnh8/miniconda3 \
+  -DCMAKE_CXX_FLAGS="-isystem /usr/include/c++/11 -isystem /usr/include/x86_64-linux-gnu/c++/11" \
+  -DCMAKE_C_FLAGS="-isystem /usr/include/c++/11 -isystem /usr/include/x86_64-linux-gnu/c++/11" \
+  -DCMAKE_EXE_LINKER_FLAGS="-L/usr/lib/gcc/x86_64-linux-gnu/11"
+
+cmake --build build --target verify_serializer verify_cff pdf_fuzzer -j"$(nproc)"
+```
+
+Each extra flag maps to a known blocker: `CMAKE_POLICY_VERSION_MINIMUM=3.5`
+(Issue 8), `CMAKE_C/CXX_FLAGS -isystem` (Issue 3), `NO_FONTCONFIG` +
+`FONTCONFIG_LIBRARY` (Issue 9). If the binaries later fail at runtime with
+`libprotobuf.so.* not found`, put miniconda on the loader path:
+`export LD_LIBRARY_PATH=/home/hoangnh8/miniconda3/lib`.
+
+Once `build/` exists, the runbook one-liner works because it defaults to `build/`:
+
+```bash
+./scripts/run_fuzz_phase.sh smoke
 ```
 
 ## Run the fuzzer

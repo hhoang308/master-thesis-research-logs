@@ -37,7 +37,7 @@ From `research/schema/pdf-proto`:
 Useful overrides:
 
 ```bash
-BUILD_DIR=build-env-check-clang18 ./scripts/run_fuzz_phase.sh smoke
+BUILD_DIR=build ./scripts/run_fuzz_phase.sh smoke
 SHORT_SECONDS=7200 MAX_LEN=65536 ./scripts/run_fuzz_phase.sh short
 LONG_SECONDS=86400 CORPUS_DIR=fuzz-corpus/main ./scripts/run_fuzz_phase.sh long
 ```
@@ -81,15 +81,42 @@ This matches the project README: it avoids a protobuf mutation-layer false
 positive and LeakSanitizer teardown noise while keeping normal ASan bug classes
 such as heap overflows and UAFs enabled.
 
+## ASLR / ASan startup crash
+
+With clang < 18, every ASan binary (`verify_cff`, `verify_serializer`,
+`pdf_fuzzer`) intermittently SIGSEGVs at startup inside ASan's own allocator init,
+because that ASan runtime clashes with the kernel's high ASLR entropy (README
+Issue 10). Left unhandled this makes the smoke gate flap (~15-25% false failures).
+
+The script picks the mitigation automatically from the build compiler
+(`metadata.txt` records `build_cc`, `build_cc_version`, `disable_aslr`,
+`no_randomize`):
+
+- **clang >= 18** (e.g. the `build-clang18` tree): ASLR stays **on** -- its ASan
+  tolerates high entropy. Verified 0/25 (fuzzer) / 0/25 (verify_cff) / 0/15 (gate).
+- **clang < 18** (e.g. the clang-14 `build` tree): the script re-execs once under
+  `setarch -R` (ASLR off for the whole process tree). Verified 0/15. This is a
+  stopgap -- it does not weaken ASan detection (layout-independent), only turns
+  ASLR off for the run.
+
+`DISABLE_ASLR=0` / `=1` forces either way (e.g. `=0` after
+`sudo sysctl -w vm.mmap_rnd_bits=28`). Prefer the clang-18 build so ASLR stays on.
+
 ## Portability
 
 The runbook and script are intended to be committed. Generated run artifacts are
 not: `fuzz-runs/` and `fuzz-corpus/` are ignored by git.
 
 The script has no absolute machine paths. It uses the repo root from
-`git rev-parse`, then picks `BUILD_DIR` from the environment, `build/` if it
-exists, or `build-env-check-clang18/` as the fallback because that is the current
-local build tree. If another machine uses a different CMake build directory, set:
+`git rev-parse`, then picks the build directory from `BUILD_DIR` if set, else
+`build/` (the canonical build tree in the README). If neither exists, the script
+exits with an error listing the `build*` directories it found instead of failing
+later inside CMake. It also warns if the chosen build tree uses a non-clang
+compiler, since the `pdf_fuzzer` target needs clang for
+`-fsanitize=fuzzer,address`. Create the build once with the README's
+**"Verified working command (this machine)"** under *Build the fuzzer* -- it lists
+the exact flags this environment needs (CMake policy, GCC 11 headers, fontconfig)
+and their troubleshooting Issues. Or point at an existing clang libFuzzer+ASan tree:
 
 ```bash
 BUILD_DIR=build ./scripts/run_fuzz_phase.sh smoke
