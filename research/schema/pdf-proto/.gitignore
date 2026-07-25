@@ -14,6 +14,8 @@ generate_example
 afl-seeds-clean/
 afl_pdf_mutator.so
 build-afl/
+fuzz-runs/
+fuzz-corpus/
 verify_cff
 cff.pb.cc
 cff.pb.h
