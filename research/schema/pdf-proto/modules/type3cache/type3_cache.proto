@@ -17,6 +17,34 @@ message Type3CacheDocument {
     REPEATED_TEXT = 2;
   }
 
+  enum RecursionPattern {
+    CHAIN  = 0;  // /A -> /B -> /C ...; keeps the original CVE-2020-25725 shape
+    SELF   = 1;  // /A -> /A
+    MUTUAL = 2;  // /A -> /B -> /A
+    FANOUT = 3;  // /A calls multiple sibling glyphs before eviction pressure
+  }
+
+  enum NestedCallTiming {
+    AFTER_METRIC  = 0;  // emit d0/d1 before nested text; original CVE shape
+    BEFORE_METRIC = 1;  // recurse before cache tag allocation
+    BOTH_TIMINGS  = 2;  // stress cleanup by nesting both before and after d0/d1
+  }
+
+  enum MalformedCharProc {
+    WELL_FORMED       = 0;
+    BAD_D1_ARITY      = 1;  // too few operands before a d1 operator
+    UNKNOWN_OPERATOR  = 2;  // valid stream, invalid content operator
+    UNBALANCED_Q      = 3;  // save graphics state without matching restore
+    MISSING_FONT_TEXT = 4;  // nested text references an absent font resource
+  }
+
+  enum ResourceAliasMode {
+    NO_ALIAS          = 0;
+    CHARPROC_ALIAS    = 1;  // CharProcs call main font through /FAlias -> 4 0 R
+    PAGE_ALIAS        = 2;  // page content starts through /FPage -> 4 0 R
+    PAGE_AND_CHARPROC = 3;
+  }
+
   optional uint32 filler_fonts = 1 [default = 8];
   optional uint32 nested_depth = 2 [default = 1];
   optional MatrixMode matrix_mode = 3 [default = EXACT_REUSE];
@@ -29,4 +57,11 @@ message Type3CacheDocument {
   optional GlyphProgramStyle glyph_program_style = 8 [default = RECT_FILL];
   optional uint32 page_font_size = 9 [default = 72];
   optional uint32 glyph_size = 10 [default = 1000];
+  optional RecursionPattern recursion_pattern = 11 [default = CHAIN];
+  optional NestedCallTiming nested_call_timing = 12 [default = AFTER_METRIC];
+  // Calls the currently rendering glyph again immediately after d0/d1. With
+  // d1 this can hit a cache tag before cacheData has been filled.
+  optional uint32 in_progress_cache_hits = 13 [default = 0];
+  optional MalformedCharProc malformed_charproc = 14 [default = WELL_FORMED];
+  optional ResourceAliasMode resource_alias_mode = 15 [default = NO_ALIAS];
 }

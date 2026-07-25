@@ -61,3 +61,19 @@ env ASAN_OPTIONS=detect_leaks=0 \
 The corpus test validates serializer invariants and shape diversity.  It is not
 expected that every generated sample crashes.  A good corpus should keep a useful
 fraction of samples on the `d1` + nested CharProc + cache-eviction path.
+
+## Lifecycle Knobs
+
+The schema intentionally models Type 3 cache state rather than all PDF syntax.
+The current knobs cover:
+
+- `recursion_pattern`: `CHAIN`, `SELF`, `MUTUAL`, `FANOUT`.
+- `nested_call_timing`: call nested glyphs after `d0/d1`, before `d0/d1`, or in both places.
+- `in_progress_cache_hits`: call the currently rendering glyph after `d0/d1`, targeting cache hits before `cacheData` has been filled.
+- `malformed_charproc`: inject content-stream errors such as wrong-arity `d1`, unknown operators, unbalanced `q`, or text through a missing font.
+- `resource_alias_mode`: use page or CharProc font aliases that point back to the same Type 3 font object.
+
+These are aimed at four follow-up bug classes beyond the original
+CVE-2020-25725 shape: uncontrolled Type 3 CharProc recursion, cache hits on a
+glyph that is still being rendered, cleanup after malformed CharProc execution,
+and aliasing between resource names and Type 3 font-cache keys.

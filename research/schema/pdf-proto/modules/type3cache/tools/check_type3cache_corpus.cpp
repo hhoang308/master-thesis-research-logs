@@ -127,6 +127,11 @@ int main(int argc, char** argv) {
   long pdfinfo_ok = 0;
   long exact = 0;
   long eviction_ready = 0;
+  long recursive = 0;
+  long pre_metric = 0;
+  long in_progress = 0;
+  long malformed = 0;
+  long aliased = 0;
 
   struct dirent* e;
   while ((e = readdir(d)) != nullptr) {
@@ -144,6 +149,18 @@ int main(int argc, char** argv) {
     total++;
     if (doc.matrix_mode() == pdf_type3cache::Type3CacheDocument::EXACT_REUSE)
       exact++;
+    if (doc.recursion_pattern() != pdf_type3cache::Type3CacheDocument::CHAIN)
+      recursive++;
+    if (doc.nested_call_timing() !=
+        pdf_type3cache::Type3CacheDocument::AFTER_METRIC)
+      pre_metric++;
+    if (doc.in_progress_cache_hits() > 0) in_progress++;
+    if (doc.malformed_charproc() !=
+        pdf_type3cache::Type3CacheDocument::WELL_FORMED)
+      malformed++;
+    if (doc.resource_alias_mode() !=
+        pdf_type3cache::Type3CacheDocument::NO_ALIAS)
+      aliased++;
     if (doc.filler_fonts() >= 8 && doc.nested_depth() >= 1 &&
         doc.outer_uses_d1() && doc.inner_uses_d1() && doc.fillers_use_d1() &&
         doc.render_fillers_after_nested())
@@ -184,6 +201,11 @@ int main(int argc, char** argv) {
               total, skipped);
   std::printf("xref invariant ok:        %ld/%ld\n", total - xref_bad, total);
   std::printf("matrix EXACT_REUSE:       %ld/%ld\n", exact, total);
+  std::printf("non-chain recursion:      %ld/%ld\n", recursive, total);
+  std::printf("pre-metric nesting:       %ld/%ld\n", pre_metric, total);
+  std::printf("in-progress cache hits:   %ld/%ld\n", in_progress, total);
+  std::printf("malformed CharProcs:      %ld/%ld\n", malformed, total);
+  std::printf("resource aliasing:        %ld/%ld\n", aliased, total);
   std::printf("eviction-ready shape:     %ld/%ld\n", eviction_ready, total);
   if (have_qpdf) std::printf("qpdf accepted:            %ld/%ld\n", qpdf_ok, total);
   if (have_mutool)

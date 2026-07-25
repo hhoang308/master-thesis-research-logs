@@ -38,6 +38,11 @@ void MakeTriggerSeed(Type3CacheDocument* doc) {
   doc->set_glyph_program_style(Type3CacheDocument::RECT_FILL);
   doc->set_page_font_size(72);
   doc->set_glyph_size(1000);
+  doc->set_recursion_pattern(Type3CacheDocument::CHAIN);
+  doc->set_nested_call_timing(Type3CacheDocument::AFTER_METRIC);
+  doc->set_in_progress_cache_hits(0);
+  doc->set_malformed_charproc(Type3CacheDocument::WELL_FORMED);
+  doc->set_resource_alias_mode(Type3CacheDocument::NO_ALIAS);
 }
 
 void MakeVariant(Type3CacheDocument* doc) {
@@ -52,6 +57,15 @@ void MakeVariant(Type3CacheDocument* doc) {
       static_cast<Type3CacheDocument::GlyphProgramStyle>(Ri(0, 2)));
   doc->set_page_font_size(static_cast<uint32_t>(Ri(1, 180)));
   doc->set_glyph_size(static_cast<uint32_t>(Ri(200, 3000)));
+  doc->set_recursion_pattern(
+      static_cast<Type3CacheDocument::RecursionPattern>(Ri(0, 3)));
+  doc->set_nested_call_timing(
+      static_cast<Type3CacheDocument::NestedCallTiming>(Ri(0, 2)));
+  doc->set_in_progress_cache_hits(static_cast<uint32_t>(Ri(0, 4)));
+  doc->set_malformed_charproc(
+      static_cast<Type3CacheDocument::MalformedCharProc>(Ri(0, 4)));
+  doc->set_resource_alias_mode(
+      static_cast<Type3CacheDocument::ResourceAliasMode>(Ri(0, 3)));
 
   // Keep a useful fraction close to the CVE path so corpus validation can see
   // cache reuse + post-nested eviction without depending on rare mutation luck.
@@ -64,6 +78,11 @@ void MakeVariant(Type3CacheDocument* doc) {
     doc->set_fillers_use_d1(true);
     doc->set_render_fillers_after_nested(true);
     doc->set_glyph_size(1000);
+    doc->set_recursion_pattern(Type3CacheDocument::CHAIN);
+    doc->set_nested_call_timing(Type3CacheDocument::AFTER_METRIC);
+    doc->set_in_progress_cache_hits(0);
+    doc->set_malformed_charproc(Type3CacheDocument::WELL_FORMED);
+    doc->set_resource_alias_mode(Type3CacheDocument::NO_ALIAS);
   }
 }
 
@@ -97,6 +116,11 @@ int main(int argc, char** argv) {
 
   long exact = 0;
   long eviction_ready = 0;
+  long recursive = 0;
+  long pre_metric = 0;
+  long in_progress = 0;
+  long malformed = 0;
+  long aliased = 0;
   for (long i = 0; i < count; ++i) {
     Type3CacheDocument doc;
     if (i == 0) {
@@ -105,6 +129,13 @@ int main(int argc, char** argv) {
       MakeVariant(&doc);
     }
     if (doc.matrix_mode() == Type3CacheDocument::EXACT_REUSE) exact++;
+    if (doc.recursion_pattern() != Type3CacheDocument::CHAIN) recursive++;
+    if (doc.nested_call_timing() != Type3CacheDocument::AFTER_METRIC)
+      pre_metric++;
+    if (doc.in_progress_cache_hits() > 0) in_progress++;
+    if (doc.malformed_charproc() != Type3CacheDocument::WELL_FORMED)
+      malformed++;
+    if (doc.resource_alias_mode() != Type3CacheDocument::NO_ALIAS) aliased++;
     if (doc.filler_fonts() >= 8 && doc.nested_depth() >= 1 &&
         doc.outer_uses_d1() && doc.inner_uses_d1() && doc.fillers_use_d1() &&
         doc.render_fillers_after_nested()) {
@@ -121,6 +152,11 @@ int main(int argc, char** argv) {
 
   std::printf("wrote %ld Type3CacheDocument seeds to %s\n", count, dir.c_str());
   std::printf("matrix_mode=EXACT_REUSE: %ld/%ld\n", exact, count);
+  std::printf("non-chain recursion:     %ld/%ld\n", recursive, count);
+  std::printf("pre-metric nesting:      %ld/%ld\n", pre_metric, count);
+  std::printf("in-progress cache hits:  %ld/%ld\n", in_progress, count);
+  std::printf("malformed CharProcs:     %ld/%ld\n", malformed, count);
+  std::printf("resource aliasing:       %ld/%ld\n", aliased, count);
   std::printf("eviction-ready shape:    %ld/%ld\n", eviction_ready, count);
 
   google::protobuf::ShutdownProtobufLibrary();
