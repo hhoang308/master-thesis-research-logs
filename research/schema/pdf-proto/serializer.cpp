@@ -6,6 +6,7 @@
 #include "pdf.pb.h"
 #include "modules/cff/cff_serializer.h"  // EmbeddedFontFile.cff -> byte-valid CFF
 #include "modules/dctstream/dct_stream_serializer.h"
+#include "modules/jpxstream/jpx_stream_serializer.h"
 #include "modules/type3cache/type3_cache_serializer.h"
 
 struct XrefEntry {
@@ -308,7 +309,11 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
     for (int k = 0; k < (int)image_objs[i].size(); k++) {
       record_offset();
       const pdf_proto::ImageXObject& img = doc.pages(i).images(k);
-      const std::string& data = img.data();
+      std::string structured_jpx;
+      if (img.has_jpx()) {
+        structured_jpx = SerializeJpxCodestream(img.jpx());
+      }
+      const std::string& data = img.has_jpx() ? structured_jpx : img.data();
       long written_len = (long)data.size() + img.length_delta();
       out << image_objs[i][k] << " 0 obj\n"
           << "<< /Type /XObject /Subtype /Image"

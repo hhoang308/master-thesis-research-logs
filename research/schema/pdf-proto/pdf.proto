@@ -4,6 +4,7 @@ package pdf_proto;
 import "modules/cff/cff.proto";  // structured CFF grammar for /FontFile3
 import "modules/type3cache/type3_cache.proto";  // Type 3 cache lifecycle grammar
 import "modules/dctstream/dct_stream.proto";  // DCT/JPEG scan-mode grammar
+import "modules/jpxstream/jpx_stream.proto";  // structured JPX/JPEG 2000 image stream
 
 message Catalog {
   required uint32 pages_ref = 1;
@@ -160,6 +161,7 @@ message ImageXObject {
   optional bool       image_mask         = 6 [default = false]; // /ImageMask true (no /ColorSpace)
   optional bytes      data               = 7;  // stream payload -> decoder
   optional sint32     length_delta       = 8 [default = 0];   // /Length over/under-read
+  optional pdf_jpxstream.JpxStreamDocument jpx = 9;  // structured /JPXDecode payload
 }
 
 message Page {
