@@ -17,6 +17,9 @@ Environment overrides:
   ASAN_OPTIONS    sanitizer options
   DISABLE_ASLR    0/1 to force; default auto = disable ASLR (setarch -R) only for clang < 18
                   (dodges the clang<18 ASan startup SIGSEGV; clang>=18 keeps ASLR on)
+  FORK            short/long: 1 = libFuzzer fork mode (keep fuzzing past crashes,
+                  collect many), 0 = single process / stop on first crash (default: 1)
+  FORK_JOBS       fork-mode parallel workers (default: nproc)
 USAGE
 }
 
@@ -82,6 +85,8 @@ smoke_runs="${SMOKE_RUNS:-100}"
 short_seconds="${SHORT_SECONDS:-1800}"
 long_seconds="${LONG_SECONDS:-28800}"
 asan_options="${ASAN_OPTIONS:-detect_container_overflow=0:detect_leaks=0}"
+fork="${FORK:-1}"
+fork_jobs="${FORK_JOBS:-$(nproc)}"
 
 if [[ "$phase" == "smoke" ]]; then
   max_len="${MAX_LEN:-1024}"
@@ -93,6 +98,15 @@ stamp="$(date -u +%Y%m%dT%H%M%SZ)"
 commit="$(git rev-parse --short HEAD)"
 run_dir="$run_root/${stamp}-${commit}-${phase}"
 mkdir -p "$run_dir"
+
+# short/long fuzz in libFuzzer fork mode: keep fuzzing past crashes and collect
+# every crash/oom/timeout under crash_dir (via -artifact_prefix), instead of the
+# default "exit on first crash". FORK=0 restores single-process stop-on-first.
+crash_dir="$run_dir/crashes"
+fork_args=("-artifact_prefix=$crash_dir/")
+if [[ "$fork" == "1" ]]; then
+  fork_args+=("-fork=$fork_jobs" "-ignore_crashes=1" "-ignore_timeouts=1" "-ignore_ooms=1")
+fi
 
 log="$run_dir/run.log"
 metadata="$run_dir/metadata.txt"
@@ -110,6 +124,9 @@ metadata="$run_dir/metadata.txt"
   echo "corpus_dir=$corpus_dir"
   echo "max_len=$max_len"
   echo "asan_options=$asan_options"
+  echo "fork=$fork"
+  echo "fork_jobs=$fork_jobs"
+  echo "crash_dir=$crash_dir"
   echo "disable_aslr=$disable_aslr"
   echo "no_randomize=${_FUZZ_PHASE_NORANDOM:-0}"
   echo "git_status_short:"
@@ -144,31 +161,29 @@ set +e
     run_logged_env "./$build_dir/verify_serializer"
     run_logged_env "$fuzzer" "-runs=$smoke_runs" "-max_len=$max_len"
   elif [[ "$phase" == "short" ]]; then
-    mkdir -p "$corpus_dir"
+    mkdir -p "$corpus_dir" "$crash_dir"
     run_logged cmake --build "$build_dir" --target pdf_fuzzer
-    run_logged_env "$fuzzer" "-max_total_time=$short_seconds" "-max_len=$max_len" "$corpus_dir"
+    run_logged_env "$fuzzer" "${fork_args[@]}" "-max_total_time=$short_seconds" "-max_len=$max_len" "$corpus_dir"
   else
-    mkdir -p "$corpus_dir"
+    mkdir -p "$corpus_dir" "$crash_dir"
     run_logged cmake --build "$build_dir" --target pdf_fuzzer
-    run_logged_env "$fuzzer" "-max_total_time=$long_seconds" "-max_len=$max_len" "$corpus_dir"
+    run_logged_env "$fuzzer" "${fork_args[@]}" "-max_total_time=$long_seconds" "-max_len=$max_len" "$corpus_dir"
   fi
 } 2>&1 | tee "$log"
 run_status=${PIPESTATUS[0]}
 set -e
 
-# Detect crashes/sanitizer reports regardless of exit status, so a real crash is
-# always annotated (not swallowed when the fuzzer exits non-zero on a finding).
-if grep -Eq "CRASH|ERROR: AddressSanitizer|runtime error:" "$log"; then
-  echo "Finding: sanitizer/crash marker found in $log" >&2
-  exit 1
-fi
-
-if [[ "$run_status" -ne 0 ]]; then
-  echo "Finding: build/verify/fuzzer command exited $run_status (see $log)" >&2
-  exit "$run_status"
-fi
-
 if [[ "$phase" == "smoke" ]]; then
+  # Gate: any crash/sanitizer marker or non-zero exit fails the smoke. The crash
+  # grep runs regardless of exit status so a real crash is always annotated.
+  if grep -Eq "CRASH|ERROR: AddressSanitizer|runtime error:" "$log"; then
+    echo "Finding: sanitizer/crash marker found in $log" >&2
+    exit 1
+  fi
+  if [[ "$run_status" -ne 0 ]]; then
+    echo "Finding: build/verify/fuzzer command exited $run_status (see $log)" >&2
+    exit "$run_status"
+  fi
   require_marker() {
     grep -q "$1" "$log" || {
       echo "smoke: missing expected marker: $1 (see $log)" >&2
@@ -183,6 +198,22 @@ if [[ "$phase" == "smoke" ]]; then
   require_marker "found LLVMFuzzerCustomMutator"
   require_marker "INITED"
   require_marker "DONE"
+else
+  # short/long: in fork mode a crash is collected output, not a failure. Report
+  # how many artifacts landed under crash_dir; only an infra/startup failure
+  # (non-zero exit before the budget completed -- ignore_crashes keeps the
+  # campaign running otherwise) is fatal.
+  crash_n=0
+  [[ -d "$crash_dir" ]] && crash_n=$(find "$crash_dir" -type f 2>/dev/null | wc -l | tr -d ' ')
+  if [[ "$crash_n" -gt 0 ]]; then
+    echo "Finding: $crash_n crash/oom/timeout artifact(s) saved under $crash_dir" >&2
+  elif grep -Eq "CRASH|ERROR: AddressSanitizer|runtime error:" "$log"; then
+    echo "Finding: sanitizer/crash marker in $log but no artifact captured (check $crash_dir)" >&2
+  fi
+  if [[ "$run_status" -ne 0 ]]; then
+    echo "Finding: fuzzer exited $run_status before completing the budget (see $log)" >&2
+    exit "$run_status"
+  fi
 fi
 
 echo "Run log: $log"

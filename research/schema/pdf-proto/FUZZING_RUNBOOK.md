@@ -40,7 +40,24 @@ Useful overrides:
 BUILD_DIR=build ./scripts/run_fuzz_phase.sh smoke
 SHORT_SECONDS=7200 MAX_LEN=65536 ./scripts/run_fuzz_phase.sh short
 LONG_SECONDS=86400 CORPUS_DIR=fuzz-corpus/main ./scripts/run_fuzz_phase.sh long
+FORK_JOBS=8 ./scripts/run_fuzz_phase.sh long     # fork-mode parallel workers
+FORK=0 ./scripts/run_fuzz_phase.sh short         # single process, stop on first crash
 ```
+
+## Fork mode (short / long)
+
+`smoke` is a single-process gate: the first crash fails it. But `short` and `long`
+run libFuzzer in **fork mode** by default (`FORK=1`, `FORK_JOBS=nproc`):
+
+- The campaign keeps fuzzing **past** crashes instead of exiting on the first one
+  (`-fork -ignore_crashes -ignore_timeouts -ignore_ooms`), so a long run collects
+  many distinct crashes over its whole time budget.
+- Every crash/oom/timeout reproducer is saved under `<run_dir>/crashes/`
+  (`-artifact_prefix`), and the run reports how many it collected.
+- A collected crash is **not** a failure: the run still exits 0 when it completes
+  its budget. Only an infra/startup failure (non-zero exit before the budget
+  completes) is fatal. `FORK=0` restores the old single-process, stop-on-first-crash
+  behavior (crash -> non-zero exit).
 
 ## Pass Criteria
 
@@ -58,16 +75,20 @@ Smoke passes when:
 
 Short passes when:
 
-- The fuzzer exits 0 after `SHORT_SECONDS`.
+- The fork campaign runs its full `SHORT_SECONDS` and exits 0 (crashes collected
+  under `<run_dir>/crashes/` do not fail it; an early non-zero exit does).
 - Coverage/feature counts grow or remain explainably stable.
 - Inputs are not rejected before the target area most of the time.
-- Any crash is triaged before merging its corpus into a long run.
+- Any collected crash is triaged before merging its corpus into a long run.
 
 Long passes when:
 
-- The run finishes its configured time budget or is intentionally stopped.
-- Crashes are reproducible under the agreed triage path.
-- The log records commit, command, corpus, sanitizer options, and run directory.
+- The fork campaign finishes its configured time budget (or is intentionally
+  stopped) with exit 0; collected crashes are the expected output, not a failure.
+- Collected crashes under `<run_dir>/crashes/` are reproducible under the agreed
+  triage path.
+- The log/metadata records commit, command, corpus, sanitizer options, fork
+  settings, and run directory.
 
 ## Default Sanitizer Options
 
