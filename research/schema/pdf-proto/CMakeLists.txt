@@ -168,9 +168,53 @@ include_directories(
 )
 
 # ── PoDoFo ────────────────────────────────────────────────────────────────────
+# PODOFO_SOURCE_BUILD (PATH): a from-source podofo build tree whose
+# src/podofo/libpodofo.a was compiled with -fsanitize=address,fuzzer-no-link
+# (ASan + SanitizerCoverage). When set, pdf_fuzzer_podofo links THAT instrumented
+# archive so libFuzzer coverage feedback reaches podofo's OWN parsing code
+# ("coverage-guided into source") and ASan poisons podofo's heap -- mirroring the
+# CFF campaign, which builds xpdf from source so instrumentation reaches the target.
+# Default empty -> fall back to the uninstrumented system libpodofo via pkg-config
+# (coverage-blind inside podofo; how runs 1-4 were fuzzed).
+set(PODOFO_SOURCE_BUILD "" CACHE PATH "From-source instrumented podofo build tree (contains src/podofo/libpodofo.a)")
+
 if(ENABLE_FUZZER_TARGETS AND TARGET xpdf_objs)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(PODOFO libpodofo)
+if(PODOFO_SOURCE_BUILD)
+  get_filename_component(PODOFO_SRC_ROOT "${PODOFO_SOURCE_BUILD}" DIRECTORY)
+  set(PODOFO_INSTR_LIB "${PODOFO_SOURCE_BUILD}/src/podofo/libpodofo.a")
+  if(NOT EXISTS "${PODOFO_INSTR_LIB}")
+    message(FATAL_ERROR "PODOFO_SOURCE_BUILD=${PODOFO_SOURCE_BUILD} but ${PODOFO_INSTR_LIB} is missing -- build podofo from source first (cmake --build ... --target podofo_static)")
+  endif()
+  # -I src (for <podofo/podofo.h>) + -I build tree (for the generated podofo_config.h,
+  # #include'd as "podofo_config.h" from PdfCompilerCompat.h).
+  set(PODOFO_INCLUDE_DIRS "${PODOFO_SRC_ROOT}/src" "${PODOFO_SOURCE_BUILD}")
+  # Static archive -> we must supply podofo's transitive deps explicitly, in the exact
+  # set the from-source build recorded (podofo_static_LIB_DEPENDS): freetype, ssl,
+  # crypto, unistring, z. No jpeg/png/tiff/fontconfig (PODOFO_NO_FONTMANAGER build).
+  # NB: conda-forge clang uses a conda sysroot, so a bare find_library misses system-only
+  # libs (freetype lives in /usr/lib, not conda) -- point it at the multiarch dirs explicitly.
+  find_library(PODOFO_DEP_FREETYPE  NAMES freetype
+               PATHS /usr/lib/x86_64-linux-gnu /lib/x86_64-linux-gnu /usr/lib)
+  find_library(PODOFO_DEP_SSL       NAMES ssl       HINTS ENV CONDA_PREFIX /home/hoangnh8/miniconda3/lib)
+  find_library(PODOFO_DEP_CRYPTO    NAMES crypto    HINTS ENV CONDA_PREFIX /home/hoangnh8/miniconda3/lib)
+  find_library(PODOFO_DEP_UNISTRING NAMES unistring HINTS ENV CONDA_PREFIX /home/hoangnh8/miniconda3/lib)
+  set(PODOFO_LIBRARIES "${PODOFO_INSTR_LIB}"
+      ${PODOFO_DEP_FREETYPE} ${PODOFO_DEP_SSL} ${PODOFO_DEP_CRYPTO} ${PODOFO_DEP_UNISTRING})
+  # conda-forge clang links against the conda sysroot, whose default search path omits
+  # conda's own lib dir -- so bare -lz / -lpthread (hardcoded in the target below) fail.
+  # Add the conda lib dir explicitly (this is where the instrumented podofo's deps live).
+  get_filename_component(_CONDA_BIN "${CMAKE_CXX_COMPILER}" DIRECTORY)
+  get_filename_component(_CONDA_ROOT "${_CONDA_BIN}" DIRECTORY)
+  if(EXISTS "${_CONDA_ROOT}/lib")
+    link_directories("${_CONDA_ROOT}/lib")
+  endif()
+  set(PODOFO_FOUND TRUE)
+  set(PODOFO_VERSION "0.9.7-from-source-instrumented")
+  message(STATUS "PoDoFo: linking INSTRUMENTED from-source archive ${PODOFO_INSTR_LIB}")
+else()
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(PODOFO libpodofo)  # system libpodofo -- UNINSTRUMENTED (coverage-blind)
+endif()
 
 # ── Coverage driver target (COV_BUILD) ───────────────────────────────────────
 if(COV_BUILD)
@@ -296,6 +340,12 @@ if(PODOFO_FOUND)
     ${PROTO_SRCS}
   )
   target_link_options(pdf_fuzzer_podofo PRIVATE -fsanitize=fuzzer,address)
+  if(PODOFO_SOURCE_BUILD)
+    # The from-source podofo links the SYSTEM libfreetype.so, which pulls libpng/harfbuzz/
+    # brotli transitively; the conda ld can't resolve those here. Defer them to runtime --
+    # libfreetype's DT_NEEDED loads them (same trick as the AFL splash target above).
+    target_link_options(pdf_fuzzer_podofo PRIVATE -Wl,--allow-shlib-undefined)
+  endif()
   target_include_directories(pdf_fuzzer_podofo PRIVATE ${PODOFO_INCLUDE_DIRS})
   target_link_libraries(pdf_fuzzer_podofo
     protobuf-mutator-libfuzzer

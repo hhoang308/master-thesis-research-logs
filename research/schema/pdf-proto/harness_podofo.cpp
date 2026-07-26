@@ -4,6 +4,15 @@
 #include "serializer.h"
 #include <podofo/podofo.h>
 
+// Silence PoDoFo's verbose stderr (canvas-dictionary / parse warnings). Left on, it bloated
+// a prior 24h run's fuzzer.log to ~6 GB and drowned libFuzzer's own stat lines. Real
+// sanitizer aborts still print. LLVMFuzzerInitialize runs once before fuzzing begins.
+extern "C" int LLVMFuzzerInitialize(int*, char***) {
+    PoDoFo::PdfError::EnableLogging(false);
+    PoDoFo::PdfError::EnableDebug(false);
+    return 0;
+}
+
 // PoDoFo parses lazily: LoadFromBuffer + GetPageCount only touches the structure
 // (xref/trailer/catalog/page-tree). To exercise real depth we must (1) tokenize each
 // page's content stream -- which decodes it through its filter chain -- and (2) force
