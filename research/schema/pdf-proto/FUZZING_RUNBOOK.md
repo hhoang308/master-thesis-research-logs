@@ -39,25 +39,49 @@ Useful overrides:
 ```bash
 BUILD_DIR=build ./scripts/run_fuzz_phase.sh smoke
 SHORT_SECONDS=7200 MAX_LEN=65536 ./scripts/run_fuzz_phase.sh short
-LONG_SECONDS=86400 CORPUS_DIR=fuzz-corpus/main ./scripts/run_fuzz_phase.sh long
-FORK_JOBS=8 ./scripts/run_fuzz_phase.sh long     # fork-mode parallel workers
-FORK=0 ./scripts/run_fuzz_phase.sh short         # single process, stop on first crash
+LONG_SECONDS=86400 ./scripts/run_fuzz_phase.sh long          # AFL long (default engine)
+LONG_ENGINE=libfuzzer ./scripts/run_fuzz_phase.sh long       # libFuzzer fork-mode long instead
+FORK_JOBS=8 ./scripts/run_fuzz_phase.sh short                # more fork workers (RAM permitting)
+FORK=0 ./scripts/run_fuzz_phase.sh short                     # single process, stop on first crash
 ```
 
-## Fork mode (short / long)
+## Engines per phase
 
-`smoke` is a single-process gate: the first crash fails it. But `short` and `long`
-run libFuzzer in **fork mode** by default (`FORK=1`, `FORK_JOBS=nproc`):
+`smoke` is a single-process libFuzzer gate: the first crash fails it. `short` runs
+**libFuzzer fork mode**; `long` runs **AFL++ persistent mode** by default, or
+libFuzzer fork mode with `LONG_ENGINE=libfuzzer`.
 
-- The campaign keeps fuzzing **past** crashes instead of exiting on the first one
-  (`-fork -ignore_crashes -ignore_timeouts -ignore_ooms`), so a long run collects
-  many distinct crashes over its whole time budget.
+### libFuzzer fork mode (short; long with LONG_ENGINE=libfuzzer)
+
+`FORK=1` (default). `FORK_JOBS` defaults to a few workers -- **not** nproc, because
+ASan workers are memory-hungry and too many thrash RAM (coverage stalls at 0, the
+time budget overruns). Behaviour:
+
+- Keeps fuzzing **past** crashes instead of exiting on the first
+  (`-fork -ignore_crashes -ignore_timeouts -ignore_ooms`), collecting many distinct
+  crashes over the whole time budget.
 - Every crash/oom/timeout reproducer is saved under `<run_dir>/crashes/`
-  (`-artifact_prefix`), and the run reports how many it collected.
-- A collected crash is **not** a failure: the run still exits 0 when it completes
-  its budget. Only an infra/startup failure (non-zero exit before the budget
-  completes) is fatal. `FORK=0` restores the old single-process, stop-on-first-crash
-  behavior (crash -> non-zero exit).
+  (`-artifact_prefix`); the run reports how many it collected.
+- A collected crash is **not** a failure: the run exits 0 when it completes its
+  budget. Only an infra/startup failure (non-zero exit before the budget completes)
+  is fatal. `FORK=0` restores single-process, stop-on-first-crash.
+
+### AFL++ long (default: LONG_ENGINE=afl)
+
+`long` defaults to AFL++ persistent mode against the `build-afl-asan` harness
+(`afl-clang-fast` + ASan) driven by the proto custom mutator -- a different engine
+from libFuzzer, so the two find different bugs.
+
+- AFL corpus/seeds/crashes are **binary `PdfDocument` protos**. Seeds are
+  auto-generated with `gen_corpus --binary` into `AFL_SEEDS` (default
+  `fuzz-corpus/afl-seeds`) when empty. Crashes stay protos -- convert one to a
+  portable `.pdf` with `proto2pdf`.
+- Runs for `LONG_SECONDS` via `afl-fuzz -V`, `-m none` (ASan), custom mutator only
+  (`AFL_CUSTOM_MUTATOR_ONLY=1`; CmpLog stays off). Output goes to `<run_dir>/afl-out/`;
+  crashes under `<run_dir>/afl-out/default/crashes/`.
+- Like fork mode, a collected crash is not a failure: the run exits 0 on budget
+  completion and reports the crash count. The AFL toolchain is conda-based and needs
+  `CONDA_LIB` (default `$CONDA_PREFIX/lib`) on the loader path -- the runner sets it.
 
 ## Pass Criteria
 
@@ -83,12 +107,14 @@ Short passes when:
 
 Long passes when:
 
-- The fork campaign finishes its configured time budget (or is intentionally
-  stopped) with exit 0; collected crashes are the expected output, not a failure.
-- Collected crashes under `<run_dir>/crashes/` are reproducible under the agreed
-  triage path.
-- The log/metadata records commit, command, corpus, sanitizer options, fork
-  settings, and run directory.
+- The campaign (AFL++ by default, or libFuzzer fork mode) finishes its configured
+  time budget (or is intentionally stopped) with exit 0; collected crashes are the
+  expected output, not a failure.
+- Collected crashes are reproducible under the agreed triage path -- for AFL under
+  `<run_dir>/afl-out/default/crashes/` (protos; `proto2pdf` them first), for
+  libFuzzer under `<run_dir>/crashes/`.
+- The log/metadata records commit, command, engine, sanitizer options, and run
+  directory.
 
 ## Default Sanitizer Options
 

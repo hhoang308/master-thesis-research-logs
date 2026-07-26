@@ -20,6 +20,11 @@ Environment overrides:
   FORK            short/long: 1 = libFuzzer fork mode (keep fuzzing past crashes,
                   collect many), 0 = single process / stop on first crash (default: 1)
   FORK_JOBS       fork-mode parallel workers (default: nproc)
+  LONG_ENGINE     long phase engine: afl (AFL++ persistent mode) or libfuzzer (default: afl)
+  AFL_BUILD_DIR   AFL harness build dir (default: build-afl-asan)
+  AFL_SEEDS       AFL seed dir of binary protos (auto-generated if empty; default: fuzz-corpus/afl-seeds)
+  AFL_TIMEOUT_MS  afl-fuzz per-exec timeout in ms (default: 2000)
+  CONDA_LIB       conda lib dir for the AFL toolchain (default: \$CONDA_PREFIX/lib)
 USAGE
 }
 
@@ -86,7 +91,22 @@ short_seconds="${SHORT_SECONDS:-1800}"
 long_seconds="${LONG_SECONDS:-28800}"
 asan_options="${ASAN_OPTIONS:-detect_container_overflow=0:detect_leaks=0}"
 fork="${FORK:-1}"
-fork_jobs="${FORK_JOBS:-$(nproc)}"
+# ASan libFuzzer workers are memory-hungry (~1-2 GB each under load); defaulting to
+# nproc thrashes RAM on core-rich/RAM-poor hosts (coverage stalls at 0, the time
+# budget overruns). Default to a few; raise FORK_JOBS when you have the RAM.
+fork_jobs="${FORK_JOBS:-$(( $(nproc) < 4 ? $(nproc) : 4 ))}"
+
+# long phase engine: 'afl' (AFL++ persistent mode via build-afl-asan + the proto
+# custom mutator) or 'libfuzzer' (the fork-mode libFuzzer path).
+long_engine="${LONG_ENGINE:-afl}"
+afl_build_dir="${AFL_BUILD_DIR:-build-afl-asan}"
+afl_harness="${AFL_HARNESS:-./$afl_build_dir/afl_harness_xpdf}"
+afl_mutator="${AFL_MUTATOR:-$project_dir/afl/afl_pdf_mutator.so}"
+afl_seeds="${AFL_SEEDS:-fuzz-corpus/afl-seeds}"
+afl_timeout_ms="${AFL_TIMEOUT_MS:-2000}"
+# AFL toolchain (afl-fuzz, afl-clang-fast target, gen_corpus) is conda-based and
+# needs conda's lib on the loader path at runtime.
+conda_lib="${CONDA_LIB:-${CONDA_PREFIX:-/home/hoangnh8/miniconda3}/lib}"
 
 if [[ "$phase" == "smoke" ]]; then
   max_len="${MAX_LEN:-1024}"
@@ -99,10 +119,15 @@ commit="$(git rev-parse --short HEAD)"
 run_dir="$run_root/${stamp}-${commit}-${phase}"
 mkdir -p "$run_dir"
 
-# short/long fuzz in libFuzzer fork mode: keep fuzzing past crashes and collect
-# every crash/oom/timeout under crash_dir (via -artifact_prefix), instead of the
-# default "exit on first crash". FORK=0 restores single-process stop-on-first.
-crash_dir="$run_dir/crashes"
+# short/long keep fuzzing past crashes and collect every crash. libFuzzer fork
+# mode saves them under crash_dir via -artifact_prefix (FORK=0 restores
+# single-process stop-on-first); AFL long saves them under its own out dir.
+if [[ "$phase" == "long" && "$long_engine" == "afl" ]]; then
+  afl_out="$run_dir/afl-out"
+  crash_dir="$afl_out/default/crashes"
+else
+  crash_dir="$run_dir/crashes"
+fi
 fork_args=("-artifact_prefix=$crash_dir/")
 if [[ "$fork" == "1" ]]; then
   fork_args+=("-fork=$fork_jobs" "-ignore_crashes=1" "-ignore_timeouts=1" "-ignore_ooms=1")
@@ -127,6 +152,16 @@ metadata="$run_dir/metadata.txt"
   echo "fork=$fork"
   echo "fork_jobs=$fork_jobs"
   echo "crash_dir=$crash_dir"
+  if [[ "$phase" == "long" ]]; then
+    echo "long_engine=$long_engine"
+    if [[ "$long_engine" == "afl" ]]; then
+      echo "afl_build_dir=$afl_build_dir"
+      echo "afl_harness=$afl_harness"
+      echo "afl_mutator=$afl_mutator"
+      echo "afl_seeds=$afl_seeds"
+      echo "afl_timeout_ms=$afl_timeout_ms"
+    fi
+  fi
   echo "disable_aslr=$disable_aslr"
   echo "no_randomize=${_FUZZ_PHASE_NORANDOM:-0}"
   echo "git_status_short:"
@@ -143,6 +178,42 @@ run_logged_env() {
   echo
   echo "+ ASAN_OPTIONS=$asan_options $*"
   env ASAN_OPTIONS="$asan_options" "$@"
+}
+
+# AFL++ long campaign: persistent-mode target (afl-clang-fast, ASan) + the proto
+# custom mutator. Unlike libFuzzer it keeps fuzzing past crashes by default, saving
+# each to $afl_out/default/crashes as a serialized PdfDocument proto (convert with
+# proto2pdf for a portable .pdf). Runs for $long_seconds via afl-fuzz -V.
+run_afl_long() {
+  # Seeds are binary PdfDocument protos; seed a starter set if the dir is empty.
+  if [[ ! -d "$afl_seeds" || -z "$(ls -A "$afl_seeds" 2>/dev/null)" ]]; then
+    mkdir -p "$afl_seeds"
+    run_logged cmake --build "$build_dir" --target gen_corpus
+    echo
+    echo "+ gen_corpus $afl_seeds 200 12345 --binary --with-cve-seeds"
+    env LD_LIBRARY_PATH="$conda_lib:${LD_LIBRARY_PATH:-}" \
+      "./$build_dir/gen_corpus" "$afl_seeds" 200 12345 --binary --with-cve-seeds
+  fi
+  run_logged env LD_LIBRARY_PATH="$conda_lib:${LD_LIBRARY_PATH:-}" \
+    cmake --build "$afl_build_dir" --target afl_harness_xpdf
+  if [[ ! -f "$afl_mutator" ]]; then
+    echo "AFL custom mutator missing: $afl_mutator -- run afl/build_mutator.sh" >&2
+    return 1
+  fi
+  mkdir -p "$afl_out"
+  echo
+  echo "+ afl-fuzz -i $afl_seeds -o $afl_out -m none -t $afl_timeout_ms -V $long_seconds -- $afl_harness"
+  # AFL_CUSTOM_MUTATOR_ONLY=1: proto-aware mutation only (byte havoc would corrupt
+  # the proto). AFL_I_DONT_CARE...: core_pattern is the apport pipe here; ASan (not
+  # cores) reports crashes, so this only silences the check. -m none: ASan maps a
+  # huge address space. CmpLog stays OFF (it patches bytes meaningless post-serialize).
+  env \
+    LD_LIBRARY_PATH="$conda_lib:${LD_LIBRARY_PATH:-}" \
+    AFL_SKIP_CPUFREQ=1 AFL_I_DONT_CARE_ABOUT_MISSING_CRASHES=1 AFL_NO_UI=1 AFL_AUTORESUME=1 \
+    AFL_CUSTOM_MUTATOR_LIBRARY="$afl_mutator" AFL_CUSTOM_MUTATOR_ONLY=1 \
+    ASAN_OPTIONS="$asan_options:abort_on_error=1:symbolize=0" \
+    afl-fuzz -i "$afl_seeds" -o "$afl_out" -m none -t "$afl_timeout_ms" -V "$long_seconds" \
+    -- "$afl_harness"
 }
 
 # Disable errexit for the parent so a non-zero pipeline (e.g. the fuzzer exiting
@@ -164,6 +235,8 @@ set +e
     mkdir -p "$corpus_dir" "$crash_dir"
     run_logged cmake --build "$build_dir" --target pdf_fuzzer
     run_logged_env "$fuzzer" "${fork_args[@]}" "-max_total_time=$short_seconds" "-max_len=$max_len" "$corpus_dir"
+  elif [[ "$long_engine" == "afl" ]]; then
+    run_afl_long
   else
     mkdir -p "$corpus_dir" "$crash_dir"
     run_logged cmake --build "$build_dir" --target pdf_fuzzer
@@ -199,12 +272,11 @@ if [[ "$phase" == "smoke" ]]; then
   require_marker "INITED"
   require_marker "DONE"
 else
-  # short/long: in fork mode a crash is collected output, not a failure. Report
-  # how many artifacts landed under crash_dir; only an infra/startup failure
-  # (non-zero exit before the budget completed -- ignore_crashes keeps the
-  # campaign running otherwise) is fatal.
+  # short/long: a crash is collected output (libFuzzer fork mode or AFL), not a
+  # failure. Report how many landed under crash_dir; only an infra/startup failure
+  # (non-zero exit before the budget completed) is fatal.
   crash_n=0
-  [[ -d "$crash_dir" ]] && crash_n=$(find "$crash_dir" -type f 2>/dev/null | wc -l | tr -d ' ')
+  [[ -d "$crash_dir" ]] && crash_n=$(find "$crash_dir" -type f -not -name 'README.txt' 2>/dev/null | wc -l | tr -d ' ')
   if [[ "$crash_n" -gt 0 ]]; then
     echo "Finding: $crash_n crash/oom/timeout artifact(s) saved under $crash_dir" >&2
   elif grep -Eq "CRASH|ERROR: AddressSanitizer|runtime error:" "$log"; then
