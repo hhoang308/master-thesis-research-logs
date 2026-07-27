@@ -1,0 +1,224 @@
+digraph JpxStreamAst {
+  graph [
+    label="JpxStreamDocument schema AST and CVE-2022-24107 trigger path",
+    labelloc=t,
+    fontsize=22,
+    fontname="Helvetica",
+    rankdir=TB,
+    bgcolor="white",
+    pad=0.35,
+    nodesep=0.42,
+    ranksep=0.65,
+    splines=ortho
+  ];
+
+  node [
+    shape=box,
+    style="rounded,filled",
+    fontname="Helvetica",
+    fontsize=11,
+    margin="0.08,0.05",
+    color="#5f6f85",
+    fillcolor="#f7f9fc",
+    fontcolor="#182230"
+  ];
+
+  edge [
+    fontname="Helvetica",
+    fontsize=10,
+    color="#667085",
+    arrowsize=0.7
+  ];
+
+  root [
+    label="message JpxStreamDocument\npackage pdf_jpxstream",
+    shape=box,
+    fillcolor="#e8f1ff",
+    color="#2f6db3",
+    penwidth=2
+  ];
+
+  subgraph cluster_proto_ast {
+    label="Proto AST";
+    color="#b8c7dc";
+    style="rounded,dashed";
+    fontsize=16;
+
+    siz_group [
+      label="SIZ marker fields\nimage + tile geometry",
+      fillcolor="#fff4e5",
+      color="#d98c00"
+    ];
+    cod_group [
+      label="COD marker fields\ncoding style",
+      fillcolor="#eef8ee",
+      color="#3f8f46"
+    ];
+    qcd_group [
+      label="QCD marker fields\nquantization defaults",
+      fillcolor="#eef8ee",
+      color="#3f8f46"
+    ];
+    tile_group [
+      label="Tile-part fields\nSOT/SOD payload",
+      fillcolor="#f2edff",
+      color="#7a5cc7"
+    ];
+    pdf_group [
+      label="PDF wrapper fields\nstandalone XObject metadata",
+      fillcolor="#f2f4f7",
+      color="#667085"
+    ];
+    enum_group [
+      label="enum PdfColorSpace\nDEVICE_GRAY | DEVICE_RGB | DEVICE_CMYK",
+      fillcolor="#f2f4f7",
+      color="#667085"
+    ];
+
+    root -> siz_group;
+    root -> cod_group;
+    root -> qcd_group;
+    root -> tile_group;
+    root -> pdf_group;
+    root -> enum_group;
+
+    width [label="width = 65536\noptional uint32"];
+    height [label="height = 65536\noptional uint32"];
+    offsets [label="x_offset, y_offset\n= 0"];
+    tile_width [label="tile_width = 65536\noptional uint32"];
+    tile_height [label="tile_height = 65536\noptional uint32"];
+    tile_offsets [label="tile_x_offset,\ntile_y_offset = 0"];
+    components [label="components = 1\nbits_per_component = 8"];
+    separations [label="x/y_sample_separation = 1"];
+
+    siz_group -> width;
+    siz_group -> height;
+    siz_group -> offsets;
+    siz_group -> tile_width;
+    siz_group -> tile_height;
+    siz_group -> tile_offsets;
+    siz_group -> components;
+    siz_group -> separations;
+
+    progression [label="progression_order = 0\nLRCP"];
+    layers [label="layers = 1"];
+    mct [label="multi_component_transform = 0"];
+    decomp [label="decomposition_levels = 1"];
+    cb_exp [label="code_block_width/height\nexp_minus2 = 8"];
+    cb_style [label="code_block_style = 0"];
+    transform [label="transform = 1\nreversible 5-3"];
+
+    cod_group -> progression;
+    cod_group -> layers;
+    cod_group -> mct;
+    cod_group -> decomp;
+    cod_group -> cb_exp;
+    cod_group -> cb_style;
+    cod_group -> transform;
+
+    quant_steps [label="repeated quant_steps\nserializer pads to >= 3*N + 1"];
+    qcd_group -> quant_steps;
+
+    tile_index [label="tile_index = 0"];
+    payload [label="tile_part_payload_bytes = 0"];
+    include_eoc [label="include_eoc = true"];
+    tile_group -> tile_index;
+    tile_group -> payload;
+    tile_group -> include_eoc;
+
+    pdf_size [label="pdf_width/pdf_height = 1"];
+    pdf_cs [label="pdf_color_space = DEVICE_GRAY"];
+    display [label="display_scale = 128"];
+    pdf_group -> pdf_size;
+    pdf_group -> pdf_cs;
+    pdf_group -> display;
+  }
+
+  subgraph cluster_serialized {
+    label="Serializer output";
+    color="#b8c7dc";
+    style="rounded,dashed";
+    fontsize=16;
+
+    codestream [
+      label="SerializeJpxCodestream()",
+      fillcolor="#e8f1ff",
+      color="#2f6db3"
+    ];
+    pdf [
+      label="SerializeJpxPdf()\n/JPXDecode image XObject",
+      fillcolor="#e8f1ff",
+      color="#2f6db3"
+    ];
+
+    soc [label="SOC\nFF4F"];
+    siz [label="SIZ\nFF51"];
+    cod [label="COD\nFF52"];
+    qcd [label="QCD\nFF5C"];
+    sot [label="SOT\nFF90"];
+    sod [label="SOD\nFF93"];
+    eoc [label="EOC\nFFD9"];
+
+    codestream -> soc;
+    codestream -> siz;
+    codestream -> cod;
+    codestream -> qcd;
+    codestream -> sot;
+    codestream -> sod;
+    codestream -> eoc;
+    pdf -> codestream [label="stream bytes"];
+  }
+
+  subgraph cluster_bug_path {
+    label="CVE-2022-24107 bug path annotation";
+    color="#d92d20";
+    style="rounded,dashed";
+    fontsize=16;
+
+    xpdf_siz [
+      label="Xpdf JPXStream::readCodestream()\nreads SIZ dimensions",
+      fillcolor="#fff1f0",
+      color="#d92d20"
+    ];
+    tile_dims [
+      label="JPXStream::readTilePart()\ntileComp->w = 65536\ntileComp->h = 65536",
+      fillcolor="#fff1f0",
+      color="#d92d20"
+    ];
+    overflow [
+      label="xpdf 4.03:\ntileComp->w * tileComp->h\nwraps before gmallocn()",
+      fillcolor="#fee4e2",
+      color="#d92d20",
+      penwidth=2
+    ];
+    crash [
+      label="ASan crash:\nnull write in JPXStream::readTilePart()",
+      fillcolor="#fee4e2",
+      color="#d92d20",
+      penwidth=2
+    ];
+    fixed [
+      label="xpdf 4.04 guard:\ntileComp->w > INT_MAX / tileComp->h\n=> syntax error, no crash",
+      fillcolor="#ecfdf3",
+      color="#039855",
+      penwidth=2
+    ];
+
+    xpdf_siz -> tile_dims;
+    tile_dims -> overflow [label="vulnerable version"];
+    overflow -> crash;
+    tile_dims -> fixed [label="fixed version"];
+  }
+
+  siz_group -> codestream [label="emits SIZ payload", color="#d98c00"];
+  cod_group -> codestream [label="emits COD payload", color="#3f8f46"];
+  qcd_group -> codestream [label="emits QCD payload", color="#3f8f46"];
+  tile_group -> codestream [label="emits SOT/SOD/EOC", color="#7a5cc7"];
+  pdf_group -> pdf [label="emits PDF wrapper", color="#667085"];
+
+  width -> siz [color="#d98c00"];
+  height -> siz [color="#d98c00"];
+  tile_width -> siz [color="#d98c00", penwidth=2];
+  tile_height -> siz [color="#d98c00", penwidth=2];
+  siz -> xpdf_siz [label="parser input", color="#d92d20", penwidth=2];
+}
