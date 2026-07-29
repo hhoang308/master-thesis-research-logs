@@ -15,6 +15,7 @@ research/targets/xpdf/
   4.02/source/      # generated, ignored
   4.02/build-asan/  # generated, ignored
   4.03/source/      # generated, ignored
+  4.05/source/      # generated, ignored
   4.06/source/      # generated, ignored
 ```
 
@@ -24,6 +25,7 @@ research/targets/xpdf/
 cd /home/parkle/master-thesis-research-logs/research/targets/xpdf
 ./fetch.sh xpdf 4.02
 ./fetch.sh xpdf 4.03
+./fetch.sh xpdf 4.05
 ./fetch.sh xpdf 4.06
 ```
 
@@ -35,6 +37,7 @@ extracts it into `<version>/source`, and applies tracked patches when needed.
 ```sh
 ./build.sh xpdf 4.02 asan --target pdftops
 ./build.sh xpdf 4.03 asan --target pdftops
+./build.sh xpdf 4.05 asan --target pdftops
 ./build.sh xpdf 4.06 afl --target pdftotext
 ```
 
