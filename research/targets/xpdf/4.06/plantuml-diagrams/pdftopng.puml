@@ -1,0 +1,51 @@
+@startuml
+title pdftopng - rasterize PDF to PNG audit sequence
+autonumber
+
+actor User
+participant "pdftopng.cc\nmain()" as Main
+participant "GlobalParams" as Params
+participant "PDFDoc" as Doc
+participant "Catalog/Page" as Page
+participant "SplashOutputDev" as SplashOut
+participant "SplashBitmap" as Bitmap
+participant "Gfx" as Gfx
+participant "Parser/Lexer" as Parser
+participant "Stream filters" as Filters
+participant "libpng writer" as PNG
+
+User -> Main : pdftopng [options] input.pdf root
+Main -> Params : new GlobalParams(cfg)
+Main -> Doc : new PDFDoc(fileName, ownerPW, userPW)
+Doc -> Doc : setup xref, encryption, catalog
+Main -> SplashOut : new SplashOutputDev(colorMode, alpha)
+SplashOut -> SplashOut : startDoc(xref)
+
+loop pages
+  Main -> Doc : displayPage(SplashOut, pg, resolution, rotate)
+  Doc -> Page : Page::displaySlice()
+  Page -> Gfx : new Gfx(doc, SplashOut, resources)
+  Gfx -> Parser : content stream getObj()
+  Parser -> Filters : stream addFilters()
+  Gfx -> SplashOut : render paths/text/images/shadings/transparency
+  SplashOut -> Bitmap : getBitmap()
+  note right of Bitmap
+  MEMORY AUDIT:
+  - Bitmap width/height/row size.
+  - Alpha channel and matte handling.
+  - Free after PNG write; avoid UAF on bitmap pointer.
+  end note
+  Main -> PNG : writePNG(bitmap rows)
+  note right of PNG
+  MEMORY AUDIT:
+  - PNG row pointer allocation.
+  - Color mode conversion.
+  - File handle cleanup on png errors.
+  end note
+end
+
+Main -> SplashOut : delete
+Main -> Doc : delete
+Main -> Params : delete
+Main -> Main : Object::memCheck(); gMemReport()
+@enduml

@@ -1,0 +1,59 @@
+@startuml
+title pdftotext - text extraction audit sequence
+autonumber
+
+actor User
+participant "pdftotext.cc\nmain()" as Main
+participant "GlobalParams" as Params
+participant "PDFDoc" as Doc
+participant "XRef" as XRef
+participant "SecurityHandler" as Sec
+participant "Catalog/Page" as Page
+participant "TextOutputDev" as TextOut
+participant "Gfx" as Gfx
+participant "Parser/Lexer" as Parser
+participant "Stream filters" as Filters
+participant "GfxFont/CMap" as Fonts
+participant "Output file" as OutFile
+
+User -> Main : pdftotext [options] input.pdf output.txt
+Main -> Main : parseArgs()
+Main -> Params : new GlobalParams(cfg)
+Params -> Params : set text encoding/EOL/layout/table options
+Main -> Doc : new PDFDoc(fileName, ownerPW, userPW)
+Doc -> XRef : read xref/object streams
+Doc -> Sec : checkEncryption()
+Doc -> Doc : load Catalog, Annots, OptionalContent
+Main -> Doc : okToCopy()
+
+Main -> TextOut : new TextOutputDev(file, options)
+note right of TextOut
+MEMORY AUDIT:
+- TextPage word/line arrays grow per page.
+- Layout/table modes allocate positional buckets.
+- Tiny char filtering and ActualText handling.
+end note
+
+Main -> Doc : displayPages(TextOut, first, last, 72 dpi)
+loop each page
+  Doc -> Page : getPage(page)->display()
+  Page -> Gfx : new Gfx(doc, TextOut, resources)
+  Gfx -> Parser : parse content stream ops
+  Parser -> Filters : decode Flate/DCT/JBIG2/JPX/etc as encountered
+  Gfx -> Fonts : load font, encoding, ToUnicode/CMap
+  note right of Fonts
+  MEMORY AUDIT:
+  - UseCMap recursion/object loops.
+  - CID widths arrays W/W2.
+  - Embedded font parsing if needed.
+  end note
+  Gfx -> TextOut : beginStringOp()/drawChar()/endStringOp()
+  Page -> Gfx : draw form fields/annotations if enabled
+end
+
+TextOut -> OutFile : write text in selected encoding
+Main -> TextOut : delete
+Main -> Doc : delete
+Main -> Params : delete
+Main -> Main : Object::memCheck(); gMemReport()
+@enduml

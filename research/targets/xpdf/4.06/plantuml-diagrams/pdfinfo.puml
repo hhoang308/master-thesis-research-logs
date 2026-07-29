@@ -1,0 +1,60 @@
+@startuml
+title pdfinfo - metadata/catalog/page-info audit sequence
+autonumber
+
+actor User
+participant "pdfinfo.cc\nmain()" as Main
+participant "GlobalParams" as Params
+participant "UnicodeMap" as UMap
+participant "PDFDoc" as Doc
+participant "XRef" as XRef
+participant "SecurityHandler" as Sec
+participant "Catalog" as Catalog
+participant "ZxDoc\nXMP parser" as XMP
+participant "Page" as Page
+
+User -> Main : pdfinfo [options] input.pdf
+Main -> Main : parseArgs()
+Main -> Params : new GlobalParams(cfg)
+Main -> UMap : getTextEncoding()
+Main -> Doc : new PDFDoc(fileName, ownerPW, userPW)
+Doc -> XRef : read xref table/xref stream/object streams
+XRef -> XRef : build object table and trailer dict
+Doc -> Sec : check Encrypt dict and permissions
+Doc -> Catalog : new Catalog(this)
+Doc -> Catalog : load page tree, names, AcroForm, OCProperties
+
+Main -> Doc : getDocInfo(&info)
+Main -> Doc : readMetadata()
+alt metadata stream present
+  Main -> XMP : ZxDoc::loadMem(metadata bytes)
+  note right of XMP
+  MEMORY AUDIT:
+  - Metadata stream decoded length.
+  - XMP parser allocation from loadMem().
+  end note
+end
+
+Main -> Catalog : getStructTreeRoot()
+Main -> Catalog : getAcroForm()
+Main -> Doc : getNumPages()
+Main -> XRef : getEncryption()
+Main -> Doc : okToPrint/copy/change/addNotes()
+
+loop selected pages
+  Main -> Catalog : getPage(pg)
+  Catalog -> Page : expose page boxes, rotate, UserUnit
+  Main -> Page : MediaBox/CropBox/BleedBox/TrimBox/ArtBox
+  note right of Page
+  MEMORY AUDIT:
+  - Page tree recursion and Count.
+  - Very large page box coordinates.
+  - Page label tree recursion.
+  end note
+end
+
+Main -> UMap : decRefCnt()
+Main -> Doc : delete
+Main -> Params : delete
+Main -> Main : Object::memCheck(); gMemReport()
+@enduml

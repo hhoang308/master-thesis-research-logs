@@ -1,0 +1,54 @@
+@startuml
+title pdfimages - image extraction audit sequence
+autonumber
+
+actor User
+participant "pdfimages.cc\nmain()" as Main
+participant "GlobalParams" as Params
+participant "PDFDoc" as Doc
+participant "Catalog/Page" as Page
+participant "ImageOutputDev" as ImgOut
+participant "Gfx" as Gfx
+participant "Parser/Lexer" as Parser
+participant "Stream filters" as Filters
+participant "Raw/image writers" as Writer
+
+User -> Main : pdfimages [options] input.pdf image-root
+Main -> Main : parseArgs()
+Main -> Params : new GlobalParams(cfg)
+Main -> Doc : new PDFDoc(fileName, ownerPW, userPW)
+Doc -> Doc : setup xref, encryption, catalog
+Main -> ImgOut : new ImageOutputDev(root, dumpJPEG, dumpRaw, list)
+ImgOut -> ImgOut : startDoc(xref)
+
+Main -> Doc : displayPages(ImgOut, first, last, 72 dpi)
+loop pages
+  Doc -> Page : Page::display()
+  Page -> Gfx : new Gfx(doc, ImgOut, resources)
+  Gfx -> Parser : parse page content and XObject streams
+  Parser -> Filters : decode content stream
+  Gfx -> ImgOut : drawImageMask()
+  Gfx -> ImgOut : drawImage()
+  Gfx -> ImgOut : drawMaskedImage()
+  Gfx -> ImgOut : drawSoftMaskedImage()
+  note right of ImgOut
+  MEMORY AUDIT:
+  - Width/Height/BPC/ColorSpace from image dict.
+  - Mask/SMask/Matte ownership.
+  - Raw stream shortcut vs decoded image path.
+  - File extension chosen from filter chain.
+  end note
+  alt raw or JPEG extraction
+    ImgOut -> Filters : getRawStream(str)
+    Filters -> Writer : copy raw bytes
+  else decoded image extraction
+    ImgOut -> Filters : read pixels through image stream
+    Filters -> Writer : write PBM/PGM/PPM/JPEG metadata
+  end
+end
+
+Main -> ImgOut : delete
+Main -> Doc : delete
+Main -> Params : delete
+Main -> Main : Object::memCheck(); gMemReport()
+@enduml

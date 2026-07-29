@@ -1,0 +1,55 @@
+@startuml
+title pdftoppm - rasterize PDF to PBM/PGM/PPM audit sequence
+autonumber
+
+actor User
+participant "pdftoppm.cc\nmain()" as Main
+participant "GlobalParams" as Params
+participant "PDFDoc" as Doc
+participant "Catalog/Page" as Page
+participant "SplashOutputDev" as SplashOut
+participant "Splash" as Splash
+participant "Gfx" as Gfx
+participant "Parser/Lexer" as Parser
+participant "Stream filters" as Filters
+participant "Bitmap writer" as Writer
+
+User -> Main : pdftoppm [options] input.pdf root
+Main -> Main : parseArgs()
+Main -> Params : new GlobalParams(cfg)
+Main -> Doc : new PDFDoc(fileName, ownerPW, userPW)
+Doc -> Doc : setup xref, encryption, catalog
+Main -> SplashOut : new SplashOutputDev(colorMode, alpha, paperColor)
+SplashOut -> SplashOut : startDoc(doc->getXRef())
+
+loop pages
+  Main -> Doc : displayPage(SplashOut, pg, resolution, rotate, boxes)
+  Doc -> Page : Page::displaySlice()
+  Page -> SplashOut : checkPageSlice(page, dpi, slice)
+  SplashOut -> Splash : allocate bitmap(width, height, colorMode)
+  note right of Splash
+  MEMORY AUDIT:
+  - width/height from page box * resolution.
+  - integer overflow in pixel count/row size.
+  - alpha buffer and mono/gray/rgb mode conversion.
+  end note
+  Page -> Gfx : new Gfx(doc, SplashOut, resources)
+  Gfx -> Parser : parse content stream operators
+  Parser -> Filters : decode image/content/filter streams
+  Gfx -> SplashOut : draw text, paths, images, masks, shadings
+  SplashOut -> SplashOut : transparency groups and soft masks
+  note right of SplashOut
+  MEMORY AUDIT:
+  - drawImage/drawMaskedImage/drawSoftMaskedImage.
+  - JPX/JBIG2/DCT decoded dimensions.
+  - Pattern/shading recursion.
+  end note
+  Main -> SplashOut : getBitmap()
+  Main -> Writer : write PBM/PGM/PPM
+end
+
+Main -> SplashOut : delete
+Main -> Doc : delete
+Main -> Params : delete
+Main -> Main : Object::memCheck(); gMemReport()
+@enduml

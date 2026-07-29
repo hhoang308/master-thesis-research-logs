@@ -1,0 +1,73 @@
+@startuml
+title pdftops - PDF to PostScript/EPS audit sequence
+autonumber
+
+actor User
+participant "pdftops.cc\nmain()" as Main
+participant "GlobalParams" as Params
+participant "PDFDoc" as Doc
+participant "XRef" as XRef
+participant "SecurityHandler" as Sec
+participant "Catalog/Page" as Page
+participant "PreScanOutputDev" as PreScan
+participant "PSOutputDev" as PSOut
+participant "SplashOutputDev\n(optional)" as SplashOut
+participant "Gfx" as Gfx
+participant "Parser/Lexer" as Parser
+participant "Stream filters" as Filters
+participant "FoFi font parsers" as FoFi
+
+User -> Main : pdftops [options] input.pdf output.ps
+Main -> Main : parseArgs()
+Main -> Params : new GlobalParams(cfg)
+Main -> Doc : new PDFDoc(fileName, ownerPW, userPW)
+Doc -> XRef : read xref table/stream/object streams
+Doc -> Sec : checkEncryption()
+Doc -> Doc : new Catalog, Annots, OptionalContent
+
+Main -> PSOut : new PSOutputDev(output, doc, options)
+note right of PSOut
+MEMORY AUDIT:
+- Large page sizes, raster slices, nStripes.
+- Font embedding buffers.
+- Image preloading and stream copies.
+- PS string/name escaping sizes.
+end note
+
+PSOut -> PreScan : pre-scan pages/resources if needed
+PreScan -> Doc : displayPages(PreScan, first, last)
+Doc -> Page : Page::displaySlice()
+Page -> Gfx : new Gfx(..., PreScan)
+Gfx -> Parser : parse content stream
+Parser -> Filters : decode Filter/DecodeParms
+Gfx -> PreScan : collect stats for paths/images/transparency
+
+Main -> Doc : displayPages(PSOut, first, last)
+loop pages
+  Doc -> Page : getPage(page)->display()
+  Page -> Gfx : new Gfx(doc, PSOut, resources)
+  Gfx -> Parser : getObj() operators and operands
+  Parser -> Filters : makeStream()->addFilters()
+  Gfx -> PSOut : stroke/fill/text/image/shading callbacks
+  alt embedded fonts
+    PSOut -> FoFi : parse Type1/CFF/TrueType/OpenType
+    FoFi --> PSOut : converted/embedded font data
+    note right of FoFi
+    MEMORY AUDIT:
+    - Font table offsets and lengths.
+    - Type1 eexec sections.
+    - CFF charstring/index bounds.
+    end note
+  end
+  alt rasterization fallback
+    PSOut -> SplashOut : rasterize complex transparency/page slice
+    SplashOut -> SplashOut : allocate bitmap + masks
+  end
+  Gfx -> PSOut : draw annotations/forms if enabled
+end
+
+Main -> PSOut : delete
+Main -> Doc : delete
+Main -> Params : delete
+Main -> Main : Object::memCheck(); gMemReport()
+@enduml

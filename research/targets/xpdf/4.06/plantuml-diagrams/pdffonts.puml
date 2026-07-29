@@ -1,0 +1,58 @@
+@startuml
+title pdffonts - font resource scanner audit sequence
+autonumber
+
+actor User
+participant "pdffonts.cc\nmain()" as Main
+participant "GlobalParams" as Params
+participant "PDFDoc" as Doc
+participant "XRef" as XRef
+participant "Catalog/Page" as Catalog
+participant "Annots" as Annots
+participant "AcroForm" as Form
+participant "scanFonts()" as Scan
+participant "GfxFont" as GfxFont
+participant "FoFi parsers" as FoFi
+
+User -> Main : pdffonts [options] input.pdf
+Main -> Params : new GlobalParams(cfg)
+Params -> Params : setupBaseFonts()
+Main -> Doc : new PDFDoc(fileName, ownerPW, userPW)
+Doc -> XRef : read xref/object streams
+Doc -> Doc : check encryption and Catalog
+
+Main -> XRef : getNumObjects()
+Main -> Main : seenObjs = gmalloc(numObjects); memset()
+note right of Main
+MEMORY AUDIT:
+- numObjects controls seenObjs allocation.
+- Check integer conversion and object-loop guard.
+end note
+
+loop pages
+  Main -> Catalog : getPage(pg)->getResourceDict()
+  Main -> Scan : scanFonts(resourceDict, doc)
+  Scan -> Scan : recurse Font/XObject/Form resources
+  Scan -> GfxFont : construct/inspect font object
+  GfxFont -> FoFi : optional embedded font parsing
+  note right of FoFi
+  MEMORY AUDIT:
+  - Type1/CFF/TrueType offsets and table lengths.
+  - CIDToGIDMap stream sizes.
+  - ToUnicode/CMap UseCMap loops.
+  end note
+
+  Main -> Annots : getNumAnnots(pg)
+  Annots -> Scan : scan appearance stream Resources
+end
+
+alt AcroForm present
+  Main -> Form : getNumFields()
+  Form -> Scan : scan field resources/DR/appearance resources
+end
+
+Main -> Main : gfree(fonts); gfree(seenObjs)
+Main -> Doc : delete
+Main -> Params : delete
+Main -> Main : Object::memCheck(); gMemReport()
+@enduml

@@ -1,0 +1,91 @@
+@startuml
+title xpdf GUI viewer - PDFCore/XpdfWidget audit sequence
+autonumber
+
+actor User
+participant "xpdf.cc\nmain()" as Main
+participant "XpdfApp" as App
+participant "XpdfViewer" as Viewer
+participant "XpdfWidget" as Widget
+participant "PDFCore" as Core
+participant "PDFDoc" as Doc
+participant "FileStream" as FileStream
+participant "XRef" as XRef
+participant "SecurityHandler" as Sec
+participant "Catalog/Page" as Catalog
+participant "TileCache" as TileCache
+participant "SplashOutputDev" as SplashOut
+participant "TextOutputDev" as TextOut
+participant "Gfx" as Gfx
+participant "Parser/Lexer" as Parser
+participant "Stream filters" as Filters
+
+User -> Main : launch xpdf <file>
+Main -> App : parse CLI + create QApplication
+App -> Viewer : open window
+Viewer -> Widget : loadFile(fileName)
+Widget -> Core : loadFile(fileName, passwords)
+Core -> Doc : new PDFDoc(fileName, ownerPW, userPW, core)
+activate Doc
+Doc -> FileStream : new FileStream(FILE*)
+note right
+MEMORY AUDIT:
+- FILE* ownership moves into PDFDoc/FileStream lifecycle.
+- Check fclose/delete paths on all errCode exits.
+end note
+Doc -> Doc : checkHeader()
+Doc -> XRef : new XRef(str, repair=false)
+XRef -> Parser : parse xref table/stream and object streams
+Parser -> Filters : makeStream() -> addFilters()
+note right of Filters
+MEMORY AUDIT:
+- Length, Filter, DecodeParms.
+- Recursion in object streams.
+- Compressed stream allocation and bounds.
+end note
+Doc -> Sec : SecurityHandler::make(encryptDict)
+Sec -> Sec : checkEncryption()
+Doc -> XRef : setEncryption(fileKey, alg, keyLength)
+Doc -> Catalog : new Catalog(this)
+Doc -> Catalog : new Annots(this), OptionalContent(this)
+deactivate Doc
+
+User -> Widget : scroll/zoom/render page
+Widget -> Core : displayPage(page, zoom)
+Core -> TileCache : request tiles
+TileCache -> Doc : displayPageSlice(SplashOut, page, dpi, slice)
+Doc -> Catalog : getPage(page)->displaySlice()
+Catalog -> Gfx : new Gfx(doc, SplashOut, resources, box, crop)
+Catalog -> Gfx : display(contents)
+Gfx -> Parser : getObj() content stream operators
+Parser -> Filters : decode stream chain
+Gfx -> SplashOut : draw paths/text/images/shadings
+SplashOut -> SplashOut : allocate bitmap, glyph cache, masks
+note right of SplashOut
+MEMORY AUDIT:
+- Bitmap dimensions from page box, dpi, UserUnit.
+- Image alpha/soft mask buffers.
+- Glyph cache and Type3 recursion.
+- Transparency group save/restore ownership.
+end note
+Catalog -> Gfx : draw annotations/forms if enabled
+
+User -> Widget : text select/search
+Widget -> Core : extractText(pg, bbox)
+Core -> Doc : displayPage(TextOut, pg, 72 dpi)
+Doc -> Catalog : Page::displaySlice()
+Catalog -> Gfx : render content into TextOutputDev
+Gfx -> TextOut : beginString/drawChar/endString
+note right of TextOut
+MEMORY AUDIT:
+- Text page buffer growth.
+- ToUnicode/CMap recursion.
+- ActualText and ligature mapping.
+end note
+
+User -> Main : quit
+Main -> App : shutdown
+App -> Core : delete PDFDoc/globalParams
+Doc -> XRef : delete xref
+Doc -> FileStream : delete stream and fclose
+@enduml

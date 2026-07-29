@@ -1,0 +1,59 @@
+@startuml
+title pdfdetach - embedded file/attachment audit sequence
+autonumber
+
+actor User
+participant "pdfdetach.cc\nmain()" as Main
+participant "GlobalParams" as Params
+participant "UnicodeMap" as UMap
+participant "PDFDoc" as Doc
+participant "Catalog" as Catalog
+participant "NameTree\nEmbeddedFiles" as NameTree
+participant "FileSpec/EF" as FileSpec
+participant "Stream filters" as Filters
+participant "Output file" as OutFile
+
+User -> Main : pdfdetach [-list|-save|-saveall] input.pdf
+Main -> Main : parseArgs()
+Main -> Params : new GlobalParams(cfg)
+Main -> UMap : get text encoding for file names
+Main -> Doc : new PDFDoc(fileName, ownerPW, userPW)
+Doc -> Doc : checkHeader, XRef, encryption, Catalog
+
+Main -> Doc : getNumEmbeddedFiles()
+Doc -> Catalog : read EmbeddedFiles name tree
+Catalog -> NameTree : traverse Names/Kids/Limits
+note right of NameTree
+MEMORY AUDIT:
+- Object loops in EmbeddedFiles/attachments.
+- Deep Kids recursion.
+- UTF-16/UTF-8 filename conversion.
+end note
+
+alt -list
+  loop files
+    Main -> Doc : getEmbeddedFileName(i)
+    Doc -> Catalog : return Unicode name
+    Main -> UMap : mapUnicode() for stdout
+  end
+else -save or -saveall
+  loop selected files
+    Main -> Doc : saveEmbeddedFileU(i, path)
+    Doc -> Catalog : get embedded file spec
+    Catalog -> FileSpec : resolve F/UF/EF/F stream
+    FileSpec -> Filters : decode embedded file stream
+    Filters -> OutFile : copy decoded bytes
+    note right of Filters
+    MEMORY AUDIT:
+    - Stream Length vs actual bytes.
+    - Filter chain recursion.
+    - Output file write loop and error cleanup.
+    end note
+  end
+end
+
+Main -> UMap : decRefCnt()
+Main -> Doc : delete
+Main -> Params : delete
+Main -> Main : Object::memCheck(); gMemReport()
+@enduml

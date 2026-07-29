@@ -1,0 +1,75 @@
+@startuml
+title pdftohtml - HTML/image/font extraction audit sequence
+autonumber
+
+actor User
+participant "pdftohtml.cc\nmain()" as Main
+participant "GlobalParams" as Params
+participant "PDFDoc" as Doc
+participant "Catalog/Page" as Page
+participant "HTMLGen" as HTMLGen
+participant "TextOutputDev" as TextOut
+participant "SplashOutputDev" as SplashOut
+participant "WebFont" as WebFont
+participant "Gfx" as Gfx
+participant "Parser/Lexer" as Parser
+participant "Stream filters" as Filters
+participant "HTML/PNG files" as Files
+
+User -> Main : pdftohtml [options] input.pdf html-dir
+Main -> Params : new GlobalParams(cfg)
+Params -> Params : setupBaseFonts(); setTextEncoding(\"UTF-8\")
+Main -> Doc : new PDFDoc(fileName, ownerPW, userPW)
+Doc -> Doc : checkHeader, XRef, encryption, Catalog
+Main -> Doc : okToCopy()
+Main -> Main : makeDir(htmlDir)
+note right of Main
+MEMORY AUDIT:
+- Output path construction with GString.
+- Overwrite behavior and file handle cleanup.
+end note
+
+Main -> HTMLGen : new HTMLGen(resolution, tableMode)
+HTMLGen -> HTMLGen : set zoom, forms, metadata, fonts, background
+Main -> HTMLGen : startDoc(doc)
+
+loop pages
+  Main -> Files : open pageN.html and pageN.png
+  Main -> HTMLGen : convertPage(pg, pngURL, htmlDir, write callbacks)
+  HTMLGen -> SplashOut : render page background/image
+  SplashOut -> Doc : displayPage(SplashOut, pg, resolution)
+  Doc -> Page : Page::display()
+  Page -> Gfx : new Gfx(doc, SplashOut, resources)
+  Gfx -> Parser : parse content stream
+  Parser -> Filters : decode stream chain
+  Gfx -> SplashOut : paths/images/shadings/transparency/forms
+  note right of SplashOut
+  MEMORY AUDIT:
+  - Bitmap size = page box * resolution.
+  - PNG rows and alpha/mask buffers.
+  - Soft masks and transparency groups.
+  end note
+
+  HTMLGen -> TextOut : extract text positions
+  TextOut -> Doc : displayPage(TextOut, pg, 72 dpi)
+  TextOut -> HTMLGen : words, glyph boxes, invisible text state
+
+  alt extract/embed fonts
+    HTMLGen -> WebFont : extract font file/subset
+    WebFont -> Parser : fetch embedded font streams
+    Parser -> Filters : decode font stream
+    note right of WebFont
+    MEMORY AUDIT:
+    - Font stream Length vs decoded bytes.
+    - Web font buffer ownership.
+    end note
+  end
+  HTMLGen -> Files : write HTML, CSS refs, PNG/font files
+end
+
+Main -> Files : create index.html
+Main -> HTMLGen : delete
+Main -> Doc : delete
+Main -> Params : delete
+Main -> Main : Object::memCheck(); gMemReport()
+@enduml
