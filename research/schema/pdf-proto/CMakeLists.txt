@@ -99,28 +99,40 @@ endif()
 
 set(CFF_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/modules/cff)
 set(CFF_SERIALIZER_SRC ${CFF_MODULE_DIR}/cff_serializer.cc)
+set(DCTSTREAM_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/modules/dctstream)
+set(DCTSTREAM_SERIALIZER_SRC ${DCTSTREAM_MODULE_DIR}/dct_stream_serializer.cc)
+set(JPXSTREAM_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/modules/jpxstream)
+set(JPXSTREAM_SERIALIZER_SRC ${JPXSTREAM_MODULE_DIR}/jpx_stream_serializer.cc)
 set(TYPE3CACHE_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/modules/type3cache)
 set(TYPE3CACHE_SERIALIZER_SRC ${TYPE3CACHE_MODULE_DIR}/type3_cache_serializer.cc)
 
 set(PROTO_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/pdf.proto
   ${CFF_MODULE_DIR}/cff.proto
+  ${DCTSTREAM_MODULE_DIR}/dct_stream.proto
+  ${JPXSTREAM_MODULE_DIR}/jpx_stream.proto
   ${TYPE3CACHE_MODULE_DIR}/type3_cache.proto
 )
 set(PROTO_SRCS
   ${CMAKE_CURRENT_BINARY_DIR}/pdf.pb.cc
   ${CMAKE_CURRENT_BINARY_DIR}/modules/cff/cff.pb.cc
+  ${CMAKE_CURRENT_BINARY_DIR}/modules/dctstream/dct_stream.pb.cc
+  ${CMAKE_CURRENT_BINARY_DIR}/modules/jpxstream/jpx_stream.pb.cc
   ${CMAKE_CURRENT_BINARY_DIR}/modules/type3cache/type3_cache.pb.cc
 )
 set(PROTO_HDRS
   ${CMAKE_CURRENT_BINARY_DIR}/pdf.pb.h
   ${CMAKE_CURRENT_BINARY_DIR}/modules/cff/cff.pb.h
+  ${CMAKE_CURRENT_BINARY_DIR}/modules/dctstream/dct_stream.pb.h
+  ${CMAKE_CURRENT_BINARY_DIR}/modules/jpxstream/jpx_stream.pb.h
   ${CMAKE_CURRENT_BINARY_DIR}/modules/type3cache/type3_cache.pb.h
 )
 add_custom_command(
   OUTPUT ${PROTO_SRCS} ${PROTO_HDRS}
   COMMAND ${CMAKE_COMMAND} -E make_directory
           ${CMAKE_CURRENT_BINARY_DIR}/modules/cff
+          ${CMAKE_CURRENT_BINARY_DIR}/modules/dctstream
+          ${CMAKE_CURRENT_BINARY_DIR}/modules/jpxstream
           ${CMAKE_CURRENT_BINARY_DIR}/modules/type3cache
   COMMAND ${PROTOC_EXE}
           --proto_path=${CMAKE_CURRENT_SOURCE_DIR}
@@ -277,6 +289,8 @@ add_executable(pdf_fuzzer
   harness.cpp
   serializer.cpp
   ${CFF_SERIALIZER_SRC}
+  ${DCTSTREAM_SERIALIZER_SRC}
+  ${JPXSTREAM_SERIALIZER_SRC}
   ${TYPE3CACHE_SERIALIZER_SRC}
   ${PROTO_SRCS}
   $<TARGET_OBJECTS:xpdf_objs>
@@ -311,6 +325,8 @@ add_executable(pdf_fuzzer_splash
   harness_splash.cpp
   serializer.cpp
   ${CFF_SERIALIZER_SRC}
+  ${DCTSTREAM_SERIALIZER_SRC}
+  ${JPXSTREAM_SERIALIZER_SRC}
   ${TYPE3CACHE_SERIALIZER_SRC}
   ${PROTO_SRCS}
   $<TARGET_OBJECTS:xpdf_objs>
@@ -336,6 +352,8 @@ if(PODOFO_FOUND)
     harness_podofo.cpp
     serializer.cpp
     ${CFF_SERIALIZER_SRC}
+    ${DCTSTREAM_SERIALIZER_SRC}
+    ${JPXSTREAM_SERIALIZER_SRC}
     ${TYPE3CACHE_SERIALIZER_SRC}
     ${PROTO_SRCS}
   )
@@ -365,6 +383,8 @@ add_executable(verify_serializer
   tests/verify_serializer.cpp
   serializer.cpp
   ${CFF_SERIALIZER_SRC}
+  ${DCTSTREAM_SERIALIZER_SRC}
+  ${JPXSTREAM_SERIALIZER_SRC}
   ${TYPE3CACHE_SERIALIZER_SRC}
   ${PROTO_SRCS}
 )
@@ -377,6 +397,20 @@ add_executable(verify_cff
 )
 target_link_libraries(verify_cff ${PROTOBUF_LIB_TARGET})
 
+add_executable(verify_dct_stream
+  modules/dctstream/verify_dct_stream.cc
+  ${DCTSTREAM_SERIALIZER_SRC}
+  ${PROTO_SRCS}
+)
+target_link_libraries(verify_dct_stream ${PROTOBUF_LIB_TARGET})
+
+add_executable(verify_jpx_stream
+  modules/jpxstream/verify_jpx_stream.cc
+  ${JPXSTREAM_SERIALIZER_SRC}
+  ${PROTO_SRCS}
+)
+target_link_libraries(verify_jpx_stream ${PROTOBUF_LIB_TARGET})
+
 add_executable(gen_corpus
   tools/gen_corpus.cpp
   ${PROTO_SRCS}
@@ -387,6 +421,8 @@ add_executable(proto2pdf
   tools/proto2pdf.cpp
   serializer.cpp
   ${CFF_SERIALIZER_SRC}
+  ${DCTSTREAM_SERIALIZER_SRC}
+  ${JPXSTREAM_SERIALIZER_SRC}
   ${TYPE3CACHE_SERIALIZER_SRC}
   ${PROTO_SRCS}
 )
@@ -396,6 +432,8 @@ add_executable(check_serializer
   tools/check_serializer.cpp
   serializer.cpp
   ${CFF_SERIALIZER_SRC}
+  ${DCTSTREAM_SERIALIZER_SRC}
+  ${JPXSTREAM_SERIALIZER_SRC}
   ${TYPE3CACHE_SERIALIZER_SRC}
   ${PROTO_SRCS}
 )
@@ -405,6 +443,8 @@ add_executable(measure_valid_rate
   tools/measure_valid_rate.cpp
   serializer.cpp
   ${CFF_SERIALIZER_SRC}
+  ${DCTSTREAM_SERIALIZER_SRC}
+  ${JPXSTREAM_SERIALIZER_SRC}
   ${TYPE3CACHE_SERIALIZER_SRC}
   ${PROTO_SRCS}
 )
@@ -416,6 +456,13 @@ add_executable(type3cache2pdf
   ${PROTO_SRCS}
 )
 target_link_libraries(type3cache2pdf ${PROTOBUF_LIB_TARGET})
+
+add_executable(dctstream2pdf
+  modules/dctstream/tools/dctstream2pdf.cpp
+  ${DCTSTREAM_SERIALIZER_SRC}
+  ${PROTO_SRCS}
+)
+target_link_libraries(dctstream2pdf ${PROTOBUF_LIB_TARGET})
 
 add_executable(gen_type3cache_corpus
   modules/type3cache/tools/gen_type3cache_corpus.cpp

@@ -325,7 +325,27 @@ int main() {
         failures += run_test("image-dct-xobject", doc, {"/Subtype /Image", "/DCTDecode"});
     }
 
-    // Test 14 (P3): font + image on the same page -> /Resources has both /Font and
+    // Test 14 (P3 / JPX): structured JPX grammar inside ImageXObject.jpx ->
+    // serializer emits a /JPXDecode image stream with JPEG 2000 marker bytes.
+    {
+        pdf_proto::PdfDocument doc;
+        pdf_proto::Page* p = doc.add_pages();
+        p->set_width(612); p->set_height(792);
+        pdf_proto::ImageXObject* im = p->add_images();
+        im->set_width(1); im->set_height(1);
+        im->set_bits_per_component(8);
+        im->set_filter(pdf_proto::ImageXObject::JPX);
+        im->set_color_space(pdf_proto::ImageXObject::DEVICE_GRAY);
+        // Default JpxStreamDocument is the CVE-2022-24107 65536x65536 tile.
+        im->mutable_jpx();
+        failures += run_test("image-jpx-structured-xobject", doc,
+                             {"/Subtype /Image", "/JPXDecode",
+                              std::string("\xff\x51", 2),
+                              std::string("\xff\x90", 2),
+                              std::string("\xff\x93", 2)});
+    }
+
+    // Test 15 (P3): font + image on the same page -> /Resources has both /Font and
     // /XObject; the driver stream runs both Tf and Do.
     {
         pdf_proto::PdfDocument doc;
@@ -343,7 +363,7 @@ int main() {
         failures += run_test("font-and-image-same-page", doc, {"/XObject", "Helvetica"});
     }
 
-    // Test 15 (P3): multi-page with images + an ImageMask -> xref-order regression
+    // Test 16 (P3): multi-page with images + an ImageMask -> xref-order regression
     // across content/image/driver classes; also the stencil-mask path (no /ColorSpace).
     {
         pdf_proto::PdfDocument doc;
@@ -362,7 +382,7 @@ int main() {
         failures += run_test("multipage-imagemask-xref", doc, {"/ImageMask"});
     }
 
-    // Test 16 (CFF wiring): EmbeddedFontFile via the structured CffFont oneof ->
+    // Test 17 (CFF wiring): EmbeddedFontFile via the structured CffFont oneof ->
     // SerializeCff compiles a byte-valid CFF into the /FontFile3 stream (here with
     // a self-referential callsubr, the CVE-2020-35376 shape). "FuzzFont" is the CFF
     // Name INDEX entry (default font_name), so its presence proves the *compiled
@@ -385,7 +405,7 @@ int main() {
                              {"/FontFile3", "/Type1C", "FuzzFont"});
     }
 
-    // Test 17 (CFF operators): structured CFF emits extended Type2 operators as
+    // Test 18 (CFF operators): structured CFF emits extended Type2 operators as
     // real binary charstring bytes inside a /FontFile3 /Subtype /Type1C stream.
     {
         pdf_proto::PdfDocument doc;

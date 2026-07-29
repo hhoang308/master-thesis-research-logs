@@ -1,0 +1,61 @@
+syntax = "proto2";
+
+package pdf_jpxstream;
+
+// Narrow JPEG 2000 / JPXDecode grammar for Xpdf JPXStream tile allocation
+// behavior, including the CVE-2022-24107 shape where tileComp->w * tileComp->h
+// overflows before allocation in xpdf 4.03.  The serializer emits a minimal
+// naked JPEG 2000 codestream and can also wrap it in a one-page PDF image
+// XObject.
+message JpxStreamDocument {
+  enum PdfColorSpace {
+    DEVICE_GRAY = 0;
+    DEVICE_RGB  = 1;
+    DEVICE_CMYK = 2;
+  }
+
+  // SIZ marker fields.  Defaults reproduce the 65536x65536 one-tile overflow
+  // trigger from research/pocs/cve-2022-24107.
+  optional uint32 width = 1 [default = 65536];
+  optional uint32 height = 2 [default = 65536];
+  optional uint32 x_offset = 3 [default = 0];
+  optional uint32 y_offset = 4 [default = 0];
+  optional uint32 tile_width = 5 [default = 65536];
+  optional uint32 tile_height = 6 [default = 65536];
+  optional uint32 tile_x_offset = 7 [default = 0];
+  optional uint32 tile_y_offset = 8 [default = 0];
+  optional uint32 components = 9 [default = 1];
+  optional uint32 bits_per_component = 10 [default = 8];
+  optional uint32 x_sample_separation = 11 [default = 1];
+  optional uint32 y_sample_separation = 12 [default = 1];
+
+  // COD marker fields.  The exponent fields are JPEG 2000 code-block exponent
+  // values as stored in the codestream, i.e. actual log2 size minus two.
+  optional uint32 progression_order = 13 [default = 0];
+  optional uint32 layers = 14 [default = 1];
+  optional uint32 multi_component_transform = 15 [default = 0];
+  optional uint32 decomposition_levels = 16 [default = 1];
+  optional uint32 code_block_width_exp_minus2 = 17 [default = 8];
+  optional uint32 code_block_height_exp_minus2 = 18 [default = 8];
+  optional uint32 code_block_style = 19 [default = 0];
+  optional uint32 transform = 20 [default = 1];
+
+  // QCD marker.  If empty, the serializer emits four reversible no-quantization
+  // steps, which is enough for xpdf 4.04's stricter "3*nDecompLevels + 1" check
+  // when decomposition_levels is 1.
+  repeated uint32 quant_steps = 21;
+
+  // Tile-part data.  Packet payload is intentionally simple zero padding; the
+  // vulnerable allocation happens before packet decoding.
+  optional uint32 tile_index = 22 [default = 0];
+  optional uint32 tile_part_payload_bytes = 23 [default = 0];
+  optional bool include_eoc = 24 [default = true];
+
+  // Standalone PDF wrapper fields.  When this message is embedded in
+  // pdf_proto.ImageXObject, the parent image dict supplies its own PDF metadata
+  // and only the codestream fields above are used.
+  optional uint32 pdf_width = 25 [default = 1];
+  optional uint32 pdf_height = 26 [default = 1];
+  optional PdfColorSpace pdf_color_space = 27 [default = DEVICE_GRAY];
+  optional uint32 display_scale = 28 [default = 128];
+}

@@ -1,0 +1,35 @@
+syntax = "proto2";
+
+package pdf_dctstream;
+
+// A narrow grammar for Xpdf DCTStream/JPEG scan-mode behavior, including the
+// CVE-2022-24106 shape where a later SOS marker changes scan interleaving after
+// the first scan.  The serializer emits a minimal PDF containing one /DCTDecode
+// image XObject whose JPEG markers are assembled from these fields.
+message DctStreamDocument {
+  enum PdfColorSpace {
+    DEVICE_RGB  = 0;
+    DEVICE_GRAY = 1;
+    DEVICE_CMYK = 2;
+  }
+
+  message Scan {
+    // JPEG component IDs included in this SOS marker.  Values are clamped to
+    // [1, frame_components] and deduplicated by the serializer.
+    repeated uint32 component_ids = 1;
+
+    // Extra zero bytes after the minimum entropy bits.  Zero entropy is enough
+    // because the serializer installs one-bit Huffman codes for DC size 0 and
+    // AC EOB.  Padding keeps generated inputs near-valid while still allowing
+    // fuzzing pressure on scan/data boundaries.
+    optional uint32 entropy_padding_bytes = 2 [default = 0];
+  }
+
+  optional uint32 width = 1 [default = 8];
+  optional uint32 height = 2 [default = 16];
+  optional uint32 frame_components = 3 [default = 3];
+  repeated Scan scans = 4;
+
+  optional PdfColorSpace pdf_color_space = 5 [default = DEVICE_RGB];
+  optional uint32 display_scale = 6 [default = 128];
+}
