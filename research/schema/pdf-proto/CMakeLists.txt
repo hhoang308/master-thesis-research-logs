@@ -105,6 +105,8 @@ set(ICCBASED_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/modules/iccbased)
 set(ICCBASED_SERIALIZER_SRC ${ICCBASED_MODULE_DIR}/icc_based_serializer.cc)
 set(JPXSTREAM_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/modules/jpxstream)
 set(JPXSTREAM_SERIALIZER_SRC ${JPXSTREAM_MODULE_DIR}/jpx_stream_serializer.cc)
+set(TEXTPAGESIZE_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/modules/textpagesize)
+set(TEXTPAGESIZE_SERIALIZER_SRC ${TEXTPAGESIZE_MODULE_DIR}/text_page_size_serializer.cc)
 set(TYPE3CACHE_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/modules/type3cache)
 set(TYPE3CACHE_SERIALIZER_SRC ${TYPE3CACHE_MODULE_DIR}/type3_cache_serializer.cc)
 
@@ -114,6 +116,7 @@ set(PROTO_FILES
   ${DCTSTREAM_MODULE_DIR}/dct_stream.proto
   ${ICCBASED_MODULE_DIR}/icc_based.proto
   ${JPXSTREAM_MODULE_DIR}/jpx_stream.proto
+  ${TEXTPAGESIZE_MODULE_DIR}/text_page_size.proto
   ${TYPE3CACHE_MODULE_DIR}/type3_cache.proto
 )
 set(PROTO_SRCS
@@ -122,6 +125,7 @@ set(PROTO_SRCS
   ${CMAKE_CURRENT_BINARY_DIR}/modules/dctstream/dct_stream.pb.cc
   ${CMAKE_CURRENT_BINARY_DIR}/modules/iccbased/icc_based.pb.cc
   ${CMAKE_CURRENT_BINARY_DIR}/modules/jpxstream/jpx_stream.pb.cc
+  ${CMAKE_CURRENT_BINARY_DIR}/modules/textpagesize/text_page_size.pb.cc
   ${CMAKE_CURRENT_BINARY_DIR}/modules/type3cache/type3_cache.pb.cc
 )
 set(PROTO_HDRS
@@ -130,6 +134,7 @@ set(PROTO_HDRS
   ${CMAKE_CURRENT_BINARY_DIR}/modules/dctstream/dct_stream.pb.h
   ${CMAKE_CURRENT_BINARY_DIR}/modules/iccbased/icc_based.pb.h
   ${CMAKE_CURRENT_BINARY_DIR}/modules/jpxstream/jpx_stream.pb.h
+  ${CMAKE_CURRENT_BINARY_DIR}/modules/textpagesize/text_page_size.pb.h
   ${CMAKE_CURRENT_BINARY_DIR}/modules/type3cache/type3_cache.pb.h
 )
 add_custom_command(
@@ -139,6 +144,7 @@ add_custom_command(
           ${CMAKE_CURRENT_BINARY_DIR}/modules/dctstream
           ${CMAKE_CURRENT_BINARY_DIR}/modules/iccbased
           ${CMAKE_CURRENT_BINARY_DIR}/modules/jpxstream
+          ${CMAKE_CURRENT_BINARY_DIR}/modules/textpagesize
           ${CMAKE_CURRENT_BINARY_DIR}/modules/type3cache
   COMMAND ${PROTOC_EXE}
           --proto_path=${CMAKE_CURRENT_SOURCE_DIR}
@@ -425,6 +431,13 @@ add_executable(verify_jpx_stream
 )
 target_link_libraries(verify_jpx_stream ${PROTOBUF_LIB_TARGET})
 
+add_executable(verify_text_page_size
+  modules/textpagesize/verify_text_page_size.cc
+  ${TEXTPAGESIZE_SERIALIZER_SRC}
+  ${PROTO_SRCS}
+)
+target_link_libraries(verify_text_page_size ${PROTOBUF_LIB_TARGET})
+
 add_executable(gen_corpus
   tools/gen_corpus.cpp
   ${PROTO_SRCS}
@@ -487,6 +500,13 @@ add_executable(iccbased2pdf
   ${PROTO_SRCS}
 )
 target_link_libraries(iccbased2pdf ${PROTOBUF_LIB_TARGET})
+
+add_executable(textpagesize2pdf
+  modules/textpagesize/tools/textpagesize2pdf.cpp
+  ${TEXTPAGESIZE_SERIALIZER_SRC}
+  ${PROTO_SRCS}
+)
+target_link_libraries(textpagesize2pdf ${PROTOBUF_LIB_TARGET})
 
 add_executable(gen_type3cache_corpus
   modules/type3cache/tools/gen_type3cache_corpus.cpp
