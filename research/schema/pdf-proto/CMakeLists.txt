@@ -328,6 +328,13 @@ foreach(optional_lib
     list(APPEND XPDF_SPLASH_OPTIONAL_LIBS ${${optional_lib}})
   endif()
 endforeach()
+# xpdf >= 4.04 split the shading rasterizer into ShadingImage.cc, which
+# SplashOutputDev::shadedFill() calls; xpdf 4.02 has no such file. Without it the
+# splash harness fails to link against 4.04+ (undefined ShadingImage::generateBitmap).
+set(XPDF_SPLASH_EXTRA_SRC "")
+if(EXISTS ${XPDF_SRC}/xpdf/ShadingImage.cc)
+  list(APPEND XPDF_SPLASH_EXTRA_SRC ${XPDF_SRC}/xpdf/ShadingImage.cc)
+endif()
 add_executable(pdf_fuzzer_splash
   harness_splash.cpp
   serializer.cpp
@@ -338,6 +345,7 @@ add_executable(pdf_fuzzer_splash
   ${TYPE3CACHE_SERIALIZER_SRC}
   ${PROTO_SRCS}
   $<TARGET_OBJECTS:xpdf_objs>
+  ${XPDF_SPLASH_EXTRA_SRC}
   ${XPDF_SRC}/xpdf/SplashOutputDev.cc
 )
 target_link_options(pdf_fuzzer_splash PRIVATE -fsanitize=fuzzer,address)

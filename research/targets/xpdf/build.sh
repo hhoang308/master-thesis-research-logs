@@ -83,6 +83,10 @@ mkdir -p "$build_dir"
 common_args=(
   -S "$source_dir"
   -B "$build_dir"
+  # CMake >= 4 removed compatibility with cmake_minimum_required(<3.5), which every
+  # xpdf release still declares. Configure would abort outright; this keeps the old
+  # policy level (same workaround the pdf-proto/podofo builds already use).
+  -DCMAKE_POLICY_VERSION_MINIMUM=3.5
   -DCMAKE_DISABLE_FIND_PACKAGE_Qt4=1
   -DCMAKE_DISABLE_FIND_PACKAGE_Qt5Widgets=1
 )
