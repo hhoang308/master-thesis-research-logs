@@ -7,6 +7,7 @@
 #include "PDFDoc.h"
 #include "OutputDev.h"
 #include "Stream.h"
+#include "gmem.h"      // GMemException -- xpdf's gmem OOM/oversize allocation guard
 
 extern "C" int LLVMFuzzerInitialize(int*, char***) {
     globalParams = new GlobalParams("");
@@ -66,17 +67,28 @@ DEFINE_PROTO_FUZZER(const pdf_proto::PdfDocument& doc) {
         if (n > 10) n = 10;
         if (n >= 1) {
             FuzzOutputDev dev;
+            // xpdf's gmem throws GMemException as an OOM/oversize guard on malformed
+            // input (e.g. an inflated stream Length); xpdf >= 4.06 rethrows it out of
+            // Gfx::opXObject for the caller to handle. Swallow it here so the campaign
+            // keeps hunting real memory-safety bugs instead of aborting on this known
+            // (non-memory-safety) DoS class. Only GMemException is caught -- any other
+            // exception still propagates and is reported as a crash.
+            // See findings/xpdf406-gfx-opxobject-gmemexception-abort.
+            try {
 #ifdef XPDF_LEGACY_DISPLAYPAGES
-            // xpdf <= 4.02: displayPages has NO LocalParams* parameter.
-            pdf->displayPages(&dev, 1, n,
-                              72, 72, 0,               // hDPI, vDPI, rotate
-                              gFalse, gTrue, gFalse);  // useMediaBox, crop, printing
+                // xpdf <= 4.02: displayPages has NO LocalParams* parameter.
+                pdf->displayPages(&dev, 1, n,
+                                  72, 72, 0,               // hDPI, vDPI, rotate
+                                  gFalse, gTrue, gFalse);  // useMediaBox, crop, printing
 #else
-            // xpdf >= 4.05/4.06: displayPages takes LocalParams* (NULL) as 2nd arg.
-            pdf->displayPages(&dev, NULL, 1, n,
-                              72, 72, 0,
-                              gFalse, gTrue, gFalse);
+                // xpdf >= 4.05/4.06: displayPages takes LocalParams* (NULL) as 2nd arg.
+                pdf->displayPages(&dev, NULL, 1, n,
+                                  72, 72, 0,
+                                  gFalse, gTrue, gFalse);
 #endif
+            } catch (GMemException &) {
+                // known xpdf OOM/oversize guard -- not a memory-safety bug; continue.
+            }
         }
     }
     delete pdf;
