@@ -76,5 +76,3 @@ crashes/**/*.proto
 # Thesis working tree is a machine-local scratch area (vendored xpdf source +
 # schema build trees); it is not committed from any machine.
 thesis/
-
-seeds/
