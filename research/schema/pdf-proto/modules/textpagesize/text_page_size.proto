@@ -1,0 +1,31 @@
+syntax = "proto2";
+
+package pdf_textpagesize;
+
+// Narrow damaged-PDF grammar for the Xpdf CVE-2023-3044 text-extraction path.
+//
+// The default serializer output recreates the public fuzzed trigger referenced
+// by NVD and documented under research/pocs/cve-2023-3044. The key semantic
+// token is an oversized /MediaBox height inside a damaged-but-parseable page
+// dictionary. Xpdf 4.04 crashes during text extraction on this input, while
+// 4.05 no longer crashes after clamping pageWidth/pageHeight in TextOutputDev.
+message TextPageSizeDocument {
+  // First line of the damaged file. The public trigger begins with "%iDF"
+  // rather than "%PDF". Canonicalization keeps this to four printable bytes and
+  // forces the first byte to '%'.
+  optional string header_magic = 1 [default = "%iDF"];
+
+  // Tokens installed into the first oversized /MediaBox:
+  //   /MediaBox [0 0 <page_width_decimal> <page_height_decimal>]
+  //
+  // They are stored as strings because the trigger uses a decimal height well
+  // above uint64_t range for exact integer representation.
+  optional string page_width_decimal = 2 [default = "612.0000"];
+  optional string page_height_decimal = 3
+      [default = "79299999999999999999.0000"];
+
+  // Keep the damaged tail stream that contains the /Filter /FlateDecode anchor.
+  // The default preserves the public trigger byte shape; setting this false
+  // truncates the tail after the oversized page object and appends a tiny EOF.
+  optional bool keep_flate_tail = 4 [default = true];
+}
