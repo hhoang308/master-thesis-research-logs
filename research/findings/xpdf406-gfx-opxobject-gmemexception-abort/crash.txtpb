@@ -1,0 +1,79 @@
+pages {
+  height: -612
+  parent_ref: 0
+  content_streams {
+    filter: NONE
+    raw_content: "Length"
+    length_delta: 16777216
+  }
+  images {
+    width: 8
+    height: 124
+    filter: RAW
+    color_space: DEVICE_RGB
+  }
+  images {
+    filter: JPX
+    data: "\377\377 i"
+  }
+}
+pages {
+  height: -612
+  parent_ref: 0
+  content_streams {
+    filter: NONE
+    raw_content: "Length"
+    length_delta: 16777216
+  }
+  images {
+    height: 124
+    filter: RAW
+    color_space: DEVICE_RGB
+  }
+  images {
+    filter: JPX
+    data: "\377\377 i"
+  }
+}
+pages {
+  height: -612
+  parent_ref: 0
+  content_streams {
+    filter: NONE
+    raw_content: "Length"
+    length_delta: 16777216
+  }
+  images {
+    height: 124
+    filter: RAW
+    color_space: DEVICE_RGB
+  }
+  images {
+    filter: JPX
+    data: "\377\377 i"
+    jpx {
+      y_sample_separation: 8
+    }
+  }
+}
+pages {
+  height: -612
+  parent_ref: 0
+  content_streams {
+    filter: NONE
+    raw_content: "Length"
+    length_delta: 16777216
+  }
+  images {
+    height: 124
+    filter: RAW
+    color_space: DEVICE_RGB
+  }
+  images {
+    filter: JPX
+    data: "\377\377 i"
+    jpx {
+      y_sample_separation: 2049
+    }
+  }
+}
