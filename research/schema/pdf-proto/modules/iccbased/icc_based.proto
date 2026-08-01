@@ -1,0 +1,38 @@
+syntax = "proto2";
+
+package pdf_iccbased;
+
+// Narrow ICCBased image grammar for the Xpdf CVE-2023-2662 execution path.
+//
+// The serializer emits a one-page PDF with one image XObject whose /ColorSpace
+// is [/ICCBased <icc-stream-ref>]. The ICC stream dictionary carries /N and
+// /Alternate; the default message reproduces the /N 0 + /Alternate /DeviceGray
+// shape that reaches a divide-by-zero in xpdf 4.04 when pdftoppm renders the
+// image.
+message IccBasedDocument {
+  enum AlternateColorSpace {
+    DEVICE_GRAY = 0;
+    DEVICE_RGB  = 1;
+    DEVICE_CMYK = 2;
+  }
+
+  optional uint32 width = 1 [default = 1];
+  optional uint32 height = 2 [default = 1];
+  optional uint32 bits_per_component = 3 [default = 8];
+  optional uint32 icc_components = 4 [default = 0];
+  optional AlternateColorSpace alternate = 5 [default = DEVICE_GRAY];
+  optional uint32 display_scale = 6 [default = 100];
+
+  // Raw stream payloads. Empty image_data canonicalizes to one zero byte, which
+  // matches the end-to-end PoC and keeps the generated image stream non-empty.
+  optional bytes image_data = 7;
+  optional bytes icc_profile = 8;
+
+  // Optional /Length skew for the image and ICC profile streams.
+  optional sint32 image_length_delta = 9 [default = 0];
+  optional sint32 icc_length_delta = 10 [default = 0];
+
+  // Optional ICC /Range array. The serializer keeps only the first 2*N entries
+  // when N > 0; for N == 0 the array is omitted.
+  repeated int32 range = 11;
+}

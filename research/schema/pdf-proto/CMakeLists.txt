@@ -101,6 +101,8 @@ set(CFF_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/modules/cff)
 set(CFF_SERIALIZER_SRC ${CFF_MODULE_DIR}/cff_serializer.cc)
 set(DCTSTREAM_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/modules/dctstream)
 set(DCTSTREAM_SERIALIZER_SRC ${DCTSTREAM_MODULE_DIR}/dct_stream_serializer.cc)
+set(ICCBASED_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/modules/iccbased)
+set(ICCBASED_SERIALIZER_SRC ${ICCBASED_MODULE_DIR}/icc_based_serializer.cc)
 set(JPXSTREAM_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/modules/jpxstream)
 set(JPXSTREAM_SERIALIZER_SRC ${JPXSTREAM_MODULE_DIR}/jpx_stream_serializer.cc)
 set(TYPE3CACHE_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/modules/type3cache)
@@ -110,6 +112,7 @@ set(PROTO_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/pdf.proto
   ${CFF_MODULE_DIR}/cff.proto
   ${DCTSTREAM_MODULE_DIR}/dct_stream.proto
+  ${ICCBASED_MODULE_DIR}/icc_based.proto
   ${JPXSTREAM_MODULE_DIR}/jpx_stream.proto
   ${TYPE3CACHE_MODULE_DIR}/type3_cache.proto
 )
@@ -117,6 +120,7 @@ set(PROTO_SRCS
   ${CMAKE_CURRENT_BINARY_DIR}/pdf.pb.cc
   ${CMAKE_CURRENT_BINARY_DIR}/modules/cff/cff.pb.cc
   ${CMAKE_CURRENT_BINARY_DIR}/modules/dctstream/dct_stream.pb.cc
+  ${CMAKE_CURRENT_BINARY_DIR}/modules/iccbased/icc_based.pb.cc
   ${CMAKE_CURRENT_BINARY_DIR}/modules/jpxstream/jpx_stream.pb.cc
   ${CMAKE_CURRENT_BINARY_DIR}/modules/type3cache/type3_cache.pb.cc
 )
@@ -124,6 +128,7 @@ set(PROTO_HDRS
   ${CMAKE_CURRENT_BINARY_DIR}/pdf.pb.h
   ${CMAKE_CURRENT_BINARY_DIR}/modules/cff/cff.pb.h
   ${CMAKE_CURRENT_BINARY_DIR}/modules/dctstream/dct_stream.pb.h
+  ${CMAKE_CURRENT_BINARY_DIR}/modules/iccbased/icc_based.pb.h
   ${CMAKE_CURRENT_BINARY_DIR}/modules/jpxstream/jpx_stream.pb.h
   ${CMAKE_CURRENT_BINARY_DIR}/modules/type3cache/type3_cache.pb.h
 )
@@ -132,6 +137,7 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E make_directory
           ${CMAKE_CURRENT_BINARY_DIR}/modules/cff
           ${CMAKE_CURRENT_BINARY_DIR}/modules/dctstream
+          ${CMAKE_CURRENT_BINARY_DIR}/modules/iccbased
           ${CMAKE_CURRENT_BINARY_DIR}/modules/jpxstream
           ${CMAKE_CURRENT_BINARY_DIR}/modules/type3cache
   COMMAND ${PROTOC_EXE}
@@ -290,6 +296,7 @@ add_executable(pdf_fuzzer
   serializer.cpp
   ${CFF_SERIALIZER_SRC}
   ${DCTSTREAM_SERIALIZER_SRC}
+  ${ICCBASED_SERIALIZER_SRC}
   ${JPXSTREAM_SERIALIZER_SRC}
   ${TYPE3CACHE_SERIALIZER_SRC}
   ${PROTO_SRCS}
@@ -404,6 +411,13 @@ add_executable(verify_dct_stream
 )
 target_link_libraries(verify_dct_stream ${PROTOBUF_LIB_TARGET})
 
+add_executable(verify_icc_based
+  modules/iccbased/verify_icc_based.cc
+  ${ICCBASED_SERIALIZER_SRC}
+  ${PROTO_SRCS}
+)
+target_link_libraries(verify_icc_based ${PROTOBUF_LIB_TARGET})
+
 add_executable(verify_jpx_stream
   modules/jpxstream/verify_jpx_stream.cc
   ${JPXSTREAM_SERIALIZER_SRC}
@@ -422,6 +436,7 @@ add_executable(proto2pdf
   serializer.cpp
   ${CFF_SERIALIZER_SRC}
   ${DCTSTREAM_SERIALIZER_SRC}
+  ${ICCBASED_SERIALIZER_SRC}
   ${JPXSTREAM_SERIALIZER_SRC}
   ${TYPE3CACHE_SERIALIZER_SRC}
   ${PROTO_SRCS}
@@ -433,6 +448,7 @@ add_executable(check_serializer
   serializer.cpp
   ${CFF_SERIALIZER_SRC}
   ${DCTSTREAM_SERIALIZER_SRC}
+  ${ICCBASED_SERIALIZER_SRC}
   ${JPXSTREAM_SERIALIZER_SRC}
   ${TYPE3CACHE_SERIALIZER_SRC}
   ${PROTO_SRCS}
@@ -444,6 +460,7 @@ add_executable(measure_valid_rate
   serializer.cpp
   ${CFF_SERIALIZER_SRC}
   ${DCTSTREAM_SERIALIZER_SRC}
+  ${ICCBASED_SERIALIZER_SRC}
   ${JPXSTREAM_SERIALIZER_SRC}
   ${TYPE3CACHE_SERIALIZER_SRC}
   ${PROTO_SRCS}
@@ -463,6 +480,13 @@ add_executable(dctstream2pdf
   ${PROTO_SRCS}
 )
 target_link_libraries(dctstream2pdf ${PROTOBUF_LIB_TARGET})
+
+add_executable(iccbased2pdf
+  modules/iccbased/tools/iccbased2pdf.cpp
+  ${ICCBASED_SERIALIZER_SRC}
+  ${PROTO_SRCS}
+)
+target_link_libraries(iccbased2pdf ${PROTOBUF_LIB_TARGET})
 
 add_executable(gen_type3cache_corpus
   modules/type3cache/tools/gen_type3cache_corpus.cpp

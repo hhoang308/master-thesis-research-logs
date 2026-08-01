@@ -6,6 +6,7 @@
 #include "pdf.pb.h"
 #include "modules/cff/cff_serializer.h"  // EmbeddedFontFile.cff -> byte-valid CFF
 #include "modules/dctstream/dct_stream_serializer.h"
+#include "modules/iccbased/icc_based_serializer.h"
 #include "modules/jpxstream/jpx_stream_serializer.h"
 #include "modules/type3cache/type3_cache_serializer.h"
 
@@ -125,6 +126,9 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
   }
   if (doc.dct_stream_programs_size() > 0) {
     return SerializeDctStreamPdf(doc.dct_stream_programs(0));
+  }
+  if (doc.icc_based_programs_size() > 0) {
+    return SerializeIccBasedPdf(doc.icc_based_programs(0));
   }
 
   std::ostringstream out;
