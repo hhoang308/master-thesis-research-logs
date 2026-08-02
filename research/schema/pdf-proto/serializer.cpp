@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <zlib.h>
 #include "pdf.pb.h"
+#include "modules/acroformloop/acroform_loop_serializer.h"
 #include "modules/cff/cff_serializer.h"  // EmbeddedFontFile.cff -> byte-valid CFF
 #include "modules/dctstream/dct_stream_serializer.h"
 #include "modules/iccbased/icc_based_serializer.h"
@@ -121,6 +122,9 @@ static std::string zlib_compress(const std::string& src) {
 }
 
 std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
+  if (doc.acroform_loop_programs_size() > 0) {
+    return SerializeAcroFormLoopPdf(doc.acroform_loop_programs(0));
+  }
   if (doc.type3_cache_programs_size() > 0) {
     return SerializeType3CachePdf(doc.type3_cache_programs(0));
   }

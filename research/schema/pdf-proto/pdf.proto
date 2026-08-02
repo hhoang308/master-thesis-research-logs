@@ -2,6 +2,7 @@ syntax = "proto2";
 package pdf_proto;
 
 import "modules/cff/cff.proto";  // structured CFF grammar for /FontFile3
+import "modules/acroformloop/acroform_loop.proto";  // AcroForm /Kids object-loop grammar
 import "modules/type3cache/type3_cache.proto";  // Type 3 cache lifecycle grammar
 import "modules/dctstream/dct_stream.proto";  // DCT/JPEG scan-mode grammar
 import "modules/jpxstream/jpx_stream.proto";  // structured JPX/JPEG 2000 image stream
@@ -188,4 +189,5 @@ message PdfDocument {
   repeated pdf_type3cache.Type3CacheDocument type3_cache_programs = 2;
   repeated pdf_dctstream.DctStreamDocument dct_stream_programs = 3;
   repeated pdf_iccbased.IccBasedDocument icc_based_programs = 4;
+  repeated pdf_acroformloop.AcroFormLoopDocument acroform_loop_programs = 5;
 }

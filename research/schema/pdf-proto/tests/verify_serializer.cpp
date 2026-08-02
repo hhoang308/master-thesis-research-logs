@@ -405,7 +405,18 @@ int main() {
                              {"/FontFile3", "/Type1C", "FuzzFont"});
     }
 
-    // Test 18 (CFF operators): structured CFF emits extended Type2 operators as
+    // Test 18 (AcroForm loop dispatch): top-level acroform_loop_programs must
+    // route through the dedicated serializer and emit the expected recursive
+    // field-tree tokens.
+    {
+        pdf_proto::PdfDocument doc;
+        doc.add_acroform_loop_programs();
+        failures += run_test("acroform-loop-structured-program", doc,
+                             {"/AcroForm 5 0 R", "/Fields [6 0 R]",
+                              "/Kids [7 0 R]", "/Parent 6 0 R"});
+    }
+
+    // Test 19 (CFF operators): structured CFF emits extended Type2 operators as
     // real binary charstring bytes inside a /FontFile3 /Subtype /Type1C stream.
     {
         pdf_proto::PdfDocument doc;

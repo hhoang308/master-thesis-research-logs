@@ -1,0 +1,46 @@
+syntax = "proto2";
+
+package pdf_acroformloop;
+
+// Narrow AcroForm field-cycle grammar for CVE-2018-7453.
+//
+// The default message recreates the minimal Xpdf 4.04 trigger shape:
+//   Catalog -> /AcroForm 5 0 R
+//   5 0 obj << /Fields [6 0 R] >>
+//   6 0 obj << /Kids [7 0 R] /Parent 6 0 R /T (loop-a) >>
+//   7 0 obj << /Kids [6 0 R] /Parent 7 0 R /T (loop-b) >>
+//
+// Xpdf 4.04 treats both field dictionaries as non-terminal and recursively
+// follows /Kids without loop detection. Xpdf 4.05 adds visited-object checks in
+// AcroForm::scanField() and stops on the same input.
+message AcroFormLoopDocument {
+  enum LoopShape {
+    SELF_LOOP = 0;   // 6 -> 6
+    MUTUAL_LOOP = 1; // 6 -> 7 -> 6; default CVE shape
+    CYCLE = 2;       // 6 -> 7 -> 8 -> ... -> 6
+  }
+
+  enum ParentMode {
+    SELF_PARENT = 0;     // /Parent points at the same field object
+    PREVIOUS_PARENT = 1; // /Parent points at the predecessor in the cycle
+    ROOT_PARENT = 2;     // /Parent points at the AcroForm object (5 0 R)
+  }
+
+  // Number of field dictionaries participating in the /Kids cycle.
+  // Canonicalization forces this to:
+  //   SELF_LOOP   -> 1
+  //   MUTUAL_LOOP -> 2
+  //   CYCLE       -> [3, 8]
+  optional uint32 loop_nodes = 1 [default = 2];
+  optional LoopShape loop_shape = 2 [default = MUTUAL_LOOP];
+  optional ParentMode parent_mode = 3 [default = SELF_PARENT];
+
+  optional uint32 page_width = 4 [default = 16];
+  optional uint32 page_height = 5 [default = 16];
+
+  optional bool include_need_appearances = 6 [default = false];
+  optional bool include_field_names = 7 [default = true];
+
+  // False keeps the public empty stream; true emits a tiny harmless content stream.
+  optional bool nonempty_contents = 8 [default = false];
+}

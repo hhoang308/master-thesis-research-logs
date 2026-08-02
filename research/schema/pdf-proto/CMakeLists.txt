@@ -97,6 +97,8 @@ else()
   set(PROTOBUF_LIB_TARGET ${Protobuf_LIBRARIES})
 endif()
 
+set(ACROFORMLOOP_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/modules/acroformloop)
+set(ACROFORMLOOP_SERIALIZER_SRC ${ACROFORMLOOP_MODULE_DIR}/acroform_loop_serializer.cc)
 set(CFF_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/modules/cff)
 set(CFF_SERIALIZER_SRC ${CFF_MODULE_DIR}/cff_serializer.cc)
 set(DCTSTREAM_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/modules/dctstream)
@@ -112,6 +114,7 @@ set(TYPE3CACHE_SERIALIZER_SRC ${TYPE3CACHE_MODULE_DIR}/type3_cache_serializer.cc
 
 set(PROTO_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/pdf.proto
+  ${ACROFORMLOOP_MODULE_DIR}/acroform_loop.proto
   ${CFF_MODULE_DIR}/cff.proto
   ${DCTSTREAM_MODULE_DIR}/dct_stream.proto
   ${ICCBASED_MODULE_DIR}/icc_based.proto
@@ -121,6 +124,7 @@ set(PROTO_FILES
 )
 set(PROTO_SRCS
   ${CMAKE_CURRENT_BINARY_DIR}/pdf.pb.cc
+  ${CMAKE_CURRENT_BINARY_DIR}/modules/acroformloop/acroform_loop.pb.cc
   ${CMAKE_CURRENT_BINARY_DIR}/modules/cff/cff.pb.cc
   ${CMAKE_CURRENT_BINARY_DIR}/modules/dctstream/dct_stream.pb.cc
   ${CMAKE_CURRENT_BINARY_DIR}/modules/iccbased/icc_based.pb.cc
@@ -130,6 +134,7 @@ set(PROTO_SRCS
 )
 set(PROTO_HDRS
   ${CMAKE_CURRENT_BINARY_DIR}/pdf.pb.h
+  ${CMAKE_CURRENT_BINARY_DIR}/modules/acroformloop/acroform_loop.pb.h
   ${CMAKE_CURRENT_BINARY_DIR}/modules/cff/cff.pb.h
   ${CMAKE_CURRENT_BINARY_DIR}/modules/dctstream/dct_stream.pb.h
   ${CMAKE_CURRENT_BINARY_DIR}/modules/iccbased/icc_based.pb.h
@@ -140,6 +145,7 @@ set(PROTO_HDRS
 add_custom_command(
   OUTPUT ${PROTO_SRCS} ${PROTO_HDRS}
   COMMAND ${CMAKE_COMMAND} -E make_directory
+          ${CMAKE_CURRENT_BINARY_DIR}/modules/acroformloop
           ${CMAKE_CURRENT_BINARY_DIR}/modules/cff
           ${CMAKE_CURRENT_BINARY_DIR}/modules/dctstream
           ${CMAKE_CURRENT_BINARY_DIR}/modules/iccbased
@@ -300,6 +306,7 @@ endif()
 add_executable(pdf_fuzzer
   harness.cpp
   serializer.cpp
+  ${ACROFORMLOOP_SERIALIZER_SRC}
   ${CFF_SERIALIZER_SRC}
   ${DCTSTREAM_SERIALIZER_SRC}
   ${ICCBASED_SERIALIZER_SRC}
@@ -337,8 +344,10 @@ endforeach()
 add_executable(pdf_fuzzer_splash
   harness_splash.cpp
   serializer.cpp
+  ${ACROFORMLOOP_SERIALIZER_SRC}
   ${CFF_SERIALIZER_SRC}
   ${DCTSTREAM_SERIALIZER_SRC}
+  ${ICCBASED_SERIALIZER_SRC}
   ${JPXSTREAM_SERIALIZER_SRC}
   ${TYPE3CACHE_SERIALIZER_SRC}
   ${PROTO_SRCS}
@@ -364,8 +373,10 @@ if(PODOFO_FOUND)
   add_executable(pdf_fuzzer_podofo
     harness_podofo.cpp
     serializer.cpp
+    ${ACROFORMLOOP_SERIALIZER_SRC}
     ${CFF_SERIALIZER_SRC}
     ${DCTSTREAM_SERIALIZER_SRC}
+    ${ICCBASED_SERIALIZER_SRC}
     ${JPXSTREAM_SERIALIZER_SRC}
     ${TYPE3CACHE_SERIALIZER_SRC}
     ${PROTO_SRCS}
@@ -395,13 +406,22 @@ endif()
 add_executable(verify_serializer
   tests/verify_serializer.cpp
   serializer.cpp
+  ${ACROFORMLOOP_SERIALIZER_SRC}
   ${CFF_SERIALIZER_SRC}
   ${DCTSTREAM_SERIALIZER_SRC}
+  ${ICCBASED_SERIALIZER_SRC}
   ${JPXSTREAM_SERIALIZER_SRC}
   ${TYPE3CACHE_SERIALIZER_SRC}
   ${PROTO_SRCS}
 )
 target_link_libraries(verify_serializer ${PROTOBUF_LIB_TARGET} z)
+
+add_executable(verify_acroform_loop
+  modules/acroformloop/verify_acroform_loop.cc
+  ${ACROFORMLOOP_SERIALIZER_SRC}
+  ${PROTO_SRCS}
+)
+target_link_libraries(verify_acroform_loop ${PROTOBUF_LIB_TARGET})
 
 add_executable(verify_cff
   modules/cff/verify_cff.cc
@@ -447,6 +467,7 @@ target_link_libraries(gen_corpus ${PROTOBUF_LIB_TARGET})
 add_executable(proto2pdf
   tools/proto2pdf.cpp
   serializer.cpp
+  ${ACROFORMLOOP_SERIALIZER_SRC}
   ${CFF_SERIALIZER_SRC}
   ${DCTSTREAM_SERIALIZER_SRC}
   ${ICCBASED_SERIALIZER_SRC}
@@ -459,6 +480,7 @@ target_link_libraries(proto2pdf ${PROTOBUF_LIB_TARGET} z)
 add_executable(check_serializer
   tools/check_serializer.cpp
   serializer.cpp
+  ${ACROFORMLOOP_SERIALIZER_SRC}
   ${CFF_SERIALIZER_SRC}
   ${DCTSTREAM_SERIALIZER_SRC}
   ${ICCBASED_SERIALIZER_SRC}
@@ -467,6 +489,13 @@ add_executable(check_serializer
   ${PROTO_SRCS}
 )
 target_link_libraries(check_serializer ${PROTOBUF_LIB_TARGET} z)
+
+add_executable(acroformloop2pdf
+  modules/acroformloop/tools/acroformloop2pdf.cpp
+  ${ACROFORMLOOP_SERIALIZER_SRC}
+  ${PROTO_SRCS}
+)
+target_link_libraries(acroformloop2pdf ${PROTOBUF_LIB_TARGET})
 
 add_executable(measure_valid_rate
   tools/measure_valid_rate.cpp
