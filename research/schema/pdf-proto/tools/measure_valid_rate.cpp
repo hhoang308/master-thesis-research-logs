@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
         if (raw.empty()) continue;
 
         pdf_proto::PdfDocument doc;
-        if (!parser.ParseFromString(raw, &doc) || doc.pages_size() == 0) {
+        if (!parser.ParseFromString(raw, &doc) || !HasAnyContent(doc)) {
             unparsed_proto++;   // not a (usable) proto -- skip from rate
             continue;
         }

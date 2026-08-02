@@ -120,6 +120,19 @@ static std::string zlib_compress(const std::string& src) {
   return dst;
 }
 
+// Every content source SerializePdf() knows how to emit. This lives next to the
+// dispatch below on purpose: a new module has to be added in both places, and
+// keeping them adjacent is what stops the two from drifting apart. They did drift
+// once -- the harnesses hard-coded "pages or type3_cache", so documents whose only
+// content was a dct_stream/icc_based program were dropped before rendering and the
+// iccbased grammar was effectively never fuzzed.
+bool HasAnyContent(const pdf_proto::PdfDocument& doc) {
+  return doc.pages_size() > 0
+      || doc.type3_cache_programs_size() > 0
+      || doc.dct_stream_programs_size() > 0
+      || doc.icc_based_programs_size() > 0;
+}
+
 std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
   if (doc.type3_cache_programs_size() > 0) {
     return SerializeType3CachePdf(doc.type3_cache_programs(0));

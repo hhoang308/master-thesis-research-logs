@@ -20,7 +20,7 @@ extern "C" int LLVMFuzzerInitialize(int*, char***) {
 // content) through GetFilteredCopy so its filters actually run. Errors are expected
 // (we feed malformed PDFs); only a sanitizer abort counts as a real crash.
 DEFINE_PROTO_FUZZER(const pdf_proto::PdfDocument& doc) {
-    if (doc.pages_size() == 0) return;
+    if (!HasAnyContent(doc)) return;
 
     std::string bytes = SerializePdf(doc);
 

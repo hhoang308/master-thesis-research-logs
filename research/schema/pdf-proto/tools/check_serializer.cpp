@@ -92,7 +92,7 @@ int main(int argc, char** argv) {
         std::string raw = read_file(std::string(dir) + "/" + e->d_name);
         if (raw.empty()) continue;
         pdf_proto::PdfDocument doc;
-        if (!parser.ParseFromString(raw, &doc) || doc.pages_size() == 0) { skipped++; continue; }
+        if (!parser.ParseFromString(raw, &doc) || !HasAnyContent(doc)) { skipped++; continue; }
 
         std::string pdf = SerializePdf(doc);
         total++;

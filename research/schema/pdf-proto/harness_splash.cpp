@@ -14,7 +14,7 @@ extern "C" int LLVMFuzzerInitialize(int*, char***) {
 }
 
 DEFINE_PROTO_FUZZER(const pdf_proto::PdfDocument& doc) {
-    if (doc.pages_size() == 0 && doc.type3_cache_programs_size() == 0) return;
+    if (!HasAnyContent(doc)) return;
 
     std::string bytes = SerializePdf(doc);
 
