@@ -1,0 +1,28 @@
+syntax = "proto2";
+
+package pdf_objstmlength;
+
+// Narrow grammar for the Xpdf CVE-2023-3436 object-stream deadlock pattern.
+//
+// The serializer always emits:
+// - a compressed catalog object in object stream 4 0
+// - a compressed integer object in object stream 5 0
+// - /Length 6 0 R on object stream 4 0
+// - an xref stream that marks objects 1 0 and 6 0 as compressed
+//
+// This is intentionally much smaller than a general /ObjStm grammar because the
+// goal here is to preserve the specific "ObjStm /Length lives in another ObjStm"
+// execution path while still giving the mutator a few shape knobs.
+message ObjstmLengthDocument {
+  optional string pdf_header = 1 [default = "%PDF-1.5"];
+  optional bool include_binary_comment = 2 [default = true];
+  optional uint32 page_width = 3 [default = 16];
+  optional uint32 page_height = 4 [default = 16];
+  optional bytes page_content = 5;
+  // Extra spaces inserted between "1 0 " and the catalog dictionary inside the
+  // first object stream. This changes the integer value written as object 6 0 in
+  // the second object stream while preserving the same semantic catalog object.
+  optional uint32 catalog_padding_spaces = 6 [default = 0];
+  // Extra trailing spaces after the integer payload inside object stream 5 0.
+  optional uint32 length_object_trailing_spaces = 7 [default = 0];
+}

@@ -7,6 +7,7 @@ import "modules/type3cache/type3_cache.proto";  // Type 3 cache lifecycle gramma
 import "modules/dctstream/dct_stream.proto";  // DCT/JPEG scan-mode grammar
 import "modules/jpxstream/jpx_stream.proto";  // structured JPX/JPEG 2000 image stream
 import "modules/iccbased/icc_based.proto";  // ICCBased /N 0 image grammar
+import "modules/objstmlength/objstm_length.proto";  // ObjStm /Length-in-ObjStm deadlock grammar
 
 message Catalog {
   required uint32 pages_ref = 1;
@@ -190,4 +191,5 @@ message PdfDocument {
   repeated pdf_dctstream.DctStreamDocument dct_stream_programs = 3;
   repeated pdf_iccbased.IccBasedDocument icc_based_programs = 4;
   repeated pdf_acroformloop.AcroFormLoopDocument acroform_loop_programs = 5;
+  repeated pdf_objstmlength.ObjstmLengthDocument objstm_length_programs = 6;
 }

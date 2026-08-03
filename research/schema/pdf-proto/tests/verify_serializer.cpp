@@ -461,6 +461,20 @@ int main() {
                               std::string("\x14", 1)});
     }
 
+    // Test 20 (ObjStm /Length deadlock dispatch): top-level objstm_length_programs
+    // must route through the dedicated serializer and preserve the xref-stream +
+    // cross-object-stream /Length reference pattern.
+    {
+        pdf_proto::PdfDocument doc;
+        pdf_objstmlength::ObjstmLengthDocument* p =
+            doc.add_objstm_length_programs();
+        p->set_page_width(16);
+        p->set_page_height(16);
+        failures += run_test("objstm-length-structured-program", doc,
+                             {"/Type /ObjStm", "/Length 6 0 R",
+                              "/Type /XRef", "/Root 1 0 R"});
+    }
+
     google::protobuf::ShutdownProtobufLibrary();
     return failures;
 }

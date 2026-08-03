@@ -107,6 +107,8 @@ set(ICCBASED_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/modules/iccbased)
 set(ICCBASED_SERIALIZER_SRC ${ICCBASED_MODULE_DIR}/icc_based_serializer.cc)
 set(JPXSTREAM_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/modules/jpxstream)
 set(JPXSTREAM_SERIALIZER_SRC ${JPXSTREAM_MODULE_DIR}/jpx_stream_serializer.cc)
+set(OBJSTMLENGTH_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/modules/objstmlength)
+set(OBJSTMLENGTH_SERIALIZER_SRC ${OBJSTMLENGTH_MODULE_DIR}/objstm_length_serializer.cc)
 set(TEXTPAGESIZE_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/modules/textpagesize)
 set(TEXTPAGESIZE_SERIALIZER_SRC ${TEXTPAGESIZE_MODULE_DIR}/text_page_size_serializer.cc)
 set(TYPE3CACHE_MODULE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/modules/type3cache)
@@ -119,6 +121,7 @@ set(PROTO_FILES
   ${DCTSTREAM_MODULE_DIR}/dct_stream.proto
   ${ICCBASED_MODULE_DIR}/icc_based.proto
   ${JPXSTREAM_MODULE_DIR}/jpx_stream.proto
+  ${OBJSTMLENGTH_MODULE_DIR}/objstm_length.proto
   ${TEXTPAGESIZE_MODULE_DIR}/text_page_size.proto
   ${TYPE3CACHE_MODULE_DIR}/type3_cache.proto
 )
@@ -129,6 +132,7 @@ set(PROTO_SRCS
   ${CMAKE_CURRENT_BINARY_DIR}/modules/dctstream/dct_stream.pb.cc
   ${CMAKE_CURRENT_BINARY_DIR}/modules/iccbased/icc_based.pb.cc
   ${CMAKE_CURRENT_BINARY_DIR}/modules/jpxstream/jpx_stream.pb.cc
+  ${CMAKE_CURRENT_BINARY_DIR}/modules/objstmlength/objstm_length.pb.cc
   ${CMAKE_CURRENT_BINARY_DIR}/modules/textpagesize/text_page_size.pb.cc
   ${CMAKE_CURRENT_BINARY_DIR}/modules/type3cache/type3_cache.pb.cc
 )
@@ -139,6 +143,7 @@ set(PROTO_HDRS
   ${CMAKE_CURRENT_BINARY_DIR}/modules/dctstream/dct_stream.pb.h
   ${CMAKE_CURRENT_BINARY_DIR}/modules/iccbased/icc_based.pb.h
   ${CMAKE_CURRENT_BINARY_DIR}/modules/jpxstream/jpx_stream.pb.h
+  ${CMAKE_CURRENT_BINARY_DIR}/modules/objstmlength/objstm_length.pb.h
   ${CMAKE_CURRENT_BINARY_DIR}/modules/textpagesize/text_page_size.pb.h
   ${CMAKE_CURRENT_BINARY_DIR}/modules/type3cache/type3_cache.pb.h
 )
@@ -150,6 +155,7 @@ add_custom_command(
           ${CMAKE_CURRENT_BINARY_DIR}/modules/dctstream
           ${CMAKE_CURRENT_BINARY_DIR}/modules/iccbased
           ${CMAKE_CURRENT_BINARY_DIR}/modules/jpxstream
+          ${CMAKE_CURRENT_BINARY_DIR}/modules/objstmlength
           ${CMAKE_CURRENT_BINARY_DIR}/modules/textpagesize
           ${CMAKE_CURRENT_BINARY_DIR}/modules/type3cache
   COMMAND ${PROTOC_EXE}
@@ -311,6 +317,7 @@ add_executable(pdf_fuzzer
   ${DCTSTREAM_SERIALIZER_SRC}
   ${ICCBASED_SERIALIZER_SRC}
   ${JPXSTREAM_SERIALIZER_SRC}
+  ${OBJSTMLENGTH_SERIALIZER_SRC}
   ${TYPE3CACHE_SERIALIZER_SRC}
   ${PROTO_SRCS}
   $<TARGET_OBJECTS:xpdf_objs>
@@ -349,6 +356,7 @@ add_executable(pdf_fuzzer_splash
   ${DCTSTREAM_SERIALIZER_SRC}
   ${ICCBASED_SERIALIZER_SRC}
   ${JPXSTREAM_SERIALIZER_SRC}
+  ${OBJSTMLENGTH_SERIALIZER_SRC}
   ${TYPE3CACHE_SERIALIZER_SRC}
   ${PROTO_SRCS}
   $<TARGET_OBJECTS:xpdf_objs>
@@ -378,6 +386,7 @@ if(PODOFO_FOUND)
     ${DCTSTREAM_SERIALIZER_SRC}
     ${ICCBASED_SERIALIZER_SRC}
     ${JPXSTREAM_SERIALIZER_SRC}
+    ${OBJSTMLENGTH_SERIALIZER_SRC}
     ${TYPE3CACHE_SERIALIZER_SRC}
     ${PROTO_SRCS}
   )
@@ -411,6 +420,7 @@ add_executable(verify_serializer
   ${DCTSTREAM_SERIALIZER_SRC}
   ${ICCBASED_SERIALIZER_SRC}
   ${JPXSTREAM_SERIALIZER_SRC}
+  ${OBJSTMLENGTH_SERIALIZER_SRC}
   ${TYPE3CACHE_SERIALIZER_SRC}
   ${PROTO_SRCS}
 )
@@ -444,6 +454,13 @@ add_executable(verify_icc_based
 )
 target_link_libraries(verify_icc_based ${PROTOBUF_LIB_TARGET})
 
+add_executable(verify_objstm_length
+  modules/objstmlength/verify_objstm_length.cc
+  ${OBJSTMLENGTH_SERIALIZER_SRC}
+  ${PROTO_SRCS}
+)
+target_link_libraries(verify_objstm_length ${PROTOBUF_LIB_TARGET})
+
 add_executable(verify_jpx_stream
   modules/jpxstream/verify_jpx_stream.cc
   ${JPXSTREAM_SERIALIZER_SRC}
@@ -472,6 +489,7 @@ add_executable(proto2pdf
   ${DCTSTREAM_SERIALIZER_SRC}
   ${ICCBASED_SERIALIZER_SRC}
   ${JPXSTREAM_SERIALIZER_SRC}
+  ${OBJSTMLENGTH_SERIALIZER_SRC}
   ${TYPE3CACHE_SERIALIZER_SRC}
   ${PROTO_SRCS}
 )
@@ -485,6 +503,7 @@ add_executable(check_serializer
   ${DCTSTREAM_SERIALIZER_SRC}
   ${ICCBASED_SERIALIZER_SRC}
   ${JPXSTREAM_SERIALIZER_SRC}
+  ${OBJSTMLENGTH_SERIALIZER_SRC}
   ${TYPE3CACHE_SERIALIZER_SRC}
   ${PROTO_SRCS}
 )
@@ -504,6 +523,7 @@ add_executable(measure_valid_rate
   ${DCTSTREAM_SERIALIZER_SRC}
   ${ICCBASED_SERIALIZER_SRC}
   ${JPXSTREAM_SERIALIZER_SRC}
+  ${OBJSTMLENGTH_SERIALIZER_SRC}
   ${TYPE3CACHE_SERIALIZER_SRC}
   ${PROTO_SRCS}
 )
@@ -529,6 +549,13 @@ add_executable(iccbased2pdf
   ${PROTO_SRCS}
 )
 target_link_libraries(iccbased2pdf ${PROTOBUF_LIB_TARGET})
+
+add_executable(objstmlength2pdf
+  modules/objstmlength/tools/objstmlength2pdf.cpp
+  ${OBJSTMLENGTH_SERIALIZER_SRC}
+  ${PROTO_SRCS}
+)
+target_link_libraries(objstmlength2pdf ${PROTOBUF_LIB_TARGET})
 
 add_executable(textpagesize2pdf
   modules/textpagesize/tools/textpagesize2pdf.cpp
