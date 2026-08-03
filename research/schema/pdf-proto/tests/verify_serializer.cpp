@@ -475,6 +475,31 @@ int main() {
                               "/Type /XRef", "/Root 1 0 R"});
     }
 
+    // Test 21 (large-y text extractor dispatch): top-level
+    // text_large_y_programs must route through the dedicated serializer and
+    // preserve the oversized page + large-y text matrix pattern.
+    {
+        pdf_proto::PdfDocument doc;
+        pdf_textlargey::TextLargeYDocument* p =
+            doc.add_text_large_y_programs();
+        p->set_header_line("%PDF-1.4");
+        p->set_font_name("Helvetica");
+        p->set_font_size(12);
+        p->set_page_width(612);
+        p->set_page_height(200000500);
+        p->set_normal_x(72);
+        p->set_normal_y(72);
+        p->set_normal_text("N");
+        p->set_large_x(72);
+        p->set_large_y(200000000);
+        p->set_large_text("A");
+        failures += run_test("text-large-y-structured-program", doc,
+                             {"/MediaBox [0 0 612 200000500]",
+                              "/BaseFont /Helvetica",
+                              "1 0 0 1 72 200000000 Tm",
+                              "(A) Tj"});
+    }
+
     google::protobuf::ShutdownProtobufLibrary();
     return failures;
 }

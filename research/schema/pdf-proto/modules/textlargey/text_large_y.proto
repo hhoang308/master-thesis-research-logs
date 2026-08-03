@@ -1,0 +1,29 @@
+syntax = "proto2";
+
+package pdf_textlargey;
+
+// Narrow valid-PDF grammar for the Xpdf CVE-2022-30524 text-extraction path.
+//
+// The default serializer output recreates the minimal trigger documented under
+// research/pocs/cve-2022-30524: a one-page PDF with a very tall /MediaBox,
+// one ordinary glyph, and one glyph placed at a large y coordinate.
+//
+// On Xpdf 4.04, TextOutputDev.cc clamps the large glyph's yMax but not yMin,
+// which produces an inverted TextChar bounding box and eventually an invalid
+// TextLine access during pdftotext extraction. Xpdf 4.05 no longer crashes.
+message TextLargeYDocument {
+  optional string header_line = 1 [default = "%PDF-1.4"];
+  optional string font_name = 2 [default = "Helvetica"];
+  optional uint32 font_size = 3 [default = 12];
+
+  optional uint32 page_width = 4 [default = 612];
+  optional uint32 page_height = 5 [default = 200000500];
+
+  optional uint32 normal_x = 6 [default = 72];
+  optional uint32 normal_y = 7 [default = 72];
+  optional string normal_text = 8 [default = "N"];
+
+  optional uint32 large_x = 9 [default = 72];
+  optional uint32 large_y = 10 [default = 200000000];
+  optional string large_text = 11 [default = "A"];
+}

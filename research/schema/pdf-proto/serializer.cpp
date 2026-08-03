@@ -10,6 +10,7 @@
 #include "modules/iccbased/icc_based_serializer.h"
 #include "modules/jpxstream/jpx_stream_serializer.h"
 #include "modules/objstmlength/objstm_length_serializer.h"
+#include "modules/textlargey/text_large_y_serializer.h"
 #include "modules/type3cache/type3_cache_serializer.h"
 
 struct XrefEntry {
@@ -137,6 +138,9 @@ std::string SerializePdf(const pdf_proto::PdfDocument& doc) {
   }
   if (doc.objstm_length_programs_size() > 0) {
     return SerializeObjstmLengthPdf(doc.objstm_length_programs(0));
+  }
+  if (doc.text_large_y_programs_size() > 0) {
+    return SerializeTextLargeYPdf(doc.text_large_y_programs(0));
   }
 
   std::ostringstream out;
