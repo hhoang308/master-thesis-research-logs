@@ -1,0 +1,39 @@
+syntax = "proto2";
+
+package pdf_pagetreeloop;
+
+// Narrow page-tree loop grammar for CVE-2019-9587.
+//
+// The default message recreates the minimal Xpdf 4.04 trigger shape from
+// research/pocs/cve-2019-9587:
+//   Catalog -> /Pages 2 0 R
+//   2 0 obj << /Type /Pages /Kids [2 0 R] /Count 0 >>
+//
+// /Count 0 forces Catalog::readPageTree() to rescan the page tree via
+// Catalog::countPageTree(). In Xpdf 4.04, countPageTree() follows /Kids without
+// loop detection; Xpdf 4.05 adds visited-object checks and stops with
+// "Loop in Pages tree".
+message PageTreeLoopDocument {
+  enum LoopShape {
+    SELF_LOOP = 0;   // 2 -> 2; default CVE shape
+    MUTUAL_LOOP = 1; // 2 -> 3 -> 2
+    CYCLE = 2;       // 2 -> 3 -> 4 -> ... -> 2
+  }
+
+  enum CountMode {
+    ZERO_COUNT = 0; // top-level /Count 0 triggers countPageTree()
+    HUGE_COUNT = 1; // top-level /Count > 50000 also triggers countPageTree()
+  }
+
+  // Number of /Pages nodes participating in the /Kids cycle.
+  // Canonicalization forces this to:
+  //   SELF_LOOP   -> 1
+  //   MUTUAL_LOOP -> 2
+  //   CYCLE       -> [3, 8]
+  optional uint32 loop_nodes = 1 [default = 1];
+  optional LoopShape loop_shape = 2 [default = SELF_LOOP];
+  optional CountMode count_mode = 3 [default = ZERO_COUNT];
+
+  // Only used when count_mode == HUGE_COUNT.
+  optional uint32 huge_count = 4 [default = 50001];
+}
