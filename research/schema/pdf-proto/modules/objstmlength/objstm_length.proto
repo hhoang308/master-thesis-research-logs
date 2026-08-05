@@ -2,27 +2,65 @@ syntax = "proto2";
 
 package pdf_objstmlength;
 
-// Narrow grammar for the Xpdf CVE-2023-3436 object-stream deadlock pattern.
+// A compressed integer object hosted inside an /ObjStm and used as the /Length
+// reference for another object stream.
 //
-// The serializer always emits:
-// - a compressed catalog object in object stream 4 0
-// - a compressed integer object in object stream 5 0
-// - /Length 6 0 R on object stream 4 0
-// - an xref stream that marks objects 1 0 and 6 0 as compressed
+// obj_ref must be an indirect reference like "6 0 R". The serializer places a
+// compressed integer object with that object number inside the enclosing
+// ObjectStreamEntry's /ObjStm, then points the dependent parent /ObjStm's
+// dictionary at it.
+message LengthDependency {
+  optional string obj_ref = 1;
+  optional uint32 objstm_number = 2;
+}
+
+// One parent /ObjStm object plus the compressed objects it hosts.
 //
-// This is intentionally much smaller than a general /ObjStm grammar because the
-// goal here is to preserve the specific "ObjStm /Length lives in another ObjStm"
-// execution path while still giving the mutator a few shape knobs.
+// objects stores raw compressed-object specs in the form:
+//   "<obj-num> 0 <object-body>"
+//
+// The serializer canonicalizes missing / malformed object numbers, guarantees a
+// compressed catalog object 1 0 in one of the streams, and can inject extra
+// integer objects for the declared length_dependencies.
+message ObjectStreamEntry {
+  optional uint32 objstm_number = 3;
+  repeated string objects = 4;
+  repeated LengthDependency length_dependencies = 5;
+
+  // If no dependency targets this ObjStm, synthesize a self-hosted /Length
+  // integer so the parent stream depends on a compressed object in itself.
+  optional bool has_self_reference = 6 [default = false];
+
+  // When the serializer must auto-assign object numbers for hosted length
+  // objects, prefer putting their xref entries before or after the parent
+  // ObjStm's own direct-object xref slot.
+  optional bool resolve_length_before_register = 7 [default = true];
+}
+
+// ObjStm /Length dependency grammar.
+//
+// If objstm_entries is empty, the serializer expands the document into a
+// default dependency pattern derived from chain_depth / enable_circular_refs /
+// enable_self_refs / objects_per_stream while preserving the old 2-stream CVE
+// shape as the default.
 message ObjstmLengthDocument {
   optional string pdf_header = 1 [default = "%PDF-1.5"];
   optional bool include_binary_comment = 2 [default = true];
   optional uint32 page_width = 3 [default = 16];
   optional uint32 page_height = 4 [default = 16];
   optional bytes page_content = 5;
-  // Extra spaces inserted between "1 0 " and the catalog dictionary inside the
-  // first object stream. This changes the integer value written as object 6 0 in
-  // the second object stream while preserving the same semantic catalog object.
+
+  // Leading spaces inserted before the auto-generated catalog dictionary body.
   optional uint32 catalog_padding_spaces = 6 [default = 0];
-  // Extra trailing spaces after the integer payload inside object stream 5 0.
+
+  // Trailing spaces appended to auto-generated integer /Length objects.
   optional uint32 length_object_trailing_spaces = 7 [default = 0];
+
+  repeated ObjectStreamEntry objstm_entries = 8;
+
+  // Auto-generation knobs used only when objstm_entries is empty.
+  optional uint32 chain_depth = 9 [default = 2];
+  optional bool enable_circular_refs = 10 [default = false];
+  optional bool enable_self_refs = 11 [default = false];
+  optional uint32 objects_per_stream = 12 [default = 1];
 }

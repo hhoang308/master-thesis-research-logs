@@ -1,8 +1,9 @@
 # ObjStm `/Length` Deadlock Proto
 
-This module models the Xpdf CVE-2023-3436 pattern as a small protobuf grammar.
+This module models the Xpdf CVE-2023-3436 pattern as a protobuf grammar for
+`/ObjStm` `/Length` dependency graphs.
 
-The serializer emits a PDF 1.5 file with:
+The default serializer output is still the historical 2-stream trigger:
 
 - a compressed catalog object stored in object stream `4 0`
 - `/Length 6 0 R` on object stream `4 0`
@@ -11,6 +12,23 @@ The serializer emits a PDF 1.5 file with:
 
 That is the exact shape needed to exercise the `XRef::getObjectStreamObject()`
 re-entry path that deadlocks in Xpdf `4.04`.
+
+The grammar is no longer limited to that single shape. `objstm_entries` can now
+describe:
+
+- self-referential `/Length` objects hosted inside the same `/ObjStm`;
+- mutual or cyclic `/ObjStm` dependency graphs;
+- chains longer than two parent object streams;
+- multiple compressed objects per `/ObjStm`;
+- auto-assigned dependency object numbers before or after the host `/ObjStm`
+  xref slot via `resolve_length_before_register`.
+
+For each `ObjectStreamEntry`:
+
+- `objstm_number` is the direct parent `/ObjStm` object number;
+- `objects` stores raw compressed objects in the form `"<obj> 0 <body>"`;
+- `length_dependencies` declares compressed integer objects hosted by that
+  stream and used as `/Length` references by other parent `/ObjStm`s.
 
 ## Build
 
@@ -32,14 +50,14 @@ cmake --build build-objstmlength --target \
 
 The verifier checks:
 
-- semantic round-trip: serialized PDF is parsed back into a canonical
-  `ObjstmLengthDocument`;
-- structural invariants after deserialization: header, page dimensions,
-  object-stream dictionaries, xref-stream entries, and `/Length` value
-  consistency;
-- parser sanity: `qpdf --check` should accept the serialized PDF;
-- content assertions: the emitted bytes must include the required `/ObjStm`,
-  `/Type /XRef`, `/Length 6 0 R`, `/Root 1 0 R`, and compressed-object tokens;
+- canonicalization and serializer clamps;
+- object-stream payload structure, dependency integer bodies, and xref-stream
+  compressed-object entries for the expanded graph model;
+- default-shape stability for the original CVE trigger;
+- parser sanity: `qpdf --check` should accept the serialized PDF, with warnings
+  allowed for intentionally cyclic/self-referential malformed cases;
+- regression cases for self-reference, 2-node cycles, longer chains, multiple
+  objects per stream, and before/after host-registration dependency numbering;
 - optional xpdf smoke behavior: Xpdf `4.04` release and ASan should hang until
   `timeout` returns `124`, and Xpdf `4.05` ASan should exit cleanly and render
   the page.
